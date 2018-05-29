@@ -1,0 +1,62 @@
+SELECT distinct natoperacao FROM notafiscal where operacao<>'CP'
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET natoperacao='1.910' WHERE natoperacao='5.910' AND operacao='CP';
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+SELECT DISTINCT natoperacao FROM itnotafiscal WHERE operacao='CP'
+
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao IN ('1.910','1.911','1.949','2.910');
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, bonificado='S' WHERE natoperacao IN ('1.910','1.911','1.949','2.910');
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao IN ('5.929');
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, bonificado='S' WHERE natoperacao IN ('5.929');
+
+SELECT * FROM departamento ORDER BY coddepto
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',1);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',2);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',3);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',4);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',5);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',6);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',7);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',8);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',9);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',10);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',11);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',12);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',13);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',14);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',15);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',16);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',17);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',18);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',19);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',20);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',21);
+
+
+SELECT DISTINCT codpiscofinssai, piscofins.descricao FROM produto INNER JOIN piscofins ON (codpiscofinssai=codpiscofins)
+SELECT * FROM PISCOFINS
+SELECT DISTINCT codpiscofinsent, piscofins.descricao FROM produto INNER JOIN piscofins ON (codpiscofinsent=codpiscofins)
+
+
+SELECT idnotafiscal from notafiscal where numnotafis=151
+SELECT idnotafiscal,* from itnotafiscal where idnotafiscal=1081
+SELECT idnotafiscal,* from notafiscal where idnotafiscal=1081
+UPDATE itnotafiscal SET natoperacao='1.910' where idnotafiscal=1081 AND natoperacao='1.403'
+
+
+SELECT * FROM maparesumo WHERE reiniciofim=0 OR reiniciofim IS NULL
+UPDATE maparesumo SET reiniciofim=1 WHERE reiniciofim=0 OR reiniciofim IS NULL
+
+SELECT * FROM maparesumo WHERE operacaofim=0 OR operacaofim IS NULL
+UPDATE maparesumo SET reiniciofim=1 WHERE reiniciofim=0 OR reiniciofim IS NULL
+
+SELECT * FROM maparesumo WHERE numeroreducoes=0 OR numeroreducoes IS NULL

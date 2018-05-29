@@ -1,0 +1,87 @@
+CREATE OR REPLACE FUNCTION temp_troca_trib(var_dtinicial date, var_caixa numeric(3,0)) RETURNS void AS $$
+	 --  DECLARE var_dtinicial date;
+	DECLARE var_loja integer;
+	-- DECLARE var_caixa numeric(3,0);		
+	DECLARE cupomitem  RECORD;
+	DECLARE mapa  RECORD;
+BEGIN
+--	var_dtinicial := CAST('2013-04-06' AS date);
+	var_loja := 1;
+--	var_caixa :=5;
+
+--- Passagem 1
+ SELECT maparesumoimposto.totalliquido AS valor, maparesumo
+  INTO mapa
+	FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) 
+	WHERE maparesumo.dtmovto= var_dtinicial
+	AND caixa = var_caixa AND codestabelec=var_loja 
+	AND aliqicms=7 AND tptribicms='T';
+
+ SELECT SUM(itcupom.valortotal) AS valor
+  INTO cupomitem
+	FROM itcupom INNER JOIN cupom USING (idcupom) 
+	WHERE itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'  
+	AND caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial AND aliqicms=7 AND tptribicms='T';
+
+  -- Mostra teste	
+RAISE NOTICE 'Item %', cupomitem.valor;
+RAISE NOTICE 'Mapa %', mapa.valor;		
+
+IF cupomitem.valor <> mapa.valor THEN
+  
+  -- Atualiza ITCUPOM 18% para 7%
+  UPDATE itcupom SET aliqicms=7, status='M' WHERE aliqicms=18 AND tptribicms='T' AND status='A' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+	
+   --  RAISE NOTICE 'Atualiza ITCUPOM 18% para 7%';
+ 
+
+ --- Passagem 2
+   -- Atualiza ITCUPOM 25% para 18%
+  UPDATE itcupom SET aliqicms=18, status='M' WHERE aliqicms=25 AND tptribicms='T' AND status='A' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+
+--- Passagem 3
+   -- Atualiza ITCUPOM 7% para 25%
+  UPDATE itcupom SET aliqicms=25, status='M' WHERE aliqicms=7 AND tptribicms='T' AND status='A' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+
+
+END IF;
+  
+UPDATE itcupom SET status='A' WHERE status='M' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+SELECT temp_troca_trib('2013-10-16', 2);
+SELECT temp_troca_trib('2013-10-17', 1);
+SELECT temp_troca_trib('2013-10-17', 2);
+SELECT temp_troca_trib('2013-10-18', 1);
+SELECT temp_troca_trib('2013-10-18', 2);
+SELECT temp_troca_trib('2013-10-19', 1);
+SELECT temp_troca_trib('2013-10-19', 2);
+SELECT temp_troca_trib('2013-10-21', 1);
+SELECT temp_troca_trib('2013-10-21', 2);
+SELECT temp_troca_trib('2013-10-22', 1);
+SELECT temp_troca_trib('2013-10-22', 2);
+SELECT temp_troca_trib('2013-10-23', 1);
+SELECT temp_troca_trib('2013-10-23', 2);
+SELECT temp_troca_trib('2013-10-24', 1);
+SELECT temp_troca_trib('2013-10-24', 2);
+SELECT temp_troca_trib('2013-10-25', 1);
+SELECT temp_troca_trib('2013-10-25', 2);
+SELECT temp_troca_trib('2013-10-26', 1);
+SELECT temp_troca_trib('2013-10-26', 2);
+SELECT temp_troca_trib('2013-10-28', 1);
+SELECT temp_troca_trib('2013-10-28', 2);
+SELECT temp_troca_trib('2013-10-29', 1);
+SELECT temp_troca_trib('2013-10-29', 2);
+SELECT temp_troca_trib('2013-10-30', 1);
+SELECT temp_troca_trib('2013-10-30', 2);
+SELECT temp_troca_trib('2013-10-31', 1);
+SELECT temp_troca_trib('2013-10-31', 2);
+
+DROP FUNCTION temp_troca_trib(var_dtinicial date, var_caixa numeric(3,0));

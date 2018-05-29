@@ -1,0 +1,2 @@
+
+UPDATE ncm SET aliqmedia = COALESCE((SELECT aliqnacional FROM ibpt WHERE codigoncm = ncm.codigoncm),0)

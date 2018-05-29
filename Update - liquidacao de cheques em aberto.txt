@@ -1,0 +1,2 @@
+UPDATE lancamento SET status='L', dtliquid=dtvencto, valorpago=valorliquido WHERE codsituacao IS NULL AND dtvencto<=#apaga vencimento anterior
+ AND pagrec='R' AND prevreal='R' AND tipoparceiro='C' AND status='A' AND codespecie=#codigo do cheque

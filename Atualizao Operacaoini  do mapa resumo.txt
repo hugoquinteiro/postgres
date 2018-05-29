@@ -1,0 +1,10 @@
+-- Teste
+SELECT caixa, operacaofim, dtmovto,
+(SELECT operacaofim+1 FROM maparesumo WHERE mp.codestabelec=codestabelec AND mp.caixa=caixa AND mp.numseriefabecf=numseriefabecf AND dtmovto=mp.dtmovto-1) AS INI FROM maparesumo AS MP WHERE mp.dtmovto>='2012-09-01' AND mp.caixa=7
+
+
+-- Atualizacao
+UPDATE maparesumo AS mp SET operacaoini=
+(SELECT operacaofim+1 FROM maparesumo WHERE mp.codestabelec=codestabelec AND mp.caixa=caixa AND mp.numseriefabecf=numseriefabecf AND dtmovto=mp.dtmovto-1) WHERE mp.dtmovto>='2012-08-01' AND mp.operacaoini=0
+
+

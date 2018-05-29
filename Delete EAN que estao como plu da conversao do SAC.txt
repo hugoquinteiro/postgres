@@ -1,0 +1,13 @@
+-- Comando para delete PLU que vieram da conversao do SAC e ficaram na tabela EAN
+-- Este comando delete apenas EAN de produtos que tem mais de 2 codigos EAN e onde o 
+--  EAN tiver menos de 9 caracteres
+
+
+DELETE FROM produtoean AS tmp WHERE tmp.codean=(SELECT min(codean) from produtoean 
+WHERE codproduto=tmp.codproduto  GROUP BY codproduto HAVING COUNT(codean)>1) AND LENGTH(codean)<9
+
+-- Comando para delete PLU que vieram da conversao do SAC e ficaram na tabela EAN
+--SELECT codproduto, codean,LTRIM(SUBSTR(codean,1,7),'0')  from produtoean WHERE LENGTH(codean)<9 AND LTRIM(SUBSTR(codean,1,7),'0')=CAST(codproduto AS character varying(8)) ORDER BY 1 
+
+DELETE FROM produtoean AS tmp WHERE tmp.codean=(SELECT min(codean) from produtoean 
+WHERE codproduto=tmp.codproduto  GROUP BY codproduto HAVING COUNT(codean)>1) AND LENGTH(codean)<9 AND LTRIM(SUBSTR(tmp.codean,1,7),'0')=CAST(tmp.codproduto AS character varying(8))

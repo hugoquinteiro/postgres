@@ -1,0 +1,8 @@
+--Manutenção no usuário da MIX Fiscal
+DROP VIEW mxf_vw_icms; 
+DROP VIEW mxf_vw_pis_cofins;
+
+DROP TABLE mxf_tmp_icms_saida;
+DROP TABLE mxf_tmp_pis_cofins;
+
+DROP USER mixfiscal;

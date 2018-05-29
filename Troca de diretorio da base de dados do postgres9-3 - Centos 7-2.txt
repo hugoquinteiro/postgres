@@ -1,0 +1,16 @@
+OS: CentOS 7.2
+DB: POstgreSQL 9.3
+
+service postgresql-9.3 stop
+mkdir /data/pgsql
+cp -R /var/lib/pgsql/9.3/data /data/pgsql
+chown -R postgres:postgres /data/pgsql
+vi /usr/lib/systemd/system/postgresql-9.3.service
+    [alterar a variável PGDATA para o novo diretorio]
+vi /var/lib/pgsql/.bash_profile
+    [alterar a variável PGDATA para o novo diretorio]
+systemctl daemon-reload
+service postgresql-9.3 start
+
+[Para verificar se ficou tudo certo, execute o comando a baixo]
+ps -ef|grep -i postgres

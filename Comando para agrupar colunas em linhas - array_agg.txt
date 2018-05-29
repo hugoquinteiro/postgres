@@ -1,0 +1,68 @@
+--Exemplo do OS
+SELECT codos,COUNT (codos),  array_agg(idteste||':'||descricao) FROM ordemservicoteste GROUP BY 1 HAVING COUNT (codos)>1
+
+--Exemplo completo
+/*
+>> Estrutura apenas para exemplo
+>> */
+>> --DROP TABLE IF EXISTS cadastro_teste;
+>> CREATE TEMP TABLE cadastro_teste
+>> (
+>>       cpf  VARCHAR(11)
+>>     , nome VARCHAR(21)
+>>     , matricula VARCHAR(7)
+>>
+>> );
+>>
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES ('Maria
+>> Madalena','72034054401','2010011');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES
+>> ('Jonas','12034054408','2010032');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES ('Maria
+>> Madalena','72034054401','2010051');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES ('Maria
+>> Madalena','72034054401','2010071');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES
+>> ('Jonas','12034054408','2010559');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES
+>> ('Marcos','42034054403','2010033');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES
+>> ('Marcos','42034054403','2010154');
+>> INSERT INTO cadastro_teste (nome,cpf,matricula) VALUES
+>> ('Joao','53034054403','2010004');
+>>
+>>
+>> SELECT * FROM cadastro_teste ORDER BY cpf;
+>> /*
+>>
+>> cpf        |nome          |matricula
+>> 12034054408|Jonas         |2010559
+>> 12034054408|Jonas         |2010032
+>> 42034054403|Marcos        |2010154
+>> 42034054403|Marcos        |2010033
+>> 53034054403|Joao          |2010004
+>> 72034054401|Maria Madalena|2010071
+>> 72034054401|Maria Madalena|2010051
+>> 72034054401|Maria Madalena|2010011
+>>
+>> */
+>>
+>> -- Existe a possibilidade de agrupar esses dados da forma abaixo
+>> (concatenando a matricula) sem uso de store function? Utilizo
+>> PostgreSQL 8.3.
+>> -- Se existe, como seria, com window function  ?
+>
+> Sim, com o uso de Window Functions, porém disponível apenas para a versão
+> 8.4
+>>
+>>
+>> /*
+>> cpf        |nome          |matricula
+>> 12034054408|Jonas         |2010032;2010559;
+>> 42034054403|Marcos        |2010033;2010154;
+>> 53034054403|Joao          |2010004;
+>> 72034054401|Maria Madalena|2010011;2010051;2010071;
+>> */
+>
+> O restante o meu colega Osvaldo já deu a dica.
+>>

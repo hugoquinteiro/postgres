@@ -1,0 +1,41 @@
+--Rotina rodada em 2017
+CREATE OR REPLACE FUNCTION atualiza_custoseimp_produtoestabsaldo(
+    var_codestabelec integer,
+    var_operacao CHARACTER(2),
+    var_data date)
+  RETURNS void AS
+$BODY$
+
+DECLARE
+	row_buscaitens record;
+	var_saldocustototal DECIMAL(12, 4);
+BEGIN
+	FOR row_buscaitens IN SELECT codestabelec, codproduto, MAX(data) AS data, custosemimp FROM produtoestabsaldo 
+		WHERE codestabelec= var_codestabelec  AND custosemimp=0 AND saldo>0 AND data< var_data 
+		GROUP BY codestabelec, codproduto, custosemimp
+	LOOP
+	UPDATE produtoestabsaldo SET custosemimp=COALESCE((SELECT
+	(totalliquido/(quantidade*qtdeunidade) * (1-(CASE WHEN cfent.tptribicms IN ('T','R') THEN cfent.aliqicms * (1 - cfent.aliqredicms / 100) ELSE 0 END) / 100 - pcent.aliqpis / 100 - pcent.aliqcofins / 100))
+	FROM itnotafiscal 
+	INNER JOIN produto ON (itnotafiscal.codproduto = produto.codproduto)
+	INNER JOIN classfiscal ON (produto.codcfnfs = classfiscal.codcf)
+	INNER JOIN classfiscal AS cfent ON (produto.codcfnfe = cfent.codcf)
+	INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+	INNER JOIN piscofins AS pcent ON (produto.codpiscofinsent = pcent.codpiscofins)
+	WHERE itnotafiscal.codproduto = produtoestabsaldo.codproduto AND itnotafiscal.codestabelec = produtoestabsaldo.codestabelec AND itnotafiscal.operacao=var_operacao AND itnotafiscal.dtentrega<=var_data ORDER BY itnotafiscal.dtentrega DESC LIMIT 1)
+	,0)
+
+		WHERE codproduto=row_buscaitens.codproduto AND codestabelec=row_buscaitens.codestabelec AND data=row_buscaitens.data;
+	RAISE NOTICE 'Atualizando item %',row_buscaitens.codproduto;
+	END LOOP;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION atualiza_custoseimp_produtoestabsaldo(integer, CHARACTER(2), date)
+  OWNER TO postgres;
+
+
+SELECT atualiza_custoseimp_produtoestabsaldo(3, 'CP', '2017-01-01')
+SELECT atualiza_custoseimp_produtoestabsaldo(9, 'TE', '2017-01-01')
+SELECT codestabelec, codproduto, custorep, custosemimp, saldo, data FROM produtoestabsaldo WHERE codproduto=5004 AND codestabelec=9  AND data<'2017-01-01' ORDER BY 6 DESC LIMIT 6

@@ -1,0 +1,39 @@
+CREATE OR REPLACE FUNCTION ajuste_imposto_mapa(datade DATE, dataate DATE, loja INTEGER) RETURNS void AS $$ 
+DECLARE 
+	ver_mapa_imp  RECORD;
+	ver_subst record;
+	valsubst numeric(8,2);
+BEGIN
+
+ FOR ver_mapa_imp IN  SELECT SUM(maparesumoimposto.totalliquido) AS mapaimp, maparesumo.totalliquido, caixa, maparesumo.codmaparesumo
+			FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) 
+			WHERE maparesumo.codestabelec=loja AND dtmovto>=datade AND dtmovto<=dataate
+			GROUP BY 2,3,4
+			HAVING SUM(maparesumoimposto.totalliquido)>maparesumo.totalliquido
+ LOOP 
+	IF ver_mapa_imp.mapaimp > ver_mapa_imp.totalliquido THEN
+		RAISE NOTICE 'Dividindo Aliquotas por 100 %', ver_mapa_imp.codmaparesumo;		
+		UPDATE maparesumoimposto SET totalliquido=totalliquido/100, totalicms=totalicms/100 WHERE tptribicms='T' AND codmaparesumo=ver_mapa_imp.codmaparesumo;
+	 END IF;
+  END LOOP;
+
+
+ FOR ver_subst IN   SELECT SUM(maparesumoimposto.totalliquido) AS mapasubst, tptribicms, caixa, numeroecf,  maparesumo.dtmovto, maparesumo.codmaparesumo
+			FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) 
+			WHERE maparesumo.codestabelec=loja AND dtmovto>=datade AND dtmovto<=dataate 
+			AND tptribicms='F'
+			GROUP BY 2,3,4,5,6
+ LOOP 
+	IF ver_subst.mapasubst=0  THEN
+		RAISE NOTICE 'Soma substitucao itens no mapa %', ver_subst.codmaparesumo;		
+		UPDATE maparesumoimposto SET totalliquido=COALEsCE((SELECT SUM(valortotal) FROM cupom INNER JOIN itcupom USING (idcupom) WHERE codestabelec=loja AND dtmovto=ver_subst.dtmovto AND caixa=ver_subst.caixa AND numeroecf=ver_subst.numeroecf  AND itcupom.status='A' AND cupom.status='A' AND tptribicms='F'),0) WHERE codmaparesumo=ver_subst.codmaparesumo AND tptribicms='F';
+	END IF;
+ END LOOP;
+
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+
+--Valores: data de, data ate, loja
+SELECT ajuste_imposto_mapa('data de', 'data ate', codigo loja);

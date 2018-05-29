@@ -1,0 +1,6 @@
+SET TIME ZONE 'America/Sao_Paulo';
+select now();
+
+-- Alternativa
+SET TIME ZONE 'Etc/GMT-0';
+select now();

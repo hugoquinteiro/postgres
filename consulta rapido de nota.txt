@@ -1,0 +1,3 @@
+SELECT * FROM itnotafiscal WHERE idnotafiscal =(
+	SELECT idnotafiscal FROM notafiscal WHERE numnotafis=117149
+)

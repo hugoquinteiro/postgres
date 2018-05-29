@@ -1,0 +1,1 @@
+SELECT * FROM classfiscal WHERE codcf NOT IN (SELECT DISTINCT codcfnfe FROM produto) AND codcf NOT IN (SELECT DISTINCT codcfnfs FROM produto) AND codcf NOT IN (SELECT DISTINCT codcfpdv FROM produto)

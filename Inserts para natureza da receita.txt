@@ -1,0 +1,29 @@
+SELECT * FROM DEPARTAMENTO ORDER BY NOME
+SELECT * FROM grupoprod WHERE coddepto=1 ORDER BY 3
+SELECT * FROM subgrupo WHERE codgrupo=12 ORDER BY 3
+
+SELECT * FROM natreceita
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('202', 'D', 7);
+DELETE FROM natreceita WHERE natreceita='401' AND codigo=7
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('405', 'G', 29);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('403', 'G', 25);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('406', 'G', 24);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('406', 'G', 31);
+
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('106', 'D',1 );
+DELETE FROM natreceita WHERE natreceita='401' AND codigo=1
+
+--Horti Frut
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('116', 'D',5 );
+DELETE FROM natreceita WHERE natreceita='401' AND codigo=5 AND tabela='D'
+--OVos
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('117', 'G', 50);
+--Queijo
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('111', 'S', 237);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('111', 'S', 236);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('111', 'S', 240);
+--Farinha de Trigo
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('113', 'S', 61);
+-- Massas Alimenticias
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('119', 'G', 12);
+

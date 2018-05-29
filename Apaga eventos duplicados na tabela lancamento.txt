@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+	row_lancamento lancamento%ROWTYPE;
+BEGIN
+	FOR row_lancamento IN SELECT * FROM lancamento WHERE  pagrec='R' AND tipoparceiro='C' AND serie='PDV' ORDER BY codlancto LOOP
+		IF (SELECT COUNT(codlancto) FROM lancamento WHERE codlancto = row_lancamento.codlancto) > 0 THEN
+			DELETE FROM lancamento WHERE status = 'A'  AND dtemissao = row_lancamento.dtemissao AND codparceiro = row_lancamento.codparceiro AND valorparcela = row_lancamento.valorparcela AND numnotafis = row_lancamento.numnotafis AND codlancto != row_lancamento.codlancto;
+		END IF;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+DROP FUNCTION temp();
+
+--Testa duplicados
+SELECT codparceiro, favorecido, valorparcela, dtemissao, numnotafis, COUNT (codlancto)
+FROM lancamento
+WHERE pagrec='R'
+AND prevreal='R'
+AND tipoparceiro='C'
+AND codcatlancto=1
+--AND codsubcatlancto=18
+AND serie='PDV'
+GROUP BY 1,2,3,4,5
+HAVING COUNT (codlancto)>1

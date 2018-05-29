@@ -1,0 +1,61 @@
+SELECT * FROM conversao WHERE ean=''
+
+SELECT * FROM classfiscal --7
+SELECT * FROM piscofins --2,6
+SELECT * FROM ipi --1
+SELECT * FROM departamento -- INSERT INTO departamento VALUES (1,'A Definir',NULL,NULL)
+SELECT * FROM grupoprod --INSERT INTO grupoprod VALUES (1,1,'A Definir',0,0) RETURNING *
+SELECT * FROM subgrupo -- INSERT INTO subgrupo VALUES (1,1,'A Definir',NULL) RETURNING *
+SELECT * FROM embalagem -- INSERT INTO embalagem VALUES ('UNIDADE',1,1,1) RETURNING *
+SELECT * FROM unidade
+SELECT * FROM produto 
+SELECT * FROM conversao 
+
+--Carregando cadastro de produto
+  --Foi necessario mexer nas descricoes duplicadas
+  /*
+	UPDATE conversao SET descricao=descricao||CAST(codigo AS CHARACTER(6)) WHERE descricao IN (
+	SELECT descricao FROM (
+	SELECT descricao , COUNT(codigo) FROM conversao GROUP BY 1 HAVING COUNT(codigo)>1
+	) AS tmp
+	)
+  */
+INSERT INTO produto (codproduto, descricaofiscal, descricao, coddepto, codgrupo, codsubgrupo, pesado, foralinha, pesounid, codembalcpa, codembalvda, codcfnfe, codcfnfs, codcfpdv, 
+	custorep, codpiscofinsent, codpiscofinssai, codipi, usuario)
+	
+SELECT codigo AS codproduto, descricao, descricao, 1,1,1,'N','N','U',1,1,7,7,7,custo,2,6,1, 'conversao'
+FROM conversao
+
+--Inclusao do NCM dos produto
+SELECT * FROM conversao LIMIT 5
+SELECT * FROM ncm
+DELETE FROM ncm
+CREATE SEQUENCE temp1 START 1;
+DROP SEQUENCE temp1 
+SELECT SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2), ncm FROM conversao 
+
+INSERT INTO ncm 
+SELECT NEXTVAL('temp1'), codigoncm , 'NCM:'||codigoncm,7,7,7,1,2,6,0,0,NULL  
+FROM (
+	SELECT DISTINCT (SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2)) as codigoncm FROM conversao
+) AS tmp
+	 -- Relacionando ncm com produto
+	 UPDATE produto SET idncm=(SELECT idncm FROM ncm WHERE codigoncm=
+					(SELECT  (SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2)) as codigoncm FROM conversao  WHERE codigo=codproduto LIMIT 1))
+
+--Inclusao do EANs					
+ SELECT *  FROM produtoean
+ INSERT INTO produtoean (codproduto, codean, quantidade)
+ SELECT codigo, ean, 1 FROM conversao WHERE ean <>''
+
+ --Inclusao das Referencias
+SELECT referencia, COUNT(codigo) FROM conversao GROUP BY 1 HAVING COUNT(codigo)>1
+
+ SELECT * FROM prodfornec WHERE codproduto=1368
+
+CREATE SEQUENCE temp1 START 1;
+DROP SEQUENCE temp1 
+
+
+ INSERT INTO prodfornec
+ SELECT codigo,1,referencia, NEXTVAL('temp1') FROM conversao WHERE referencia<>''

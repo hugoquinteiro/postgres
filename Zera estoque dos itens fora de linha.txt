@@ -1,0 +1,36 @@
+--Cria sequencia
+SELECT MAX(codmovimento) FROM movimento limit 1
+create sequence temp1 start 1183;
+drop sequence temp1;
+--
+SELECT * FROM tipodocumento
+
+-- Comando para limpar estoque dos itens fora de linha
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+    SELECT codestabelec, codproduto, 
+	(CASE WHEN sldatual<0 THEN 'E' ELSE 'S' END) AS tipo, 
+	CURRENT_DATE AS dtmovto, 
+	(CASE WHEN sldatual<0 THEN sldatual*(-1) ELSE sldatual END)  AS quantidade, 
+	produtoestab.precovrj, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+	(CASE WHEN sldatual<0 THEN 999 ELSE 888 END) as codtpdocto,  --- Colocar tipo documento entrada no lugar do 999 e saida no lugar do 888
+       (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto)
+WHERE codestabelec=777  --Definir o estabelecimento
+AND foralinha='S' AND sldatual>0;
+
+--Comando para periodo anterior
+-- Comando para limpar estoque dos itens fora de linha
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT codestabelec, codproduto, 
+	'S'  AS tipo, 
+	'2017-12-31' AS dtmovto, 
+	SALDO(1,codproduto,'2017-12-31') AS quantidade, 
+	produtoestab.precovrj, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+	 8 as codtpdocto,  --- Colocar tipo documento entrada no lugar do 999 e saida no lugar do 888
+       (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto)
+WHERE codestabelec=1  --Definir o estabelecimento
+AND foralinha='S' AND SALDO(1,codproduto,'2017-12-31')>0 AND codproduto NOT IN (SELECT codproduto FROM composicao);
+
+

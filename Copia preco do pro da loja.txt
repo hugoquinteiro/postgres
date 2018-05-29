@@ -1,0 +1,3 @@
+repla comando with "UPDATE produtoestab SET precovrj="+str(venda,8,2)+",
+precovrjof="+str(oferta,8,2)+" WHERE codestabelec=2 AND codproduto="+SUBS(codpro,1,5)+";" all
+

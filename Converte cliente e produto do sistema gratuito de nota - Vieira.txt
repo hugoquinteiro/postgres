@@ -1,0 +1,77 @@
+--Conversao de cliente
+SELECT MAX(codcliente) FROM cliente
+DROP SEQUENCE codcli 
+CREATE SEQUENCE codcli START 10
+
+INSERT INTO cliente 
+(codcliente, nome, razaosocial, tppessoa, cpfcnpj,rgie, observacao, codstatus, codcidadefat, enderfat, numerofat, bairrofat, cepfat, uffat, codcidadeent, enderent, numeroent, bairroenT,cepent,ufent, 
+codcidaderes, cepres, enderres, numerores, bairrores, ufres, usuario) 
+
+SELECT DISTINCT NEXTVAL('codcli') AS codcliente, SUBSTR(nome, 1,60) AS nome, SUBSTR(nome,1,60) AS razaosocial, 
+	(CASE WHEN tipo='CPF' THEN 'F' ELSE 'J' END) AS tppessoa,
+	(CASE WHEN tipo='CPF' THEN SUBSTR(LPAD(cnpj,11,'0'),1,3)||'.'||SUBSTR(LPAD(cnpj,11,'0'),4,3)||'.'||SUBSTR(LPAD(cnpj,11,'0'),7,3)||'-'||SUBSTR(LPAD(cnpj,11,'0'),10,2)
+	ELSE SUBSTR(LPAD(cnpj,14,'0'),1,2)||'.'||SUBSTR(LPAD(cnpj,14,'0'),3,3)||'.'||SUBSTR(LPAD(cnpj,14,'0'),6,3)||'/'||SUBSTR(LPAD(cnpj,14,'0'),9,4)||'-'||SUBSTR(LPAD(cnpj,14,'0'),13,2) END) As cpfcnpj, 
+	(CASE WHEN ie <>'' THEN SUBSTR(ie,1,3)||'.'||SUBSTR(ie,4,3)||'.'||SUBSTR(ie,7,3)||'.'||SUBSTR(ie,10,3) ELSE NULL END) AS rgie, 
+	('Conversao Sistema Gratuito de Governo') AS observacao, 
+	1 AS codstatus, 
+	3896::integer AS codcidadefat, SUBSTR(rua,1,40) AS enderfat, numero AS numerofat, bairro AS bairrofat, SUBSTR(cep,1,9) AS cepfat,  'SP' As uffat,
+	3896::integer AS codcidadeent, SUBSTR(rua,1,40) AS enderent, numero AS numeroent, bairro AS bairroent, cep AS cepent, 'SP' AS ufent, 
+	3896::integer AS codcidaderes,  cep AS cepres, SUBSTR(rua,1,40) AS enderres, numero AS numerores, bairro AS bairrores, 'SP' AS ufres, 'Conversao' AS usuario
+FROM tempcliente
+--Usar em caso de cadastro duplicado
+--WHERE (CASE WHEN LENGTH(cpf)=11 THEN SUBSTR(cpf,1,3)||'.'||SUBSTR(cpf,4,3)||'.'||SUBSTR(cpf,7,3)||'-'||SUBSTR(cpf,10,2)
+--ELSE SUBSTR(cpf,1,2)||'.'||SUBSTR(cpf,3,3)||'.'||SUBSTR(cpf,6,3)||'-'||SUBSTR(cpf,9,2) END) NOT IN (SELECT cpfcnpj FROM cliente WHERE cpfcnpj IS NOT NULL AND tppessoa='F')
+
+
+----Conversao de produto
+ALTER TABLE tempproduto ADD COLUMN codigo INTEGER;
+SELECT MAX(codproduto) FROM produto
+DROP SEQUENCE codprod 
+CREATE SEQUENCE codprod START 5270
+UPDATE tempproduto2 SET codigo=NEXTVAL('codprod')
+
+SELECT * FROM classfiscal --7
+SELECT * FROM piscofins --2,6
+SELECT * FROM ipi --1
+SELECT * FROM departamento -- INSERT INTO departamento VALUES (1,'A Definir',NULL,NULL)
+SELECT * FROM grupoprod --INSERT INTO grupoprod VALUES (3,19,'A Definir',0,0) RETURNING *
+SELECT * FROM subgrupo -- INSERT INTO subgrupo VALUES (19,302,'A Definir',NULL) RETURNING *
+SELECT * FROM embalagem -- INSERT INTO embalagem VALUES ('UNIDADE',1,1,1) RETURNING *
+SELECT * FROM ncm -- INSERT INTO ncm VALUES (1,'9999.99.99', 'Definir NCM', 7,7,7,1,2,6,0,0,NULL)
+SELECT * FROM unidade
+SELECT * FROM produto 
+SELECT * FROM tempproduto
+
+SELECT descricao, count(codigo) FROM tempproduto GROUP BY descricao HAVING count(codigo)>1 ORDER BY count(codigo) DESC
+SELECT null AS codigo, DISTINCT descricao, ncm, unidade FROM tempproduto ORDER BY descricao
+
+--Criando tabelas
+CREATE TABLE tempproduto2 (
+codigo INTEGER,
+descricao CHARACTER VARYING (100),
+ncm CHARACTER VARYING (8),
+unidade CHARACTER VARYING (6)
+)
+INSERT INTO tempproduto2
+SELECT DISTINCT  0 AS codigo, descricao, ncm, unidade FROM tempproduto ORDER BY descricao
+
+
+
+
+
+INSERT INTO produto (codproduto, descricaofiscal, descricao, coddepto, codgrupo, codsubgrupo, pesado, foralinha, pesounid, codembalcpa, codembalvda, codcfnfe, codcfnfs, codcfpdv, 
+	custorep, codpiscofinsent, codpiscofinssai, codipi, usuario)
+
+SELECT  codigo, descricao, SUBSTR(descricao,1,50), 3,19,302,'N','N','U',1,1,7,7,7,0,2,6,1, 'conversao'
+FROM tempproduto2 WHERE descricao NOT IN (SELECT descricaofiscal FROM produto)
+
+DROP SEQUENCE codncm 
+CREATE SEQUENCE codncm START 70
+INSERT INTO ncm
+SELECT NEXTVAL('codncm') AS idncm, * FROM (
+SELECT DISTINCT SUBSTR(ncm,1,4)||'.'||SUBSTR(ncm,5,2)||'.'||SUBSTR(ncm,7,2) AS codigoncm, ncm, 7,7,7,1,2,6,0,0,0 FROM tempproduto2 WHERE ncm<>'' AND SUBSTR(ncm,1,4)||'.'||SUBSTR(ncm,5,2)||'.'||SUBSTR(ncm,7,2) NOT IN (SELECT DISTINCT codigoncm FROM ncm)
+) AS temp1
+
+SELECT * FROM ncm
+
+UPDATE produto SET idncm=(SELECT idncm FROM ncm INNER JOIN tempproduto2 ON (SUBSTR(ncm,1,4)||'.'||SUBSTR(ncm,5,2)||'.'||SUBSTR(ncm,7,2) = codigoncm) WHERE codigo=produto.codproduto) WHERE idncm IS NULL

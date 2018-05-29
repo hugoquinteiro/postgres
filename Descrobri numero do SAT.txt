@@ -1,0 +1,4 @@
+SELECT DISTINCT cupom.caixa, cupom.codecf , substr(chavecfe,23,9), numfabricacao,COUNT(*) 
+FROM cupom INNER JOIN ecf USING (codecf)
+WHERE cupom.codestabelec=1 AND dtmovto='2016-04-14' AND chavecfe IS NOT NULL 
+GROUP BY 1,2,3,4

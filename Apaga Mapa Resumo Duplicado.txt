@@ -1,0 +1,12 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+        DECLARE row_maparesumo maparesumo%ROWTYPE;
+BEGIN
+        FOR row_maparesumo IN SELECT * FROM maparesumo LOOP
+               IF (SELECT COUNT(*) FROM maparesumo WHERE codmaparesumo = row_maparesumo.codmaparesumo) > 0 THEN
+                       DELETE FROM maparesumo WHERE codestabelec = row_maparesumo.codestabelec AND dtmovto = row_maparesumo.dtmovto AND caixa = row_maparesumo.caixa AND codecf = row_maparesumo.codecf AND codmaparesumo != row_maparesumo.codmaparesumo;
+               END IF;
+        END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+DROP FUNCTION temp();

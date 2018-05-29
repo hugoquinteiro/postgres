@@ -1,0 +1,30 @@
+
+1******* Atualiza preços de uma loja em outra
+UPDATE produtoestab AS a SET
+precovrjof = (SELECT precovrjof FROM produtoestab WHERE codestabelec = Y AND codproduto = a.codproduto),
+precovrj = (SELECT precovrj FROM produtoestab WHERE codestabelec = Y AND codproduto = a.codproduto)
+custorep = (SELECT custorep FROM produtoestab WHERE codestabelec = Y AND codproduto = a.codproduto)
+WHERE codestabelec = X
+
+
+Onde Y é o codigo da loja que sera copiado os precos
+e X a loja que sera atualizada
+
+
+--Atualizando apenas os precos diferentes
+UPDATE produtoestab AS loja3 SET precovrj=(SELECT precovrj FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=1),  
+					   precovrjof=(SELECT precovrjof FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=1)
+WHERE codestabelec=3 AND loja3.precovrj<>(SELECT precovrj FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=1)
+
+--Atualizando varios campos (Comando na Korin)
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE produtoestab AS loja3 SET 
+				precoatcof=(SELECT precoatcof FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),  
+				precoatc=(SELECT precoatc FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),  
+				custorep=(SELECT custorep FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),   
+				custotab=(SELECT custotab FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),  
+				precovrj=(SELECT precovrj FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),  
+				precovrjof=(SELECT precovrjof FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2),
+				diasvalidade=(SELECT diasvalidade FROM produtoestab WHERE loja3.codproduto=codproduto AND codestabelec=2)
+WHERE codestabelec=13;
+ALTER TABLE produtoestab ENABLE TRIGGER USER;

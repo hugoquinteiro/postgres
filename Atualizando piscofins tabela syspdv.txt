@@ -1,0 +1,18 @@
+CREATE TABLE integra (
+	tabela character varying(1),
+	ean character varying(30)
+)
+
+
+
+COPY integra (tabela, ean) FROM 'C:/temp/teste.csv' WITH DELIMITER ';'
+
+UPDATE produto SET codpiscofinsent=10, codpiscofinssai=9
+FROM produtoean WHERE produto.codproduto=produtoean.codproduto
+AND produtoean.codean IN (SELECT ean FROM integra WHERE tabela='I' OR tabela='J')
+
+SElECT * FROM integra
+
+SELECT * FROM piscofins ORDER BY 1
+
+SELECT codproduto, descricaofiscal, codpiscofinsent, codpiscofinssai FROM produto WHERE codpiscofinsent=1 AND codpiscofinssai=1

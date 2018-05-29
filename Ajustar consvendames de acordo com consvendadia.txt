@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$ DECLARE
+	rec record;
+BEGIN
+	ALTER TABLE consvendames DISABLE TRIGGER USER;
+	FOR rec IN 
+		SELECT mes.ano, mes.mes, mes.codestabelec, mes.codproduto, mes.tipovenda, mes.composicao, mes.quantidade AS quantidademes, mes.venda AS vendames, mes.custo AS customes, SUM(dia.quantidade) AS quantidadedia, SUM(dia.venda) AS vendadia, SUM(dia.custo) AS custodia
+		FROM consvendames AS mes
+		INNER JOIN consvendadia AS dia ON (mes.codestabelec = dia.codestabelec AND mes.codproduto = dia.codproduto AND mes.ano = EXTRACT(YEAR FROM dia.dtmovto) AND mes.mes = EXTRACT(MONTH FROM dia.dtmovto) AND mes.tipovenda = dia.tipovenda AND mes.composicao = dia.composicao)
+		GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9
+		HAVING mes.quantidade != SUM(dia.quantidade)
+			OR mes.venda != SUM(dia.venda)
+			OR mes.custo != SUM(dia.custo)
+		ORDER BY 1, 2, 3, 4, 5, 6
+	LOOP
+		UPDATE consvendames SET quantidade = rec.quantidadedia, venda = rec.vendadia, custo = rec.custodia WHERE ano = rec.ano AND mes = rec.mes AND codestabelec = rec.codestabelec AND codproduto = rec.codproduto AND tipovenda = rec.tipovenda AND composicao = rec.composicao;
+	END LOOP;
+	ALTER TABLE consvendames ENABLE TRIGGER USER; END; $$ LANGUAGE plpgsql VOLATILE; 
+	SELECT temp();

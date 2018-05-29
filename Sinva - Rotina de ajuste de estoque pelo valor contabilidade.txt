@@ -1,0 +1,49 @@
+-- Definindo custo total atual de estoque
+SELECT  sum(saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31') * (produtoestab.custorep))
+	FROM produtoestab
+	INNER JOIN produto ON (produtoestab.codproduto = produto.codproduto) 
+WHERE saldo(produtoestab.codestabelec,produtoestab.codproduto,'2014-08-31') > 0 AND produtoestab.disponivel = 'S' AND produtoestab.codestabelec = 2 
+
+
+
+--Definindo percentual a ser ajustado no sistema
+  -- ** Valor de estoque atual (SELECT 1) / VALOR que o usuário deseja obter no estoque
+SELECT  ROUND((1500.00 /    
+	(SELECT  sum(saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31') * (produtoestab.custorep))
+		FROM produtoestab
+		INNER JOIN produto ON (produtoestab.codproduto = produto.codproduto) 
+	WHERE saldo(produtoestab.codestabelec,produtoestab.codproduto,'2014-08-31') > 0 AND produtoestab.disponivel = 'S' AND produtoestab.codestabelec = 2) 
+),4) AS fator
+
+
+--Cria sequencia
+  -- DROP sequence temp1
+  --SELECT MAX(codmovimento) FROM movimento limit 1
+  --create sequence temp1 start 4605;
+
+
+
+--Alterando valores de estoque para chegar proximo do valor esperado pela contabilidade
+-- * Alterando apenas itens unitarios
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+SELECT 2 AS codestabelec, produtoestab.codproduto, 'S' AS tipo,'2014-08-31' AS dtmovto,  
+      (saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31')- ROUND(saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31')*x.XX)) AS quantidade, 
+      produtoestab.precovrj AS preco,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 
+      30 as codtpdocto,     
+      (nextval('temp1')) AS codmovimento,
+      produtoestab.custorep
+	FROM produtoestab
+	INNER JOIN produto ON (produtoestab.codproduto = produto.codproduto) 
+WHERE saldo(produtoestab.codestabelec,produtoestab.codproduto,'2014-08-31') > 0 AND produtoestab.disponivel = 'S' AND produtoestab.codestabelec = 2 AND pesado='N'
+
+-- * Alterando apenas itens pesaveis
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+SELECT 2 AS codestabelec, produtoestab.codproduto, 'S' AS tipo,'2014-08-31' AS dtmovto,  
+      (saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31') -  saldo(produtoestab.codestabelec,produtoestab.codproduto,' 2014-08-31')*x.XX) AS quantidade, 
+      produtoestab.precovrj AS preco,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 
+      30 as codtpdocto,     
+      (nextval('temp1')) AS codmovimento,
+      produtoestab.custorep
+	FROM produtoestab
+	INNER JOIN produto ON (produtoestab.codproduto = produto.codproduto) 
+WHERE saldo(produtoestab.codestabelec,produtoestab.codproduto,'2014-08-31') > 0 AND produtoestab.disponivel = 'S' AND produtoestab.codestabelec = 2 AND pesado='S'

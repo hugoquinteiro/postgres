@@ -1,0 +1,7 @@
+--Corrige produtoestab
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE produtoestab SET
+	sldentrada = COALESCE((SELECT SUM(qtdeunidade * quantidade) FROM movimento WHERE tipo = 'E' AND codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto), 0),
+	sldsaida = COALESCE((SELECT SUM(qtdeunidade * quantidade) FROM movimento WHERE tipo = 'S' AND codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto), 0);
+UPDATE produtoestab SET sldatual = sldinicio + sldentrada - sldsaida;
+ALTER TABLE produtoestab ENABLE TRIGGER USER;

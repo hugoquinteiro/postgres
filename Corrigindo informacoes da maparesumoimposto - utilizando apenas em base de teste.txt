@@ -1,0 +1,22 @@
+-- Deletando registros da tabela Maparesumoimposto
+DELETE FROM maparesumoimposto WHERE codmaparesumo IN (SELECT codmaparesumo FROM maparesumo WHERE dtmovto>='2016-04-01' AND dtmovto<='2016-04-30' AND codestabelec=1)
+
+-- Inserindo registros da tabela Maparesumoimposto
+INSERT INTO maparesumoimposto(
+SELECT 
+	(SELECT codmaparesumo FROM maparesumo WHERE caixa=cupom.caixa AND dtmovto=cupom.dtmovto AND codestabelec=cupom.codestabelec) AS dtmovto,
+	tptribicms,
+	aliqicms,
+	SUM(valortotal) AS totalliquido,
+	0 AS totalicms
+FROM cupom INNER JOIN itcupom USING (idcupom) 
+WHERE dtmovto>='2016-04-01' AND dtmovto<='2016-04-30'
+AND codestabelec=1 AND itcupom.status='A' AND cupom.status='A'
+AND composicao<>'F'
+GROUP BY caixa, dtmovto, tptribicms, aliqicms, codestabelec
+ORDER BY dtmovto
+)
+
+--Atualizando campo aliqicms
+UPDATE maparesumoimposto SET totalicms=totalliquido*(aliqicms/100) WHERE tptribicms='T' and aliqicms>0 AND codmaparesumo IN 
+(SELECT codmaparesumo FROM maparesumo WHERE codestabelec=1 AND dtmovto>='2016-04-01' AND dtmovto<='2016-04-30')

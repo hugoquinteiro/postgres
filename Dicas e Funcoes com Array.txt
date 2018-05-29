@@ -1,0 +1,10 @@
+--Gera registro de um array
+SELECT unnest(ARRAY[1,2])
+
+--Gera registro de uma String
+SELECT regexp_split_to_table('hello,world', E',')
+SELECT cest, regexp_split_to_table(ncm,E','), descricao FROM cest
+
+--Postgres docs recommend to use array instead of IN and subquery. This should work much faster
+DELETE FROM logtable 
+WHERE id = any (array(SELECT id FROM logtable ORDER BY timestamp LIMIT 10));

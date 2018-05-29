@@ -1,0 +1,473 @@
+--Limpa notas bonificadas
+SELECT * FROM itnotafiscal WHERE bonificado='S' AND totalpis>0 AND dtentrega>='2015-08-01'
+SELECT distinct natoperacao, bonificado FROM itnotafiscal  WHERE  dtentrega>='2014-01-01' and substr(natoperacao,3,1)='9' order by natoperacao;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, bonificado='S' 
+WHERE SUBSTR(natoperacao,3,1)='9' AND dtentrega>='2015-11-01' AND SUBSTR(natoperacao,1,1)<'3';
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+
+--Verifica Natoperacao errado dentro do arquivo.
+SELECT *
+FROM (
+                SELECT DISTINCT produto.codproduto, produto.descricaofiscal,
+                               COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'P' AND codigo = produto.codproduto),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'S' AND codigo = produto.codsubgrupo),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'G' AND codigo = produto.codgrupo),(SELECT natreceita FROM natreceita WHERE tabela = 'D' AND codigo = produto.coddepto)))) AS natreceita,
+                               piscofins.codcst,
+                               consvendadia.dtmovto
+                FROM consvendadia
+                INNER JOIN produto ON (consvendadia.codproduto = produto.codproduto)
+                INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+                ORDER BY dtmovto, codproduto
+) AS temp
+WHERE ...
+
+
+** Utilizado para Nova Vida II
+SELECT natoperacao, sum(totalbasepis), sum(totalpis) FROM itnotafiscal 
+WHERE codestabelec=2 
+AND dtentrega>='2012-01-01' AND dtentrega<='2012-01-31'
+AND operacao='CP'
+GROUP BY 1
+
+SELECT sum(totalbasepis), sum(totalpis) FROM notafiscal 
+WHERE codestabelec=2 
+AND dtentrega>='2012-01-01' AND dtentrega<='2012-01-31'
+AND operacao='CP'
+
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao='1.949' AND operacao='PR' AND dtentrega>='2016-10-01' AND codestabelec=1;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0 WHERE natoperacao='1.949' AND operacao='PR' AND dtentrega>='2016-10-01' AND codestabelec=1;
+
+
+Select bonificado, natoperacao FROM itnotafiscal WHERE bonificado='S' AND codestabelec=2
+GROUP BY 1,2
+
+UPDATE itnotafiscal SET bonificado='N' WHERE codestabelec=2 AND natoperacao='2.102' AND bonificado='S'
+
+
+SELECT * FROM itnotafiscal limit 1
+
+
+SELECT * FROM departamento;
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',row_secao);
+
+
+-- Atualizar natureza da operacao
+SELECT * FROM departamento ORDER BY coddepto
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',1);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',2);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',3);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',4);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',5);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',6);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',7);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',8);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',9);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',10);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',11);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',12);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',13);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',14);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',15);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',16);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',17);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',18);
+
+
+--- Atualiza PIS-Confins nos cupons
+SELECT i.* FROM itcupom AS i
+INNER JOIN cupom AS C ON (i.idcupom=c.idcupom)
+INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+WHERE pi.tipo='T' AND i.totalbasepis=0 AND c.dtmovto>='2012-01-01'
+
+ALTER TABLE itcupom DISABLE TRIGGER ALL;
+UPDATE itcupom SET totalbasepis=valortotal, totalbasecofins=itcupom.valortotal, aliqpis=1.65, aliqcofins=7.60, 
+totalpis=(valortotal*0.0165), totalcofins=(valortotal*0.076)
+WHERE itcupom.idcupom IN (SELECT i.idcupom FROM itcupom AS i
+			INNER JOIN cupom AS C ON (i.idcupom=c.idcupom)
+			INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+			INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+			WHERE pi.tipo='T' AND i.totalbasepis=0 AND c.dtmovto>='2012-02-01' AND itcupom.idcupom=i.idcupom 
+			AND itcupom.codproduto=i.codproduto);
+ALTER TABLE itcupom ENABLE TRIGGER ALL;
+
+
+-- Consulta Nota de compra
+SELECT idnotafiscal FROM notafiscal WHERE numnotafis=61391
+SELECT * FROM itnotafiscal WHERE idnotafiscal=15767 AND codestabelec=2
+
+-- Atualizacao ItemNota com CFOP errado
+UPDATE itnotafiscal SET natoperacao='1.102' WHERE idnotafiscal=15767 AND codestabelec=2 AND natoperacao=2.102
+
+
+-- Zera pis da tabela Itcupom  comparando com o cadastro
+ALTER TABLE itcupom
+DISABLE TRIGGER ALL;
+UPDATE itcupom SET totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, 
+totalpis=0, totalcofins=0
+WHERE itcupom.idcupom IN (SELECT i.idcupom FROM itcupom AS i
+			INNER JOIN cupom AS C ON (i.idcupom=c.idcupom)
+			INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+			INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+			WHERE pi.tipo<>'T' AND i.totalbasepis>0 AND c.dtmovto>='2012-03-01' AND itcupom.idcupom=i.idcupom 
+			AND itcupom.codproduto=i.codproduto);
+ALTER TABLE itcupom ENABLE TRIGGER ALL;
+
+
+-- Limpa pis/cofins das notas bonificadas
+UPDATE notafiscal SET natoperacao='1.910' WHERE operacao='CP' AND natoperacao='5.910';
+UPDATE itnotafiscal SET natoperacao='1.910' WHERE operacao='CP' AND natoperacao='5.910';
+
+--- Verifica notas com CFOP de bonicacao e valor de pis
+SELECT codproduto, bonificado, totalbasepis, natoperacao FROM itnotafiscal WHERE natoperacao IN ('1.910','1.949','2.910', '1.556') AND dtentrega>='2012-11-01';
+SELECT codproduto, bonificado, totalbasepis, natoperacao FROM itnotafiscal WHERE bonificado='S'
+
+----------------------------------------------------------------------------------------------------------------------
+--Limpa Notas Bonificadas (ERRO SPED PIS CONFINS CST 70)
+SELECT distinct natoperacao, bonificado FROM itnotafiscal  WHERE  dtentrega>='2014-01-01' and bonificado='S' order by natoperacao;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, bonificado='S' 
+WHERE SUBSTR(natoperacao,3,1)='9' AND dtentrega>='2014-01-01' AND SUBSTR(natoperacao,1,1)<'3';
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+UPDATE itnotafiscal SET bonificado='N' where bonificado='S' and natoperacao='1.102';
+
+UPDATE notafiscal SET bonificacao='N' where bonificacao='S' and natoperacao='1.102';
+-----------------------------------------------------------------------------------------------------------------------
+---Troca CFOP das notas
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET natoperacao='1.102' WHERE natoperacao='1.100' AND operacao='CP';
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET natoperacao='1.102' WHERE natoperacao='1.100' AND operacao='CP';
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+
+-- Atualiza PIS/Cofins dos itens das notas **TRIBUTADOS***
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalbasepis=itnotafiscal.totalliquido, totalbasecofins=itnotafiscal.totalliquido, aliqpis=1.65, aliqcofins=7.60, 
+totalpis IN (totalliquido*0.0165), totalcofins=(totalliquido*0.076)
+WHERE itnotafiscal.idnotafiscal=(SELECT i.idnotafiscal FROM itnotafiscal AS i
+			INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+			INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+			WHERE pi.tipo='T' AND i.totalbasepis=0 AND i.dtentrega>='2012-02-01' AND itnotafiscal.idnotafiscal=i.idnotafiscal 
+			AND itnotafiscal.codproduto=i.codproduto);
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+
+
+-- Atualiza PIS/Cofins dos itens das notas **ISENTOS**
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, 
+totalpis=0, totalcofins=0
+WHERE itnotafiscal.idnotafiscal IN (SELECT i.idnotafiscal FROM itnotafiscal AS i
+			INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+			INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+			WHERE pi.tipo<>'T' AND i.totalbasepis=0 AND i.dtentrega>='2012-02-01' AND itnotafiscal.idnotafiscal=i.idnotafiscal 
+			AND itnotafiscal.codproduto=i.codproduto);
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET natoperacao='1.403' WHERE natoperacao='1.405' AND operacao='CP';
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+-- Verifica notafiscal
+select itnotafiscal.*  FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+WHERE notafiscal.numnotafis=542
+
+
+
+select itnotafiscal.*  FROM notafiscal INNER JOIN itnotafiscal USING (idnotafiscal) WHERE notafiscal.numnotafis=542
+
+
+select itnotafiscal.natoperacao, notafiscal.natoperacao, notafiscal.numnotafis, itnotafiscal.bonificado FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+WHERE itnotafiscal.natoperacao<>notafiscal.natoperacao 
+AND itnotafiscal.dtentrega>='2012-05-01' AND itnotafiscal.dtentrega<='2012-05-31' 
+AND itnotafiscal.operacao='CP' AND notafiscal.natoperacao='1.910'
+ORDER BY 2 DESC
+
+
+-- Erro de CST 73
+SELECT notafiscal.numnotafis FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+WHERE piscofins.codcst='70'
+AND itnotafiscal.totalbasepis>0
+AND itnotafiscal.dtentrega>='2015-01-01'
+AND itnotafiscal.dtentrega<='2015-01-31'
+GROUP BY 1
+
+
+---Maparesumo
+UPDATE maparesumo SET numeroreducoes=1 WHERE numeroreducoes=0 OR numeroreducoes IS NULL;
+UPDATE maparesumo SET operacaofim=1 WHERE operacaofim=0 OR operacaofim IS NULL;
+UPDATE maparesumo SET reiniciofim=1 WHERE reiniciofim=0 OR reiniciofim IS NULL;
+
+UPDATE maparesumo SET operacaonaofiscini=1 WHERE operacaonaofiscini=0 OR operacaonaofiscini IS NULL;
+UPDATE maparesumo SET operacaonaofiscfim=1 WHERE operacaonaofiscfim=0 OR operacaonaofiscfim IS NULL;
+UPDATE maparesumo SET cuponsfiscemit=1 WHERE cuponsfiscemit=0 OR cuponsfiscemit IS NULL;
+
+-- Diferença Notas
+SELECT notafiscal.numnotafis, notafiscal.natoperacao, itnotafiscal.natoperacao 
+FROM itnotafiscal INNER JOIN notafiscal USING (idnotafiscal)
+WHERE notafiscal.dtentrega>='2012-05-01'
+AND notafiscal.natoperacao<>itnotafiscal.natoperacao
+AND itnotafiscal.natoperacao IN ('1.910','2.910')
+
+
+-- Filtro para natureza da receita
+select  codproduto, coddepto, descricaofiscal 
+FROM produto INNER JOIN departamento USING (coddepto)
+INNER JOIN natreceita ON (departamento.coddepto=natreceita.codigo AND natreceita.tabela='D')
+INNER JOIN piscofins ON (produto.codpiscofinssai=piscofins.codpiscofins)
+WHERE natreceita.natreceita='202'
+AND produto.coddepto not in (7, 20)
+AND piscofins.tipo='Z'
+
+
+---Verifica notas duplicadas.
+select count(*), numnotafis, operacao, codparceiro FROM notafiscal 
+WHERE dtentrega>='2012-05-01' AND operacao='CP'
+GROUP BY 2,3,4
+HAVING count(*)>1
+
+---Verifica base nos cupons
+SELECT itcupom.codproduto, cupom.cupom, cupom.dtmovto, itcupom.totalbasepis, itcupom.totalpis FROM cupom
+INNER JOIN itcupom USING (idcupom)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinssai=piscofins.codpiscofins)
+WHERE piscofins.codcst='06'
+AND itcupom.totalbasepis>0
+AND cupom.dtmovto>='2012-06-01'
+AND cupom.dtmovto<='2012-06-30'
+
+-- Manutencao nas notas
+select iditnotafiscal, itnotafiscal.*  FROM notafiscal INNER JOIN itnotafiscal USING (idnotafiscal) 
+WHERE notafiscal.numnotafis=236749
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET natoperacao='2.102' WHERE iditnotafiscal=305328;
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+--- Verifica itens bonificado com base de pis maior (>) que zero
+select numnotafis, it.idnotafiscal , it.bonificado, it.totalbasepis, 
+it.operacao, it.natoperacao from itnotafiscal AS it
+INNER JOIN notafiscal USING (idnotafiscal)
+where it.totalbasepis>0 and bonificado='S' and it.dtentrega>='2012-06-01'
+
+-- Verifica aliquota por CST
+select numnotafis, it.idnotafiscal , it.bonificado, it.totalbasepis, it.totalpis, 
+it.aliqpis, it.dtentrega,it.operacao, it.natoperacao 
+from itnotafiscal AS it
+INNER JOIN notafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+where it.totalbasepis>0  and it.dtentrega>='2014-01-01' and it.dtentrega<='2014-01-31'
+AND it.bonificado='S'
+AND piscofins.codcst='71'
+
+-- Verifica Natreceita e CST na venda cupom
+SELECT itcupom.codproduto, natreceita.natreceita FROM cupom
+INNER JOIN itcupom USING (idcupom)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinssai=piscofins.codpiscofins)
+INNER JOIN departamento USING (coddepto)
+INNER JOIN natreceita ON (departamento.coddepto=natreceita.codigo)
+WHERE piscofins.codcst='06'
+AND cupom.dtmovto>='2013-11-01'
+AND cupom.dtmovto<='2013-11-30'
+AND natreceita.natreceita='202'
+GROUP BY 1,2
+
+
+SELECT itnotafiscal.codproduto, natreceita.natreceita FROM itnotafiscal
+INNER JOIN notafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinssai=piscofins.codpiscofins)
+INNER JOIN departamento USING (coddepto)
+INNER JOIN natreceita ON (departamento.coddepto=natreceita.codigo)
+WHERE piscofins.codcst='06'
+AND itnotafiscal.dtentrega>='2013-11-01'
+AND itnotafiscal.dtentrega<='2013-11-30'
+AND itnotafiscal.operacao<>'CP'
+AND natreceita.natreceita='202'
+GROUP BY 1,2
+
+
+
+-- Verifica itens das notas por CST e aliquota
+SELECT itnotafiscal.codproduto, itnotafiscal.dtentrega, itnotafiscal.natoperacao, numnotafis FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinssai=piscofins.codpiscofins)
+WHERE piscofins.codcst='06'
+--AND itnotafiscal.totalpis>0
+AND itnotafiscal.dtentrega>='2013-11-01'
+AND itnotafiscal.dtentrega<='2013-11-30'
+GROUP BY 1,2,3,4
+ORDER BY 2
+
+-- Verifica nota fiscais com CFOP divergentes exemplo 1.102 e 2.102
+SELECT idnotafiscal, count(nat)  FROM(
+select DISTINCT idnotafiscal, SUBSTR(natoperacao,1,1) AS nat FROM itnotafiscal WHERE  DTENTREGA >='2012-08-01' AND '2012-08-31' AND OPERACAO='CP'
+GROUP BY 1,2
+) AS tmp
+group by 1
+HAVING count(nat)>1
+
+--- Deletando cupons com valor 0.00 ou 0.01 (desconto incorreto)
+SELECT  idcupom , valortotal  from itcupom  
+WHERE valortotal=0.01 AND idcupom IN 
+	(SELECT idcupom FROM cupom WHERE dtmovto BETWEEN '2013-02-01' AND '2013-02-28')
+
+
+DELETE FROM itcupom WHERE valortotal<=0 AND idcupom IN 
+	(SELECT idcupom FROM cupom WHERE dtmovto BETWEEN '2013-02-01' AND '2013-02-28')
+
+DELETE FROM cupom WHERE dtmovto BETWEEN '2013-02-01' AND '2013-02-28' AND totalliquido=0.01
+
+
+--Manutencao no cadastro de produtos
+UPDATE produto SET codcfnfs=1, codcfpdv=1 WHERE codproduto IN 
+(select codproduto from produto INNER JOIN classfiscal ON (produto.codcfnfs = classfiscal.codcf)
+ where tptribicms='F')
+
+-- Encontra produto com natreceita errada - Nevada
+SELECT codproduto, descricaofiscal, natreceita 
+FROM produto 
+INNER JOIN produtoestab USING (codproduto) 
+INNER JOIN natreceita ON (produto.coddepto = natreceita.codigo AND natreceita.tabela='D')
+WHERE codpiscofinssai=1
+AND produto.codgrupo NOT IN (SELECT codigo FROM natreceita WHERE tabela='G' AND natreceita<>'202')
+AND produto.codsubgrupo NOT IN (SELECT codigo FROM natreceita WHERE tabela='S' AND natreceita<>'202')
+AND produto.codproduto NOT IN (SELECT codigo FROM natreceita WHERE tabela='P' AND natreceita<>'202')
+AND produtoestab.dtultvda>='2013-11-01'
+AND produtoestab.dtultvda<='2013-11-30'
+ORDER BY 3 DESC
+
+
+-- Verifica se existem produto com CST de entrada na saida 
+  SELECT codproduto, descricaofiscal, codpiscofinsent FROM produto INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+  WHERE codcst>'49'
+
+-- Verifica se existem produto com CST de saida na entrada
+SELECT codproduto, descricaofiscal, codpiscofinsent FROM produto INNER JOIN piscofins ON (produto.codpiscofinsent = piscofins.codpiscofins)
+  WHERE codcst<'50'
+
+-- Inclusao de natureza da receita para itens do cadastro.
+INSERT INTO natreceita(natreceita, tabela, codigo)
+	SELECT '403' AS natreceita, 'P' AS tabela, codproduto AS codigo FROM produto INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+WHERE piscofins.codcst='04'
+
+
+-- Verifica natreceita dos itens
+
+SELECT * FROM produto where codpiscofinssai=9 AND codsubgrupo IN (select codigo FROM natreceita WHERE tabela='S' AND natreceita='121')
+SELECT * FROM produto where codpiscofinssai=9 AND coddepto IN (select codigo FROM natreceita WHERE tabela='D' AND natreceita='121')
+SELECT * FROM produto where codpiscofinssai=9 AND codgrupo IN (select codigo FROM natreceita WHERE tabela='G' AND natreceita='121')
+SELECT * FROM produto where codpiscofinssai=9 AND codproduto IN (select codigo FROM natreceita WHERE tabela='P' AND natreceita='121')
+select * FROM piscofins 
+select * From natreceita where natreceita='121'
+
+
+--Nota que geram itens do SPED com CST 49
+TS-Transferencia saida
+DF-Devolucao fornecedor
+5.929- Cfop 5.929
+
+--Nota que geram itens do SPED com CST 98
+--Transferencia entrada
+--1.949
+
+--Nota que geram itens do SPED com CST 99
+--1.556
+--?.910 Entrada bonificadas
+
+
+
+SELECT numnotafis, natoperacao, gerapiscofins, totalliquido, totalbruto FROM notafiscal 
+WHERE dtemissao BETWEEN '2013-11-01' AND '2013-11-30' AND natoperacao IN ('5.202','5.411','6.202','6.411')-- AND gerapiscofins='S'
+
+--Verifica se existem itens em codigos errados.
+SELECT * FROM produto INNER JOIN piscofins ON (produto.codpiscofinsent = piscofins.codpiscofins)  where codcst<'50';
+SELECT * FROM produto INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)  where codcst>'49';
+
+--Conexao
+Host: 127.0.0.1 ou localhost
+Port: 3337
+User: spedfiscal
+Pass: spedfiscal
+Para cada escrituação fiscal importada, o PVA cria um database a parte com um nome do 
+tipo bd20100708141754 (bd + AnoMesDiaHoraMinutoSegundo) 
+e cria as tabelas dinamicamente somente para os registros 
+contidos naquela escrituação tipo reg_0001, reg0200, regc100
+
+
+--Utilizado para verificar porque as nota nao batem com relatorio de CST - Papai (em teste)
+SELECT CASE WHEN itnotafiscal.operacao='TE' THEN '98' WHEN itnotafiscal.bonificado='S' THEN '70' ELSE piscofins.codcst END as codcst, 
+SUM(itnotafiscal.totalbruto)as bruto, 
+SUM(itnotafiscal.totaldesconto) desconto, SUM(itnotafiscal.totalacrescimo) as acrescimo, SUM(itnotafiscal.totalicmssubst) AS subst, SUM(itnotafiscal.totalipi) AS ipi, SUM(itnotafiscal.totalfrete) AS frete,
+SUM(itnotafiscal.totalliquido) as liquido, SUM(itnotafiscal.totalbasepis) as basepis,
+SUM(itnotafiscal.totalbruto+itnotafiscal.totalacrescimo)as brutoacres
+FROM itnotafiscal
+INNER JOIN notafiscal ON (itnotafiscal.idnotafiscal = notafiscal.idnotafiscal)
+INNER JOIN produto ON (itnotafiscal.codproduto = produto.codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent = piscofins.codpiscofins)
+INNER JOIN operacaonota ON (itnotafiscal.operacao =  operacaonota.operacao)
+WHERE ((notafiscal.operacao IN ('CP','DF','TE') AND notafiscal.dtentrega BETWEEN '2013-12-01' AND '2013-12-31') OR (notafiscal.operacao NOT IN ('CP','DF','TE') AND notafiscal.dtemissao BETWEEN '2013-12-01' AND '2013-12-31'))
+AND itnotafiscal.codestabelec=1
+AND notafiscal.gerafiscal='S'
+AND notafiscal.status!='C'
+AND operacaonota.tipo='E'
+AND itnotafiscal.composicao<>'F'
+GROUP BY 1
+ORDER BY 1
+
+
+-- Encontra natreceita dos produtos
+SELECT *
+FROM (
+                SELECT DISTINCT produto.codproduto, produto.descricaofiscal,
+                               COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'P' AND codigo = produto.codproduto),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'S' AND codigo = produto.codsubgrupo),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'G' AND codigo = produto.codgrupo),(SELECT natreceita FROM natreceita WHERE tabela = 'D' AND codigo = produto.coddepto)))) AS natreceita,
+                               piscofins.codcst,
+                               consvendadia.dtmovto
+                FROM consvendadia
+                INNER JOIN produto ON (consvendadia.codproduto = produto.codproduto)
+                INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+                ORDER BY dtmovto, codproduto
+) AS temp
+WHERE ...
+
+
+-- Limpa pis/cofins das notas de transferencia
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0
+WHERE dtentrega>='2014-01-01' AND operacao IN ('TE','TS')
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+
+--Correcao noata a partir de cupom carioca
+UPDATE notafiscal SET cupom=1 
+WHERE notafiscal.dtemissao>='2014-12-01' AND  notafiscal.dtemissao<='2014-12-31'  AND notafiscal.operacao='VD' AND natoperacao='5.929'
+
+--Zera valores de itens com cst=73 nas notas
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0 WHERE iditnotafiscal IN (
+SELECT itnotafiscal.iditnotafiscal
+FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+WHERE piscofins.codcst='73'
+AND itnotafiscal.totalpis>0
+AND itnotafiscal.aliqpis>0
+AND itnotafiscal.dtentrega>='2015-12-01'
+AND itnotafiscal.dtentrega<='2015-12-31'
+)
+

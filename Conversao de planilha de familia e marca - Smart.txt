@@ -1,0 +1,88 @@
+SELECT * FROM familia ORDER BY descricao
+UPDATE familia SET descricao='NOTEBOOKS' WHERE codfamilia=4
+DELETE FROM familia WHERE codfamilia>5
+
+CREATE SEQUENCE temp1 START 6
+DROP SEQUENCE temp1 
+
+INSERT INTO familia 
+SELECT  descricao, 0.00, NEXTVAL('temp1') FROM (
+SELECT DISTINCT familia AS descricao FROM temp_atufamilia WHERE familia NOT IN (SELECT descricao FROM familia) ORDER BY 1
+) AS tmp
+
+
+
+CREATE OR REPLACE FUNCTION atualizafamilia()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_familia record;
+	i integer;
+BEGIN
+	
+	
+	--Atualização do Departamento nos itens
+	FOR row_familia IN 
+		SELECT codfamilia, codigo  FROM temp_atufamilia INNER JOIN familia ON (temp_atufamilia.familia=familia.descricao)
+	LOOP
+		RAISE NOTICE 'Atualizando familia para codigo %', row_familia.codigo;
+		UPDATE produto SET codfamilia=row_familia.codfamilia WHERE codproduto=row_familia.codigo;
+	END LOOP;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION atualizafamilia()
+  OWNER TO postgres;
+
+SELECT atualizafamilia()
+
+"FOGAO"
+"REFRIGERADOR"
+"LAVADORAS"
+"NOTEBOOK"
+"TV"
+
+SELECT * FROM produto WHERE codmarca IS NOT NULL
+SELECT count (*) FROM temp_atufamilia
+
+
+---Conversao das marcas
+CREATE SEQUENCE temp1 START 1
+DROP SEQUENCE temp1 
+
+SELECT * FROM marca
+
+INSERT INTO marca
+SELECT  NEXTVAL('temp1'), descricao, 'N' FROM (
+SELECT DISTINCT marca AS descricao FROM temp_atufamilia 
+) AS tmp
+
+
+
+CREATE OR REPLACE FUNCTION atualizamarca()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_marca record;
+	i integer;
+BEGIN
+	
+	
+	--Atualização do Departamento nos itens
+	FOR row_marca IN 
+		SELECT codmarca, codigo  FROM temp_atufamilia INNER JOIN marca ON (temp_atufamilia.marca=marca.descricao) ORDER BY codigo DESC
+	LOOP
+		RAISE NOTICE 'Atualizando marca para codigo %', row_marca.codigo;
+		UPDATE produto SET codmarca=row_marca.codmarca WHERE codproduto=row_marca.codigo;
+	END LOOP;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION atualizamarca()
+  OWNER TO postgres;
+
+SELECT atualizamarca()

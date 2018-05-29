@@ -1,0 +1,4 @@
+ chown postgres:postgres /home/postgres9.3/datarecupera/
+ chmod -R 0700 /home/postgres9.3/datarecupera/
+ su postgres
+ /usr/pgsql-9.3/bin/pg_ctl start -D /home/postgres9.3/datarecupera/

@@ -1,0 +1,54 @@
+-- Limpa saldo do cliente
+UPDATE cliente SET  debito1=0, debito2=0
+
+--Limpa tabelas de movimento (CUIDADO: CASCADE em tabelas de cadastro pode apagar todo o banco)
+TRUNCATE movimento CASCADE;
+TRUNCATE notafiscal CASCADE;
+TRUNCATE cupom CASCADE;
+TRUNCATE maparesumo CASCADE;
+TRUNCATE logpreco CASCADE;
+TRUNCATE loglogin CASCADE;
+TRUNCATE logpagina CASCADE;
+TRUNCATE logetiqueta CASCADE;
+TRUNCATE lancamentogru CASCADE;
+TRUNCATE consvendames CASCADE;
+TRUNCATE consvendadia CASCADE;
+TRUNCATE consvendadiadep CASCADE;
+DELETE FROM diastrabalhados;
+DELETE FROM leitura_data;
+DELETE FROM paramestoque;
+--DELETE FROM cliente
+DELETE FROM datavalidade;
+DELETE FROM historico;
+DELETE FROM produtoestabsaldo;
+DELETE FROM oferta;
+DELETE FROM cotacao;
+DELETE FROM  inventario;
+DELETE FROM belancamento;
+DELETE FROM usuario  WHERE login<>'Adm' ;
+SELECT login FROM usuario  WHERE login='Adm' ;
+
+
+SELECT SUM(conta) AS conta FROM (
+	SELECT COUNT(*) AS conta FROM  movimento UNION ALL
+	SELECT COUNT(*) AS conta FROM  notafiscal UNION ALL
+	SELECT COUNT(*) AS conta FROM  cupom UNION ALL
+	SELECT COUNT(*) AS conta FROM  maparesumo UNION ALL
+	SELECT COUNT(*) AS conta FROM  logpreco UNION ALL
+	SELECT COUNT(*) AS conta FROM  loglogin UNION ALL
+	SELECT COUNT(*) AS conta FROM  logpagina UNION ALL
+	SELECT COUNT(*) AS conta FROM  logetiqueta UNION ALL
+	SELECT COUNT(*) AS conta FROM  consvendames UNION ALL
+	SELECT COUNT(*) AS conta FROM  consvendadia UNION ALL
+	SELECT COUNT(*) AS conta FROM  consvendadiadep UNION ALL
+	SELECT COUNT(*) AS conta FROM  cotacao UNION ALL
+	SELECT COUNT(*) AS conta FROM  datavalidade UNION ALL
+	SELECT COUNT(*) AS conta FROM  cupomlancto UNION ALL
+	SELECT COUNT(*) AS conta FROM  diastrabalhados UNION ALL
+	SELECT COUNT(*) AS conta FROM  inventario UNION ALL
+	SELECT COUNT(*) AS conta FROM  leitura_data UNION ALL
+	SELECT COUNT(*) AS conta FROM  oferta UNION ALL
+	SELECT COUNT(*) AS conta FROM  lancamentogru UNION ALL
+	SELECT COUNT (*) FROM belancamento 
+	
+) AS tmp

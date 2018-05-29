@@ -1,0 +1,1 @@
+SELECT 'UPDATE produtoestab SET precovrj='||precovrj||', precovrjof='||precovrjof||', custorep='||custorep||' WHERE codestabelec='||codestabelec||' AND precovrj<>'||precovrj||';' FROM produtoestab

@@ -1,0 +1,56 @@
+DELETE FROM comissao WHERE codestabelec=1 
+--AND codvend=1 AND datavenda='2015-07-16'
+
+SELECT * FROM comissao WHERE codestabelec=1 AND datavenda='2015-07-16'
+SELECT SUM(totalvenda) FROM comissao WHERE codestabelec=1 AND datavenda='2015-07-16'
+
+SELECT * FROM comissao
+
+SELECT MAX(codcomissao) FROM comissao
+CREATE SEQUENCE codcomissao START 8751
+DROP SEQUENCE codproduto ;
+ALTER SEQUENCE codproduto RESTART 5010
+
+INSERT INTO comissao (
+SELECT (nextval('codcomissao')) AS codcomissao,
+	codestabelec,
+	codlancto,
+	NULL codlanctofilho,
+	idnotafiscal,
+	NULL AS idcupom,	
+	dtemissao,
+	lancamento.codfunc,
+	valorparcela*comissao as comissao,
+	'L' AS status,
+	valorparcela,
+	NULL AS codrepresentante
+FROM lancamento
+INNER JOIN funcionario ON (lancamento.codfunc = funcionario.codfunc)
+WHERE pagrec='R' AND prevreal='R' 
+AND codestabelec=1
+AND dtemissao>='2015-07-01'
+AND dtemissao<='2015-11-05'
+)
+
+
+--Recalcula comissao
+SELECT comissao FROM funcionario 
+SELECT totalvenda, comissao.comissao, ROUND(totalvenda*((funcionario.comissao)/100),4) 
+FROM comissao INNER JOIN funcionario ON (comissao.codfunc = funcionario.codfunc) 
+WHERE idcupom IS NOT NULL AND comissao.comissao<>ROUND(totalvenda*(funcionario.comissao)/100,4)
+
+
+SELECT 8*0.0001
+--Recalcula cupons
+UPDATE comissao SET comissao= ROUND(totalvenda*((funcionario.comissao)/100),4)
+FROM funcionario WHERE comissao.codfunc = funcionario.codfunc
+AND idcupom IS NOT NULL AND comissao.comissao<>ROUND(totalvenda*(funcionario.comissao)/100,4)
+
+SELECT totalvenda, comissao.comissao, ROUND(totalvenda*(funcionario.comissao)/100,4) 
+FROM comissao INNER JOIN funcionario ON (comissao.codfunc = funcionario.codfunc) 
+WHERE idnotafiscal IS NOT NULL AND comissao.comissao<>ROUND(totalvenda*(funcionario.comissao)/100,4)
+
+--Recalcula cupons
+UPDATE comissao SET comissao= ROUND(totalvenda*(funcionario.comissao)/100,4)
+FROM funcionario WHERE comissao.codfunc = funcionario.codfunc
+AND idnotafiscal IS NOT NULL AND comissao.comissao<>ROUND(totalvenda*(funcionario.comissao)/100,4)

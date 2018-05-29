@@ -1,0 +1,4 @@
+UPDATE maparesumo AS a SET
+                operacaoini = ((SELECT operacaofim FROM maparesumo WHERE codestabelec = a.codestabelec AND caixa = a.caixa AND dtmovto < a.dtmovto ORDER BY dtmovto DESC LIMIT 1) + 1)
+WHERE codestabelec = 1
+                AND dtmovto BETWEEN '2015-04-01' AND '2014-04-30';

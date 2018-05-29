@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+                row_itpedido_1 itpedido%ROWTYPE;
+                row_itpedido_2 itpedido%ROWTYPE;
+BEGIN
+                FOR row_itpedido_1 IN 
+			SELECT * FROM itpedido WHERE (iditnotafiscalvd, numpedido, codestabelec) IN (
+				SELECT iditnotafiscalvd, numpedido, codestabelec
+				FROM itpedido
+				GROUP BY 1,2,3
+				HAVING COUNT(iditnotafiscalvd) > 1 
+			)
+                LOOP
+                               IF (SELECT COUNT(iditpedido) FROM itpedido WHERE iditpedido = row_itpedido_1.iditpedido) > 0 THEN
+                                               FOR row_itpedido_2 IN SELECT * FROM itpedido WHERE codestabelec = row_itpedido_1.codestabelec AND numpedido = row_itpedido_1.numpedido AND iditpedido != row_itpedido_1.iditpedido AND iditnotafiscalvd = row_itpedido_1.iditnotafiscalvd LOOP
+                                                               DELETE FROM itnotafiscal WHERE iditpedido = row_itpedido_2.iditpedido;
+                                                               DELETE FROM itpedido WHERE iditpedido = row_itpedido_2.iditpedido;
+                                               END LOOP;
+                               END IF;
+                END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+DROP FUNCTION temp();
+ALTER TABLE itpedido ADD CONSTRAINT uq_itpedido_codestabelec_numpedido_iditnotafiscalvd UNIQUE (codestabelec,numpedido,iditnotafiscalvd);

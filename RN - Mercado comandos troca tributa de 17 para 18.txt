@@ -1,0 +1,15 @@
+--Cupom 
+SELECT tptribicms, aliqicms, SUM(valortotal) FROM cupom INNER JOIN itcupom USING (idcupom) 
+WHERE dtmovto='2015-12-05'
+GROUP BY 1,2
+UPDATE itcupom SET aliqicms=18 WHERE aliqicms=17 AND idcupom IN (SELECT itcupom.idcupom FROM cupom INNER JOIN itcupom USING (idcupom) 
+WHERE dtmovto>='2015-12-01' AND dtmovto<='2015-12-31' AND tptribicms='T' AND aliqicms=17)
+
+
+--Mapa resumo 
+SELECT tptribicms, aliqicms, SUM(totalliquido) FROM maparesumoimposto WHERE codmaparesumo= (SELECT codmaparesumo FROM maparesumo WHERE dtmovto='2015-12-05')
+GROUP BY 1,2
+
+UPDATE maparesumoimposto AS mpi SET totalliquido=(SELECT SUM(totalliquido) FROM maparesumoimposto WHERE codmaparesumo=mpi.codmaparesumo AND tptribicms='T' AND aliqicms IN (17,18)) WHERE codmaparesumo IN  (SELECT codmaparesumo FROM maparesumo WHERE dtmovto>='2015-12-01' AND dtmovto<='2015-12-31') AND tptribicms='T' AND aliqicms=18
+
+DELETE FROM maparesumoimposto WHERE codmaparesumo IN  (SELECT codmaparesumo FROM maparesumo WHERE dtmovto>='2015-12-01' AND dtmovto<='2015-12-31') AND tptribicms='T' AND aliqicms=17

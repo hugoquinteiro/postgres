@@ -1,0 +1,14 @@
+		/*
+			Criar trigger no Banco antes de rodar
+		
+						CREATE OR REPLACE FUNCTION retira_acentuacao(p_texto text)  
+						  RETURNS text AS  
+						 $BODY$  
+						 Select translate($1,  
+						 'בגדֱֲֳטייךֹלםּֽ־ףפץ׃װױשתûÙÚÛחַ',  
+						 'aaaAAAeeeeEiiIIIoooOOOuuuUUUcC'   
+						  );  
+						 $BODY$  
+						 LANGUAGE sql VOLATILE  
+						 COST 100;  
+		*/

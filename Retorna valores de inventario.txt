@@ -1,0 +1,11 @@
+--Cria sequencia
+SELECT MAX(codmovimento) FROM movimento
+create sequence temp1 start 2647;
+drop sequence temp1;
+
+--Retorna valores positivos
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+    SELECT 1, codproduto, 'E' AS tipo , '2013-07-26' AS dtmovto, sldatual AS quantidade, preco, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+[999 tipodocumento] as codtpdocto, 
+       (nextval('temp1')) AS codmovimento, custo
+  FROM itinventario WHERE codinventario=[codinventario] AND sldatual>0;

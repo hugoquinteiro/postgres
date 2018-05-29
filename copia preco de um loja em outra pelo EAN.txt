@@ -1,0 +1,3 @@
+SELECT 'UPDATE produtoestab SET precovrj='||precovrj||', precovrjof='||precovrjof||'  WHERE codestabelec=2 AND codproduto =(SELECT codproduto FROM produtoean WHERE codean='''||codean||''')'
+FROM produtoean INNER JOIN produtoestab USING (codproduto)
+WHERE codestabelec=2 AND LENGTH(codean)>8 

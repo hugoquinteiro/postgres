@@ -1,0 +1,8 @@
+CREATE USER coral WITH password 'coral$123';
+REVOKE ALL PRIVILEGES ON SCHEMA public FROM coral;
+GRANT SELECT ON v_integracao_cliente TO coral;
+GRANT SELECT ON v_integracao_cliente TO coral;
+
+-- apagar usuario CORAL
+ REVOKE ALL PRIVILEGES ON v_integracao_cliente FROM coral;
+DROP USER coral;

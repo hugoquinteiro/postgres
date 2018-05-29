@@ -1,0 +1,55 @@
+Paramentro a definir:
+--Tipo de Documento 99-Saida / 98-Entrada
+SELECT * FROM tipodocumento
+INSERT INTO tipodocumento VALUES (5,'Ajuste pelo Control Ware(+)', 'E')
+--Estabelecimento 1
+--Data
+--Cria sequencia
+	--SELECT MAX(codmovimento) FROM movimento limit 1
+	--create sequence temp1 start 761046;
+	-- DROP sequence temp1
+
+
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 1 AS codestabelec, produtoestab.codproduto, 'E' AS tipo, 
+     '2016-12-31' AS dtmovto,  
+      PRODUTOESTABSALDO.SALDO AS quantidade, 
+      produtoestab.precovrj,  'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+      5 AS codtpdocto, 
+      (nextval('temp1')) AS codmovimento, produtoestab.custorep
+FROM produtoestab INNER JOIN produto USING (codproduto) 
+INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=1)
+WHERE  produtoestab.codestabelec=1 
+AND produtoestabsaldo.saldo<0 
+AND produtoestab.codproduto NOT IN (SELECT DISTINCT codproduto FROM composicao)
+AND produtoestabsaldo.data=(SELECT MAX(produtoestabsaldo.data) FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto 
+								AND produtoestabsaldo.codestabelec=1    AND produtoestabsaldo.saldo<0 
+								AND produtoestabsaldo.data<='2016-12-31')   
+
+
+
+--Limpa itens especificos
+Paramentro a definir:
+--Tipo de Documento 99-Saida / 98-Entrada
+SELECT * FROM tipodocumento
+INSERT INTO tipodocumento VALUES (5,'Ajuste pelo Control Ware(+)', 'E')
+--Estabelecimento 1
+--Data
+--Cria sequencia
+	--SELECT MAX(codmovimento) FROM movimento limit 1
+	--create sequence temp1 start 17029057;
+	-- DROP sequence temp1
+
+
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 2 AS codestabelec, produtoestab.codproduto, 'S' AS tipo, 
+     '2017-06-30' AS dtmovto,  
+      saldo(produtoestab.codestabelec, produto.codproduto, '2017-06-30') AS quantidade, 
+      produtoestab.precovrj,  'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+      15 AS codtpdocto, 
+      (nextval('temp1')) AS codmovimento, produtoestab.custorep
+FROM produtoestab INNER JOIN produto USING (codproduto) 
+WHERE  produtoestab.codestabelec=2 
+AND produtoestab.codproduto IN (11863,129053,152624,6389,33831,12060,7998,138550,11975,6388,8762,6370,7999,163699,178488,12043,12400,12124,8176,7741,219235,220811,116275,41324,190251)

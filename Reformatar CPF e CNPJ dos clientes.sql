@@ -1,0 +1,3 @@
+UPDATE cliente SET cpfcnpj = trim(REPLACE(REPLACE(REPLACE(cpfcnpj, '.', ''), '-', ''), '/', ''));
+UPDATE cliente SET cpfcnpj = SUBSTR(cpfcnpj, 1, 2) || '.' || SUBSTR(cpfcnpj, 3, 3) || '.' || SUBSTR(cpfcnpj, 6, 3) || '/' || SUBSTR(cpfcnpj, 9, 4) || '-' || SUBSTR(cpfcnpj, 13, 2) WHERE LENGTH(cpfcnpj) = 14;
+UPDATE cliente SET cpfcnpj = SUBSTR(cpfcnpj, 1, 3) || '.' || SUBSTR(cpfcnpj, 4, 3) || '.' || SUBSTR(cpfcnpj, 7, 3) || '-' || SUBSTR(cpfcnpj, 10, 2) WHERE LENGTH(cpfcnpj) = 11;

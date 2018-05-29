@@ -1,0 +1,38 @@
+@echo off
+echo.
+echo.
+echo.
+echo.
+echo.
+echo Manutencao no postgres iniciada...
+echo.
+echo.
+echo.
+echo.
+echo.
+
+cd\controlware
+del vacuum*.txt
+
+SET PATH=%path%;C:\Program Files\PostgreSQL\8.2\bin;
+psql -U postgres -d websac -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database WHERE datname='websac';" > vacuum_antes.txt
+
+psql -U postgres -d websac -c "VACUUM FULL ANALYZE VERBOSE"
+psql -U postgres -d websac -c "REINDEX DATABASE websac"
+
+
+psql -U postgres -d websac -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database WHERE datname='websac';" > vacuum_depois.txt
+
+echo.
+echo.
+echo.
+echo.
+echo.
+echo Processo finalizado 
+echo Obrigado por aguardar !!!
+echo.
+echo.
+echo.
+echo.
+echo.
+Pause

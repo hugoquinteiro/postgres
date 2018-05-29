@@ -1,0 +1,11 @@
+--Comando para acertar mês 11
+UPDATE cupom SET codecf = ecf.codecf FROM ecf WHERE substr(cupom.chavecfe,23,9) = ecf.numfabricacao AND  cupom.codestabelec=1 AND dtmovto BETWEEN '2017-11-01' AND '2017-11-30'  AND ecf.status='A' AND equipamentofiscal='SAT' AND cupom.codecf<>ecf.codecf
+
+--Comando de verificação
+SELECT DISTINCT cupom.caixa, dtmovto, ecf.codecf, cupom.codecf 
+FROM cupom INNER JOIN ecf ON (substr(cupom.chavecfe,23,9) = ecf.numfabricacao)
+WHERE cupom.codestabelec=1 AND dtmovto BETWEEN '2017-11-01' AND '2017-11-30'  
+AND ecf.status='A' AND equipamentofiscal='SAT'
+ORDER BY 1,2
+
+

@@ -1,0 +1,25 @@
+--verificando produtos
+SELECT * FROM temp_produto WHERE codproduto NOT IN (SELECT codproduto FROM produto) AND descricaofiscal NOT IN (SELECT descricaofiscal FROM produto)
+SELECT * FROM produto WHERE descricaofiscal='FARINHA DE ROSCA ESPACO DOCE 500G'
+SELECT codproduto FROM temp_produto WHERE descricaofiscal IN (SELECT descricaofiscal FROM produto) AND codproduto NOT IN (SELECT codproduto FROM produto)
+--Verificando e excluindo eans duplicados já convertidos
+DELETE FROM temp_produtoean WHERE codproduto IN (120362,100309)
+SELECT * FROM temp_produtoean WHERE codproduto NOT IN (SELECT codproduto FROM produtoean) AND codean NOT IN (SELECT codean FROM produtoean)
+
+-- Inserindo registros nas tabelas
+INSERT INTO produto (SELECT * FROM temp_produto WHERE codproduto NOT IN (SELECT codproduto FROM produto) AND descricaofiscal NOT IN (SELECT descricaofiscal FROM produto))
+INSERT INTO produtoean (SELECT * FROM temp_produtoean WHERE codproduto NOT IN (SELECT codproduto FROM produtoean) AND codean NOT IN (SELECT codean FROM produtoean))
+
+SELECT * FROM ncm WHERE idncm=102
+SELECT * FROM piscofins
+SELECT * FROM subgrupo WHERE codsubgrupo=2
+SELECT * FROM grupoprod WHERE codgrupo=2
+
+
+Observacao:
+********** Error **********
+
+
+SQL state: 23505
+
+Causado por alguma restricao no insert, 

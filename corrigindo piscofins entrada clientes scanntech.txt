@@ -1,0 +1,36 @@
+--ATUALIZAÇÃO TRIBUTAÇÃO  PIS/COFINS DE ENTRADA SIMILAR AO CÓDIGO DAS SAIDAS
+--  Para este comando funcionar corretamento precisam  estar cadastradar as tributações de pis de entrada 50,71,73,74,75 
+--e nao pode existir nenhum de saida diferente de 01,04,05,06,07
+
+UPDATE produto SET codpiscofinsent = (
+			SELECT 
+				(CASE WHEN sai.codcst='01' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='50' LIMIT 1) 
+				      WHEN sai.codcst='04' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='74' LIMIT 1)  	
+				      WHEN sai.codcst='05' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='75' LIMIT 1)
+				      WHEN sai.codcst='06' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='73' LIMIT 1)
+				      WHEN sai.codcst='07' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='71' LIMIT 1)
+				END) AS codent
+			 FROM piscofins AS sai WHERE sai.codpiscofins = ent.codpiscofins
+) FROM piscofins AS ent WHERE codpiscofinsent = ent.codpiscofins AND ent.codcst<'50'
+
+
+/*
+SELECT * FROM piscofins WHERE codcst='04'
+
+-- VERIFICA ENTRADA
+SELECT DISTINCT  codpiscofinsent, codcst, COUNT(*) FROM produto INNER JOIN piscofins AS ent ON (ent.codpiscofins = codpiscofinsent) WHERE codcst<'50' GROUP BY 1,2
+
+-- VERIFICA SAIDA
+SELECT DISTINCT  codpiscofinssai, codcst, COUNT(*) FROM produto INNER JOIN piscofins AS sai ON (sai.codpiscofins = codpiscofinssai) WHERE codcst>'49' GROUP BY 1,2
+
+
+SELECT 
+	(CASE WHEN sai.codcst='01' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='50' LIMIT 1) 
+	      WHEN sai.codcst='04' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='74' LIMIT 1)  	
+	      WHEN sai.codcst='05' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='75' LIMIT 1)
+	      WHEN sai.codcst='06' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='73' LIMIT 1)
+	      WHEN sai.codcst='07' THEN (SELECT codpiscofins FROM piscofins WHERE codcst='71' LIMIT 1)
+	END) AS codent
+ FROM piscofins AS sai
+
+*/

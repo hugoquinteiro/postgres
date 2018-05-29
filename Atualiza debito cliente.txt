@@ -1,0 +1,75 @@
+ALTER TABLE cliente DISABLE TRIGGER ALL;
+ALTER TABLE cliente ALTER COLUMN debito1 DROP NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 DROP NOT NULL;
+UPDATE cliente SET
+                debito1 = (SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 1)),
+                debito2 = (SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 2))
+		WHERE codcliente=(SELECT DISTINCT codparceiro FROM estabelecimento WHERE tipoparceiro='C' AND pagrec='R' AND status='A' AND codespecie=3);
+UPDATE cliente SET debito1 = 0 WHERE debito1 IS NULL;
+UPDATE cliente SET debito2 = 0 WHERE debito2 IS NULL;
+ALTER TABLE cliente ALTER COLUMN debito1 SET NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 SET NOT NULL;
+ALTER TABLE cliente ENABLE TRIGGER ALL;
+
+
+--Rodando apenas para os clientes que estao em debito
+ALTER TABLE cliente DISABLE TRIGGER ALL;
+ALTER TABLE cliente ALTER COLUMN debito1 DROP NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 DROP NOT NULL;
+UPDATE cliente SET
+                debito1 = (SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 1))
+WHERE codcliente IN (SELECT codparceiro FROM (
+SELECT codparceiro, SUM(valorliquido) as lancamento, debito1 
+FROM lancamento
+inner join cliente on (codparceiro = codcliente)
+WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND  lancamento.codespecie IN 
+(SELECT codespecie FROM especie WHERE limitecliente = 1)
+GROUP BY 1,3
+HAVING SUM(valorliquido) <> debito1 
+) AS tmp
+ )
+;
+UPDATE cliente SET debito1 = 0 WHERE debito1 IS NULL;
+UPDATE cliente SET debito2 = 0 WHERE debito2 IS NULL;
+ALTER TABLE cliente ALTER COLUMN debito1 SET NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 SET NOT NULL;
+ALTER TABLE cliente ENABLE TRIGGER ALL;
+
+
+
+
+--Verifica quais clientes estao com diferenca no Debito
+SELECT codparceiro, SUM(valorliquido) as lancamento, debito1 
+FROM lancamento
+inner join cliente on (codparceiro = codcliente)
+WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND  lancamento.codespecie IN 
+(SELECT codespecie FROM especie WHERE limitecliente = 1)
+GROUP BY 1,3
+HAVING SUM(valorliquido) <> debito1 
+
+
+--Verifica diferenças no debito 1 e debito 2
+SELECT codcliente, nome, debito1, financ1, debito2, financ2 FROM (
+	SELECT codcliente, nome, debito1,
+		(SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 1)) AS financ1,
+		debito2,
+		(SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 2)) AS financ2
+	FROM cliente 
+) AS tmp
+WHERE debito1<>financ1 OR debito2<>financ2
+
+
+--Rodei no Infanger para filtrar apenas os cliente de uma forma de pagamento
+ALTER TABLE cliente DISABLE TRIGGER ALL;
+ALTER TABLE cliente ALTER COLUMN debito1 DROP NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 DROP NOT NULL;
+UPDATE cliente SET
+                debito1 = (SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 1)),
+                debito2 = (SELECT SUM(valorliquido) FROM lancamento WHERE pagrec = 'R' AND prevreal = 'R' AND status = 'A' AND tipoparceiro = 'C' AND codparceiro = cliente.codcliente AND codespecie IN (SELECT codespecie FROM especie WHERE limitecliente = 2))
+		WHERE codcliente IN (SELECT DISTINCT codparceiro FROM lancamento WHERE tipoparceiro='C' AND pagrec='R' AND status='A' AND codespecie=3);
+UPDATE cliente SET debito1 = 0 WHERE debito1 IS NULL;
+UPDATE cliente SET debito2 = 0 WHERE debito2 IS NULL;
+ALTER TABLE cliente ALTER COLUMN debito1 SET NOT NULL;
+ALTER TABLE cliente ALTER COLUMN debito2 SET NOT NULL;
+ALTER TABLE cliente ENABLE TRIGGER ALL;
+

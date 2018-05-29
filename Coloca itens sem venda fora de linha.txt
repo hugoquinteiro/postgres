@@ -1,0 +1,7 @@
+UPDATE produto SET foralinha='S' WHERE codproduto IN (
+
+SELECT DISTINCT produto.codproduto FROM produto INNER JOIN produtoestab ON (produto.codproduto = produtoestab.codproduto) 
+WHERE produtoestab.disponivel = 'S' AND produtoestab.codestabelec = 1 AND produto.codproduto NOT IN 
+(SELECT DISTINCT codproduto FROM consvendadia 
+WHERE consvendadia.codestabelec = 1 AND consvendadia.dtmovto >= '2001-01-01' AND consvendadia.dtmovto <= '2013-08-06')
+)

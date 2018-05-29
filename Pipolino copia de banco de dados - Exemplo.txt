@@ -1,0 +1,129 @@
+select * from marca
+DELETE FROM marca
+
+INSERT INTO marca
+    SELECT codmarca, descricao, propria
+    FROM dblink('dbname=websac', 'SELECT * FROM marca WHERE codmarca>5')
+    AS t(codmarca integer, descricao character(40), propria char(1));
+
+
+---------------------------- 11-06-13 ---------------------------
+
+TRUNCATE cupom CASCADE;
+TRUNCATE itcupom CASCADE;
+TRUNCATE notafiscal CASCADE;
+TRUNCATE movimento CASCADE;
+TRUNCATE lancamento CASCADE;
+TRUNCATE lancamentogru CASCADE;
+TRUNCATE orcamento CASCADE;
+
+
+SELECT codestabelec, conta
+    FROM dblink('dbname=pipolino', 'SELECT codestabelec, COUNT(*) AS conta FROM movimento GROUP BY 1')
+    AS temp (codestabelec integer, conta integer);
+    
+SELECT codestabelec, conta
+    FROM dblink('dbname=pipolino', 'SELECT codestabelec, COUNT(*) AS conta FROM lancamento GROUP BY 1')
+    AS temp ;
+
+
+INSERT INTO notafiscal
+    SELECT *
+    FROM dblink('dbname=pipolino', 'SELECT * FROM notafiscal WHERE codestabelec=1')
+    AS t(codestabelec integer ,
+  numnotafis integer ,
+  serie character varying(3),
+  operacao character(2),
+  dtemissao date ,
+  status character(1),
+  codparceiro integer ,
+  codtransp integer,
+  codfunc integer,
+  codcondpagto integer,
+  natoperacao character varying(9),
+  valoricms numeric(12,2) ,
+  observacao character varying(5000),
+  usuario character varying(20),
+  datalog date ,
+  bonificacao character(1),
+  numpedido integer ,
+  codespecie integer,
+  dtentrega date ,
+  numeroitens integer ,
+  totaldesconto numeric(12,2) ,
+  totalacrescimo numeric(12,2) ,
+  totalfrete numeric(12,2) ,
+  totalipi numeric(12,2) ,
+  totalbaseicms numeric(12,2) ,
+  totalicms numeric(12,2) ,
+  totalbaseicmssubst numeric(12,2) ,
+  totalicmssubst numeric(12,2) ,
+  totalbruto numeric(12,2) ,
+  totalliquido numeric(12,2) ,
+  totalarecolher numeric(12,2) ,
+  totalbonificado numeric(12,2) ,
+  totaldescontoc numeric(12,2) ,
+  totalacrescimoc numeric(12,2) ,
+  totalfretec numeric(12,2) ,
+  totalipic numeric(12,2),
+  totalbaseicmsc numeric(12,2),
+  totalicmsc numeric(12,2) ,
+  totalbaseicmssubstc numeric(12,2),
+  totalicmssubstc numeric(12,2) ,
+  totalbrutoc numeric(12,2) ,
+  totalliquidoc numeric(12,2) ,
+  totalarecolherc numeric(12,2),
+  totalbonificadoc numeric(12,2) ,
+  tipoparceiro character(1) ,
+  idnotafiscal integer ,
+  chavenfe character varying(44),
+  totalpis numeric(12,2) ,
+  totalcofins numeric(12,2) ,
+  cupom integer,
+  numeroecf integer,
+  observacaofiscal text,
+  totalquantidade numeric(14,4) ,
+  especie character varying(60),
+  marca character varying(60),
+  numeracao character varying(60),
+  pesobruto numeric(14,4) ,
+  pesoliquido numeric(14,4),
+  modfrete character(1) ,
+  transpplacavei character(8),
+  transpufvei character(2),
+  transprntc character varying(20),
+  ufdesembaraco character(2),
+  localdesembaraco character varying(60),
+  dtdesembaraco date,
+  numerodi character varying(10),
+  dtregistrodi date,
+  totalbaseii numeric(12,4),
+  totalii numeric(12,4) ,
+  totaliof numeric(12,4) ,
+  totalseguro numeric(12,2) ,
+  totaldespaduaneira numeric(12,4) ,
+  totalsiscomex numeric(12,4) ,
+  modelodocfiscal character(2),
+  chavenferef character(44),
+  finalidade character(1) ,
+  tipoemissao character(1) ,
+  totalbasepis numeric(12,4) ,
+  totalbasecofins numeric(12,4) ,
+  geraestoque character(1) ,
+  gerafinanceiro character(1) ,
+  geraliquidado character(1) ,
+  gerafiscal character(1) ,
+  geraicms character(1) ,
+  geraipi character(1) ,
+  gerapiscofins character(1) ,
+  geracustomedio character(1) ,
+  xmlnfe text,
+  dtdigitacao date ,
+  totalseguroc numeric(12,2) ,
+  totalbaseisento numeric(12,2) ,
+  idnotafrete integer,
+  totalnotafrete numeric(12,2) ,
+  codtabela integer,
+  protocolo character);
+
+  SELECT * FROM notafiscal

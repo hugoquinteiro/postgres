@@ -1,0 +1,26 @@
+1. Visualizando espaço em disco
+df -h
+
+2. Encontrar o diretório do cluster do banco
+root@serverpostgres:~# ps -ef|grep -i postgres
+
+3. Parar servico do postgres
+service postgresql-9.3 stop
+
+
+4 Movendo diretorio do cluster
+ cd /var/lib/pgsql/9.3/
+ mv data /home/postgres9.3/
+
+5. Permissao para usuario postgres no novo diretorio
+ chown postgres:postgres /home/postgres9.3/data/
+
+6. Alterando arquivo de inicializacao
+vi /etc/rc.d/init.d/postgresql-9.3
+	PGDATA=/home/postgres9.3/data
+
+7. Inicializando servico
+ service postgresql-9.3 start
+
+8. Conferindo troca da pasta
+ps -ef|grep -i postgres

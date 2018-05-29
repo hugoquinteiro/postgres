@@ -1,0 +1,94 @@
+--Conversao de Departamentos
+CREATE OR REPLACE FUNCTION Inseredepto()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_conversao record;
+	seq_depto integer;
+	seq_grupo integer;
+	seq_subgrupo integer;
+BEGIN
+	CREATE SEQUENCE s_depto START 124;
+	CREATE SEQUENCE s_grupo START 279;
+	CREATE SEQUENCE s_subgrupo START 1285;
+	
+	--Inclusão do Departamento
+	FOR row_conversao IN 
+		SELECT DISTINCT depto, grupo, subgrupo  FROM deptonovo ORDER BY depto, grupo, subgrupo  
+	LOOP
+		
+		--Verifica departamento
+		IF row_conversao.depto = (SELECT nome FROM departamento WHERE nome=row_conversao.depto) THEN 
+			RAISE NOTICE 'Departamento ja esta cadastrado:%', row_conversao.depto;
+		ELSE 
+			RAISE NOTICE 'Incluindo departamento %', row_conversao.depto;
+			SELECT NEXTVAL('s_depto') INTO seq_depto;
+			INSERT INTO departamento (coddepto, nome) VALUES (seq_depto,row_conversao.depto);
+		END IF;
+		
+		--Verifica Grupo
+		IF row_conversao.grupo = (SELECT descricao FROM grupoprod WHERE coddepto=(SELECT coddepto FROM departamento WHERE nome=row_conversao.depto) AND descricao=row_conversao.grupo) THEN 
+			RAISE NOTICE 'Grupo ja esta cadastrado:%', row_conversao.depto;
+		ELSE
+			RAISE NOTICE 'Incluindo grupo %', row_conversao.grupo;
+			SELECT NEXTVAL('s_grupo') INTO seq_grupo;
+			INSERT INTO grupoprod (coddepto, codgrupo, descricao) VALUES (seq_depto,seq_grupo, row_conversao.grupo);
+		END IF;	
+
+		--Verifica SubGrupo
+		IF row_conversao.subgrupo = (SELECT descricao FROM subgrupo WHERE codgrupo=(SELECT codgrupo FROM grupoprod WHERE descricao=row_conversao.grupo) AND descricao=row_conversao.subgrupo) THEN 
+			RAISE NOTICE 'SubGrupo ja esta cadastrado:%', row_conversao.grupo;
+		ELSE
+			RAISE NOTICE 'Incluindo subgrupo %', row_conversao.subgrupo;
+			SELECT NEXTVAL('s_subgrupo') INTO seq_subgrupo;
+			INSERT INTO subgrupo (codgrupo, codsubgrupo, descricao) VALUES (seq_grupo,seq_subgrupo,row_conversao.subgrupo);
+		END IF;	
+
+	END LOOP;
+	DROP SEQUENCE s_depto;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION Inseredepto()
+  OWNER TO postgres;
+
+
+SELECT Inseredepto()
+SELECT MAX(coddepto) FROM departamento
+SELECT * FROM grupoprod LIMIT 5
+SELECT MAX(codgrupo) FROM grupoprod LIMIT 5
+SELECT * FROM subgrupo LIMIT 5
+SELECT MAX (codsubgrupo) FROM subgrupo LIMIT 5
+
+
+
+CREATE OR REPLACE FUNCTION atualizaproduto()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_deptos record;
+	i integer;
+BEGIN
+	
+	
+	--Atualização do Departamento nos itens
+	FOR row_deptos IN 
+		SELECT DISTINCT codproduto, departamento.coddepto, grupoprod.codgrupo, subgrupo.codsubgrupo
+			FROM deptonovo AS conversao INNER JOIN departamento ON (UPPER(departamento.nome) = UPPER(conversao.depto))
+			INNER JOIN grupoprod ON (UPPER(grupoprod.descricao) = UPPER(conversao.grupo) AND departamento.coddepto = grupoprod.coddepto)
+			INNER JOIN subgrupo ON (UPPER(subgrupo.descricao) = UPPER(conversao.subgrupo) AND grupoprod.codgrupo = subgrupo.codgrupo) ORDER BY codproduto
+
+	LOOP
+		RAISE NOTICE 'Atualizando departamentos para o item %', row_deptos.codproduto;
+		UPDATE produto SET coddepto=row_deptos.coddepto, codgrupo=row_deptos.codgrupo, codsubgrupo=row_deptos.codsubgrupo WHERE codproduto=row_deptos.codproduto;
+	END LOOP;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION atualizaproduto()
+  OWNER TO postgres;
+
+SELECT atualizaproduto()

@@ -1,0 +1,4 @@
+INSERT INTO usuario VALUES ('Adm2','Administrador Backup','œˆŒ','robson2@controlware.com.br','N',NULL,NULL,'1','S','14:00:41','S');
+
+--Senha 
+cws

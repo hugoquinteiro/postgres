@@ -1,0 +1,13 @@
+--SELECT * FROM mxf_tmp_icms_entrada LIMIT 20
+
+SELECT MAX(idncm) FROM ncm
+CREATE sequence temp1 restart 999;
+
+INSERT INTO ncm(
+            idncm, codigoncm, descricao, codcfnfe, codcfnfs, codcfpdv, codipi, 
+            codpiscofinsent, codpiscofinssai, aliqiva, aliqmedia)
+	SELECT (nextval('temp1')) AS idncm, 
+	(SUBSTR(ncm,1,4)||'.'||SUBSTR(ncm,5,2)||'.'||SUBSTR(ncm,7,2)) AS codigoncm, 
+	'MIX Fiscal' AS descricao, 1 AS codcfnfe,1 AS codcfnfs, 1 AS codcfpdv,1 AS codipi,2 AS codpiscofinsent, 6 AS codpiscofinssai ,NULL AS aliqiva,0 AS aliqmedia
+	FROM mxf_tmp_pis_cofins WHERE ncm NOT IN (SELECT SUBSTR(codigoncm,1,4)||SUBSTR(codigoncm,6,2)||SUBSTR(codigoncm,9,2) FROM ncm)
+	GROUP BY 2

@@ -1,0 +1,10 @@
+--Verifica 
+SELECT codproduto, tptribicms, natoperacao FROM itnotafiscal WHERE idnotafiscal IN (
+	SELECT idnotafiscal FROM notafiscal WHERE operacao='CP' AND dtentrega>='2016-12-01' AND dtentrega<='2017-12-31'
+	) AND  SUBSTR(natoperacao,1,5)='1.102' AND tptribicms='F'
+
+
+--Atualiza
+UPDATE itnotafiscal SET natoperacao='1.403' WHERE SUBSTR(natoperacao,1,5)='1.102' AND tptribicms='F'	 
+						AND idnotafiscal IN (
+						SELECT idnotafiscal FROM notafiscal WHERE operacao='CP' AND dtentrega>='2016-12-01' AND dtentrega<='2017-12-31')

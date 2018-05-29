@@ -1,0 +1,20 @@
+
+Bom dia pessoal,
+ 
+    Preciso capturar os caracteres de um campo varchar até achar um caractere que não seja número. Por exemplo:
+ 
+    122-43 – Aqui preciso capturar 122;
+    33a12 – aqui 33;
+    556 – aqui 556.
+
+Bom dia.
+
+Pelo que entendi você precisar capturar os primeiros números de uma string, você pode fazer isso usando expressões regulares:
+
+SELECT SUBSTRING('122-43', '([0-9]*)');
+SELECT SUBSTRING('33a12', '([0-9]*)');
+SELECT SUBSTRING('556', '([0-9]*)'); 
+
+Na sua query, você pode fazer algo como:
+
+SELECT * FROM tabela ORDER BY coalesce(SUBSTRING(campo, '([0-9]*)')::integer, 0)

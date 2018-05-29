@@ -1,0 +1,4 @@
+update cupom set numeroecf = (select numeroecf from maparesumo where codestabelec = cupom.codestabelec and dtmovto=cupom.dtmovto and caixa = cupom.caixa limit 1) where (numeroecf is null OR numeroecf=0) and dtmovto between '2013-04-01' AND '2013-04-30'
+
+
+update cupom set numeroecf = (select numeroecf from maparesumo where codestabelec = cupom.codestabelec and dtmovto=cupom.dtmovto and caixa = cupom.caixa limit 1) where (numeroecf is null OR numeroecf=0) and dtmovto between '2013-04-01' AND '2013-04-30'

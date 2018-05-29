@@ -1,0 +1,12 @@
+1----------------------------------------------
+Ola,
+Tenho uns quantos registos com o símbolo ' no meio do texto e gostaria
+de remove-lo.
+Como posso fazer isso? Seria algo como isto mas falta-lhe algo:
+
+SELECT replace(campo, ' CALLOSA D'EN SARRIÁ' , '');
+
+RESPOSTA: (SEM TESTE)
+SELECT REPLACE( $$marca d'agua$$, $$'$$, '' )
+
+

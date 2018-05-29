@@ -1,0 +1,8 @@
+DELETE FROM consvendadia WHERE dtmovto='2014-01-02' AND codestabelec=1 AND tipovenda='C'
+
+
+INSERT INTO consvendadia (codestabelec, dtmovto, codproduto, quantidade, venda, custo, desconto, acrescimo, composicao, tipovenda)
+	SELECT codestabelec, dtmovto,codproduto,  SUM(quantidade) AS quantidade, SUM(valortotal) AS venda, SUM(custorep) AS custo, SUM(desconto) AS desconto, SUM(acrescimo) AS acrescimo, composicao, 'C' AS tipovenda
+	FROM cupom INNER JOIN itcupom ON (cupom.idcupom = itcupom.idcupom)
+	WHERE dtmovto='2014-01-02' AND cupom.status<>'C' AND itcupom.status<>'C' AND codestabelec=1
+	GROUP BY 1,2,3,9,10

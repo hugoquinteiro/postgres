@@ -1,0 +1,1 @@
+UPDATE notafiscal SET hrdigitacao = substring(hrdigitacao::text FROM 1 FOR 8)::Time without time zone;

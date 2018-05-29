@@ -1,0 +1,5 @@
+SELECT dtemissao, operacao, numpedido FROM pedido WHERE totalliquido=0 ORDER BY dtemissao
+ALTER TABLE pedido DISABLE TRIGGER USER;
+UPDATE pedido SET totalliquido=(SELECT SUM(totalliquido) FROM itpedido WHERE pedido.numpedido=itpedido.numpedido AND pedido.operacao=itpedido.operacao AND pedido.codestabelec=itpedido.codestabelec)
+WHERE pedido.totalliquido=0  AND pedido.operacao='CP';
+ALTER TABLE pedido ENABLE TRIGGER USER;

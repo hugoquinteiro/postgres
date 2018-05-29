@@ -1,0 +1,4 @@
+UPDATE maparesumo SET numeroecf = caixa;
+ALTER TABLE cupom DISABLE TRIGGER ALL;
+UPDATE cupom SET numeroecf = (SELECT numeroecf FROM maparesumo WHERE codestabelec = cupom.codestabelec AND dtmovto = cupom.dtmovto AND caixa = cupom.caixa) WHERE dtmovto>='2013-11-01';
+ALTER TABLE cupom ENABLE TRIGGER ALL;

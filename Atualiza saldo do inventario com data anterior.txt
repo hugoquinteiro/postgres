@@ -1,0 +1,1 @@
+UPDATE itinventario SET sldatual=saldo(1,codproduto,'2017-08-17') WHERE codinventario=1

@@ -1,0 +1,40 @@
+--Cria sequencia
+SELECT MAX(codmovimento) FROM movimento limit 1
+create sequence temp1 start 1184; (somar +1)
+--drop sequence temp1;
+
+
+
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+    SELECT codestabelec, codproduto, 'E' AS tipo , '2013-04-26' AS dtmovto, sldatual*(-1) AS quantidade, precovrj, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+999 as codtpdocto, 
+       (nextval('temp1')) AS codmovimento, custorep 
+  FROM produtoestab WHERE codestabelec=99 AND sldatual<0;
+
+
+
+
+
+
+
+
+--Testa negativos
+SELECT codestabelec, codproduto, 'E' AS tipo , '2013-01-16' AS dtmovto, sldatual*(-1) AS quantidade, precovrj, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 27 as codtpdocto, 
+       (nextval('temp1')) AS codmovimento, custorep 
+  FROM produtoestab WHERE codestabelec=3 AND sldatual<0
+
+
+--Deleta produto com data anterior
+SELECT MAX(codmovimento) FROM movimento limit 1
+create sequence temp1 start 5316268;
+drop sequence temp1;
+
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+SELECT 2 AS codestabelec, produtoestab.codproduto, 'S' AS tipo , MAX(produtoestabsaldo.data) AS dtmovto, produtoestabsaldo.saldo AS quantidade, produtoestab.precovrj, 
+    'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 14 as codtpdocto,      (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestab.codestabelec = produtoestabsaldo.codestabelec)
+  WHERE produtoestabsaldo.codestabelec=2 AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data<'2013-03-27' AND produto.coddepto=20 
+  --AND produtoestabsaldo.codproduto=24025
+  GROUP BY 1,2,3,5,6,7,8,9,10,12
+

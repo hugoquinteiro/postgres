@@ -1,0 +1,9 @@
+--Este comando só funciona a partir das versoes 9.3
+SELECT registroold::JSON->>'codcfpdv', registronew::JSON->>'codcfpdv' FROM historico WHERE tabela='produto' AND chave='9999' 
+
+
+--Segunda opção 
+
+SELECT dtcriacao, (SELECT descricao FROM classfiscal WHERE codcf= CAST(regold AS integer)) AS antigo, (SELECT descricao FROM classfiscal WHERE codcf= CAST(regnew AS INTEGER)) AS novo FROM (
+	SELECT dtcriacao, registroold::JSON->>'codcfpdv' AS regold, registronew::JSON->>'codcfpdv' AS regnew FROM historico WHERE tabela='produto' AND chave='9999'
+	) AS temp

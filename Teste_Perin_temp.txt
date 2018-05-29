@@ -1,0 +1,33 @@
+SELECT SUM(quantidade), tipodocumento.descricao FROM movimento INNER JOIN tipodocumento USING (codtpdocto) 
+WHERE codproduto=2
+group by 2
+
+
+SELECT SUM(itnotafiscal.quantidade), itnotafiscal.operacao FROM itnotafiscal INNER JOIN notafiscal USING (idnotafiscal)
+ WHERE codproduto=2 AND notafiscal.status<>'C'
+GROUP BY 2
+
+SELECT codestabelec, quantidade, codestabelectransf, dtentrega FROM itpedido WHERE codproduto=5001 AND operacao='VD' AND status='A' AND dtentrega='2012-09-20'
+ORDER BY dtentrega
+
+SELECT itpedido.numpedido,itpedido.codestabelec, itpedido.quantidade, codparceiro, itpedido.codestabelectransf, itpedido.dtentrega, pedido.automatico, pedido.status,
+pedido.usuario, pedido.datalog
+FROM itpedido INNER JOIN pedido USING (numpedido, codestabelec)
+ WHERE codproduto=5001 AND itpedido.operacao='TS' 
+AND itpedido.dtentrega='2012-09-20'
+ORDER BY itpedido.dtentrega
+--AND itpedido.status='P'
+
+
+SELECT * FROM movimento WHERE codproduto=2
+
+SELECT itnotafiscal.idnotafiscal, itnotafiscal.codmovimento, itnotafiscal.codproduto, itnotafiscal.quantidade, movimento.quantidade FROM itnotafiscal LEFT JOIN movimento USING (codmovimento)
+WHERE itnotafiscal.codproduto=2 and itnotafiscal.operacao='TE' 
+GROUP BY 1
+
+ORDER BY CODMOVIMENTO
+
+select * from notafiscal where idnotafiscal=4824
+
+--AND itnotafiscal.quantidade<>movimento.quantidade
+

@@ -1,0 +1,14 @@
+SELECT codproduto, descricaofiscal, ent.tptribicms, ent.aliqicms, sai.tptribicms, sai.aliqicms
+FROM produto 
+INNER JOIN classfiscal AS ent ON (produto.codcfnfe = ent.codcf)
+INNER JOIN classfiscal AS sai ON (produto.codcfnfs = sai.codcf)
+WHERE ent.aliqicms>sai.aliqicms 
+
+---Para ver na cotacao
+
+SELECT codproduto, descricaofiscal, ent.tptribicms, ent.aliqicms, sai.tptribicms, sai.aliqicms
+FROM produto 
+INNER JOIN classfiscal AS ent ON (produto.codcfnfe = ent.codcf)
+INNER JOIN classfiscal AS sai ON (produto.codcfnfs = sai.codcf)
+WHERE ent.aliqicms>sai.aliqicms 
+AND codproduto IN (SELECT codproduto FROM itcotacao WHERE codcotacao=999)

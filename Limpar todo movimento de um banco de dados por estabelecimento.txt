@@ -1,0 +1,18 @@
+--Limpa tabelas de movimento por estabelecimento
+DELETE FROM movimento WHERE codestabelec=99
+DELETE FROM notafiscal WHERE codestabelec=99
+DELETE FROM notadiversa WHERE codestabelec=99
+DELETE FROM notacomplemento WHERE codestabelec=99
+DELETE FROM cupom WHERE codestabelec=99
+DELETE FROM maparesumo WHERE codestabelec=99
+DELETE FROM logpreco WHERE codestabelec=99
+DELETE FROM logetiqueta WHERE codestabelec=99
+DELETE FROM lancamentogru WHERE codestabelec=99
+DELETE FROM lancamento WHERE codestabelec=99
+DELETE FROM consvendames WHERE codestabelec=99
+DELETE FROM consvendadia WHERE codestabelec=99
+DELETE FROM consvendadiadep WHERE codestabelec=99
+DELETE FROM diastrabalhados WHERE codestabelec=99
+DELETE FROM leitura_data WHERE codestabelec=99
+DELETE FROM produtoestab WHERE codestabelec=99
+

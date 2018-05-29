@@ -1,0 +1,36 @@
+SELECT * FROM produto WHERE codproduto=5267
+"SH+COND NIELY GOLD NUTRIA‡AƒO PODEROSA"
+"EXTRATO TOMATE OLA‰ CP"
+"LEITE PIRACANJUBA INSTATANIO PA“400G"
+"ESPELHO PLASTICO PAVAO ( Ni¿½ 16 ) 1 UND."
+"SABAïO BYPE ALOE VERA"
+"AGUA SANITARIA YPAŠ 2"
+"ESMALTE RISQUAˆ CAPUC"
+"CAFE CAIÃCARA CAPPUCC"
+"ALCOOL MEGA 46Aº 500M "
+"AMENDOIM TJAPONAS STAª HELENA 30G"
+"CAFE 3 CORAACA•ES 50G"
+"ALCOOL FLOPA´S 92,8 1"
+"LIMPADOR RENOVAR MOMENTOS DE INFA‚NCIA 1L"
+"ALV BAšFALO S/CLORO LAVANDA 2L "
+
+SELECT descricaofiscal, REPLACE(descricaofiscal,'‡','C') FROM produto WHERE codproduto=5082
+SELECT REPLACE(descricaofiscal,'‰','') FROM produto WHERE descricaofiscal LIKE '%A‚%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,' ',''), descricao=REPLACE(descricao,' ','') WHERE descricaofiscal LIKE '%%' OR descricao LIKE '%%'
+
+
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'Aš','U'), descricao=REPLACE(descricao,'Aš','U') WHERE descricaofiscal LIKE '%Aš%' OR descricao LIKE '%Aš%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'A‚','A'), descricao=REPLACE(descricao,'A‚','A') WHERE descricaofiscal LIKE '%A‚%' OR descricao LIKE '%A‚%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'´',''), descricao=REPLACE(descricao,'´','') WHERE descricaofiscal LIKE '%´%' OR descricao LIKE '%´%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'•',''), descricao=REPLACE(descricao,'•','') WHERE descricaofiscal LIKE '%•%' OR descricao LIKE '%•%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'ª',''), descricao=REPLACE(descricao,'ª','') WHERE descricaofiscal LIKE '%ª%' OR descricao LIKE '%ª%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'º',''), descricao=REPLACE(descricao,'º','') WHERE descricaofiscal LIKE '%º%' OR descricao LIKE '%º%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'Ã',''), descricao=REPLACE(descricao,'Ã','') WHERE descricaofiscal LIKE '%Ã%' OR descricao LIKE '%Ã%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'ˆ',''), descricao=REPLACE(descricao,'ˆ','') WHERE descricaofiscal LIKE '%ˆ%' OR descricao LIKE '%ˆ%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'Š',''), descricao=REPLACE(descricao,'Š','') WHERE descricaofiscal LIKE '%Š%' OR descricao LIKE '%Š%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'ï',''), descricao=REPLACE(descricao,'ï','') WHERE descricaofiscal LIKE '%ï%' OR descricao LIKE '%ï%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'¿½',''), descricao=REPLACE(descricao,'¿½','') WHERE descricaofiscal LIKE '%¿½%' OR descricao LIKE '%¿½%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'ƒ',''), descricao=REPLACE(descricao,'ƒ','') WHERE descricaofiscal LIKE '%ƒ%' OR descricao LIKE '%ƒ%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'‡','C'), descricao=REPLACE(descricao,'‡','C') WHERE descricaofiscal LIKE '%‡%' OR descricao LIKE '%‡%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'‰',''), descricao=REPLACE(descricao,'‰','') WHERE descricaofiscal LIKE '%‰%' OR descricao LIKE '%‰%'
+UPDATE produto SET descricaofiscal=REPLACE(descricaofiscal,'¦',''), descricao=REPLACE(descricao,'¦','') WHERE descricaofiscal LIKE '%¦%' OR descricao LIKE '%¦%'

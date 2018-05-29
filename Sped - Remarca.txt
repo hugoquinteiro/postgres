@@ -1,0 +1,74 @@
+---SPED LAVERDE
+
+--Correção das cidades
+update cidade set codoficial=3550308 where codoficial IS null
+update cidade set codoficial=3550308 where codoficial=0
+
+--Correção do CFOP das notas
+UPDATE notafiscal SET natoperacao='1.102' WHERE natoperacao='1'
+UPDATE itnotafiscal SET natoperacao='1.102' WHERE natoperacao='1' 
+
+--Verificando PIS/Cofins no cadastro de produto
+SELECT DISTINCT produto.codpiscofinsent, piscofins.codcst
+FROM produto INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+SELECT count(*) FROM produto WHERE codpiscofinsent=7
+UPDATE produto SET codpiscofinsent=1 WHERE codpiscofinsent=7
+
+
+
+-- Atualizar natureza da operacao
+SELECT * FROM departamento ORDER BY coddepto
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',1);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',2);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',3);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',4);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',5);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',6);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',7);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',8);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',9);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',10);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',11);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',12);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',13);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',14);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',15);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',16);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',17);
+INSERT INTO natreceita(natreceita, tabela, codigo) VALUES ('401','D',18);
+
+
+-- Zerando tributacao dos itens com entrada 1.910
+select distinct natoperacao from itnotafiscal WHERE operacao='CP'
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao='1.910' and totalpis>0;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0 WHERE natoperacao='1.910' and totalpis>0;
+UPDATE itnotafiscal SET bonificado='S' WHERE  natoperacao='1.910'; 
+
+
+-- Acerto no cadastro de ECF
+select * from ecf
+update ecf SET caixa=1 WHERE numfabricacao='SW031000000000010608';
+update ecf SET caixa=2 WHERE numfabricacao='SW031000000000011515';
+update ecf SET caixa=3 WHERE numfabricacao='SW031000000000011516';
+update ecf SET caixa=4 WHERE numfabricacao='SW031000000000011517';
+update ecf SET caixa=5 WHERE numfabricacao='SW031000000000011518';
+update ecf SET caixa=6 WHERE numfabricacao='SW031000000000011519';
+
+-- Acerto no mapa resumo para gravar as ECF
+UPDATE maparesumo SET codecf=caixa WHERE caixa<7
+
+
+-- Corrige cadastro de produtos com itens que tem CST de PIS e Cofins incorretos
+UPDATE itcupom SET totalbasepis=valortotal, totalbasecofins=itcupom.valortotal, aliqpis=1.65, aliqcofins=7.60, 
+totalpis=(valortotal*0.0165), totalcofins=(valortotal*0.076)
+WHERE itcupom.idcupom=(SELECT i.idcupom FROM itcupom AS i
+			INNER JOIN cupom AS C ON (i.idcupom=c.idcupom)
+			INNER JOIN produto AS p ON (i.codproduto=p.codproduto)
+			INNER JOIN piscofins AS pi ON (p.codpiscofinssai=pi.codpiscofins)
+			WHERE pi.tipo='T' AND i.totalbasepis=0 AND c.dtmovto>='2012-01-01' AND itcupom.idcupom=i.idcupom 
+			AND itcupom.codproduto=i.codproduto)
+
+
+-- Atualiza contadores do mapa
+UPDATE maparesumo SET reiniciofim=1 WHERE reiniciofim IS NULL
+UPDATE maparesumo SET reinicioini=1 WHERE reinicioini IS NULL

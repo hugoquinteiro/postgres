@@ -1,0 +1,6 @@
+** Serve para utilizar a tela que faz pesquisa em concorrentes, se este parâmetro 
+não estivar configurado sistemas não consegue fazer pesquisas
+--disable-web-security
+
+** Não pedir permissão para rodar o java
+--always-authorize-plugins

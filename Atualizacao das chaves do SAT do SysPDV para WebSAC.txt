@@ -1,0 +1,25 @@
+****Atualizacao das chaves do SAT do SysPDV para WebSAC ****
+
+--Importando do SysPDV
+SELECT 'UPDATE cupom SET chavecfe='''||trnchvcfe||''' WHERE caixa=1 AND dtmovto='''||CAST(trndat AS date)||''' AND codestabelec=1 AND chavecfe IS NULL AND  seqecf=LTRIM('''||trnseq||''',''0'');'  FROM transacao WHERE trnchvcfe<>' ' AND trndat='2015-12-04' AND cxanum=001 ORDER BY trnseq
+
+ -- Salvar em txt e rodar UPDATE no banco do Websac.
+
+
+-- Trocando sequencia da chavecfe no campo CUPOM do websac 
+UPDATE cupom SET seqecf=SUBSTR(chavecfe,32,6) WHERE codestabelec=1 AND dtmovto>='2017-06-01' AND chavecfe IS NOT NULL 
+
+
+
+-- comando para corrigir cupom do barros
+UPDATE cupom SET seqecf=cupom WHERE codestabelec=1 AND dtmovto>='2015-12-01' AND chavecfe IS NOT NULL
+
+
+--Comando utilizados para atualizar no Mihara (Gera um INSERT para executar no banco)
+
+COPY temp_chavecfe (data,caixa,cupom,chave) from 'C:/TEMP/AAA.CSV' delimiter ';';
+SELECT 'UPDATE cupom SET chavecfe='''||chave||''' WHERE codestabelec=2 AND caixa=5 AND CAST(cupom AS integer)='||caixa||' AND dtmovto='''||data||''';' FROM temp_chavecfe 
+
+
+--Comando utilizado no Camicado
+UPDATE cupom SET seqecf=SUBSTR(chavecfe,32,6) WHERE codestabelec=1 AND dtmovto>='2017-06-01' AND dtmovto<='2017-06-30' AND chavecfe IS NOT NULL AND seqecf<>SUBSTR(chavecfe,32,6)

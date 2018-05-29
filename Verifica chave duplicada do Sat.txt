@@ -1,0 +1,11 @@
+SELECT DISTINCT caixa, numeroecf, CASE WHEN chavecfe IS NULL THEN 'SEM CHAVE' ELSE 'COM' END  FROM cupom WHERE status='A' AND  BETWEEN '2016-10-01' AND dtmovto = '2016-10-31' 
+
+SELECT chavecfe, COUNT(idcupom) FROM cupom 
+WHERE status='A' AND  dtmovto BETWEEN '2016-10-01' AND  '2016-10-31' 
+GROUP BY 1
+HAVING COUNT(idcupom) >1
+
+SELECT chavecfe, COUNT(idcupom) FROM cupom 
+WHERE status='A' AND  dtmovto BETWEEN '2016-11-01' AND  '2016-11-30' 
+GROUP BY 1
+HAVING COUNT(idcupom) >1

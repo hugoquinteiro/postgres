@@ -1,0 +1,89 @@
+--Teste Mobile
+http://codiqa.com/view/f883a3b9#
+
+-- Atualiza da dos arquivos
+UPDATE parametro SET valor='2020-01-01' WHERE idparam='ATUALIZACAO' AND codparam='DATAARQ'
+
+EMITENTE
+CNPJ_C02=10690274000103
+IE_C17=148526740118
+xNome_C03=Automatizando AC Ware
+
+DESTINATARIO
+CNPJ_E02=99999999000191
+IE_E17=ISENTO
+xNome_E04=NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL
+
+
+
+Filtros grupo e sub
+
+parentId='filtro_coddepto'
+parentId='filtro_codgrupo'
+
+
+Trocar valor na tela:
+javascript:$("#numnotafis").val('9999')
+
+Liberar campo para digitação:
+$("#numnotafis,#serie").disabled(false)
+
+Geracao do SPED com parametros:
+http://localhost/websac/form/spedpiscofins.php?idtable=SpedPisCofins&filtrotecnico=S
+
+
+---Gerado para Alex para apagar PLU que ja tem EAN no produtoean
+DELETE FROM produtoean AS tmp WHERE tmp.codean=(SELECT min(codean) from produtoean 
+WHERE codproduto=tmp.codproduto GROUP BY codproduto HAVING COUNT(codean)>1)
+
+-- Correcao de CNPJ para CPF
+UPDATE cliente SET cpfcnpj = SUBSTR(cpfcnpj,1,2)||SUBSTR(cpfcnpj,4,1)||'.'||SUBSTR(cpfcnpj,5,2)||SUBSTR(cpfcnpj,8,1)||'.'||SUBSTR(cpfcnpj,9,2)||SUBSTR(cpfcnpj,12,1)||'-'||SUBSTR(cpfcnpj,13,2) 
+WHERE LENGTH(cpfcnpj) = 15 AND tppessoa = 'F';
+
+
+-- Correcao de CNPJ para CPF no bahia
+UPDATE cliente SET cpfcnpj = (SUBSTR(cpfcnpj,1,3)||'.'||SUBSTR(cpfcnpj,4,3)||'.'||SUBSTR(cpfcnpj,7,3)||'-'||SUBSTR(cpfcnpj,10,2))
+WHERE LENGTH(cpfcnpj) = 11 AND tppessoa = 'F';
+
+-- Correcao de CNPJ sem mascara
+update fornecedor set cpfcnpj=SUBSTR(cpfcnpj,1,2)||'.'||SUBSTR(cpfcnpj,3,3)||'.'||SUBSTR(cpfcnpj,6,3)||'/'||SUBSTR(cpfcnpj,9,4)||'-'||
+SUBSTR(cpfcnpj,13,2) 
+ WHERE LENGTH(cpfcnpj) = 19 AND tppessoa = 'J' AND cpfcnpj IS NOT NULL
+
+
+
+-- Desabilitar segurança no Chrome
+
+--disable-web-security
+"C:\Documents and Settings\Hugo-PC\Configurações locais\Dados de aplicativos\Google\Chrome\Application\chrome.exe" --disable-web-security
+
+-- Exemplo para bucasr preco nos sites
+.price-off strong (sempre que for CLASS utilizar ".")
+# (sempre que for ID utilizar "#")
+
+-- Conversão utilizando DBF
+UPDATE produtoestab SET precovrj=      4.99, custorep=      0.00 WHERE codproduto=(SELECT codproduto FROM produtoean WHERE codean='0000002242293');
+
+REPLA COMANDO WITH "UPDATE produtoestab SET precovrj= "+str(VENDA,9,2)+", custorep= "+STR(CUSTO)+" WHERE codproduto=(SELECT codproduto FROM produtoean WHERE codean='"+SUBS(EAN,8,13)+"');"
+
+REPLA texto WITH "INSERT INTO movimento VALUES (1,"+subs(codpro,1,5)+" , 'E','2013-10-31', " +str(quantest,9,2)+"," +str(VENDA,9,2)+", NULL, 'A', NULL, NULL, 1, 5, NULL, 1, 1, NULL," +str(custo,9,2)+", NULL, '2014-02-21', NULL);" FOR quantest>0
+
+--Manutenção no usuário da MIX Fiscal
+DROP VIEW mxf_vw_icms; 
+DROP VIEW mxf_vw_pis_cofins;
+
+DROP TABLE mxf_tmp_icms_saida;
+DROP TABLE mxf_tmp_pis_cofins;
+
+DROP USER mixfiscal;
+
+
+Link para exclusao de produto
+http://localhost/websac/form/delproduto.php?idtable=DelProduto
+
+--Gravando link em favoritos
+Para deixar o ponto de venda em favoritos do websac é só execultar a url 
+abaixo no browser com o websac aberto no usuário que deseja colocar em favorito o ponto de venda, 
+lembrando de trocar o localhost pelo determinado caminho do websac.
+
+http://localhost/websac/ajax/favoritos.php?action=save&idtable=PontoVenda

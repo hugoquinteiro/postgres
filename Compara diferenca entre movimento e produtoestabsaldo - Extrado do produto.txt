@@ -1,0 +1,9 @@
+SELECT data, saldo, mov, (saldo-mov) AS dif FROM (
+SELECT saldo.data, saldo.saldo,
+(SELECT SUM(CASE WHEN tipo='S' THEN (quantidade*qtdeunidade)*(-1) ELSE quantidade*qtdeunidade END) FROM movimento WHERE codproduto=saldo.codproduto AND codestabelec=saldo.codestabelec AND dtmovto<=saldo.data ) AS mov
+FROM  produtoestabsaldo AS saldo
+--(movimento.codproduto=produtoestabsaldo.codproduto AND movimento.codestabelec=produtoestabsaldo.codestabelec AND movimento.dtmovto=produtoestabsaldo.data)
+WHERE saldo.codproduto=8883 
+AND data<='2017-12-31'
+) AS temp
+ORDER BY 1

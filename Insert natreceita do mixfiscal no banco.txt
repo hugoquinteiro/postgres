@@ -1,0 +1,3 @@
+INSERT INTO natreceita ( natreceita, tabela, codigo)
+	SELECT DISTINCT cod_natureza_receita as natreceita, 'P' as tabela, codigo_produto as codigo 
+	FROM mxf_tmp_pis_cofins WHERE codigo_produto NOT IN (SELECT codigo FROM natreceita WHERE tabela='P') AND cod_natureza_receita IS NOT NULL;

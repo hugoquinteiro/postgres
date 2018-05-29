@@ -1,0 +1,16 @@
+Insert de pedido para Papelaria
+
+INSERT INTO itpedido(SELECT
+            codestabelec, numpedido, codproduto, quantidade, preco, percipi, 
+            valipi, aliqicms, percdescto, valdescto, reffornec, status, qtdeatendida, 
+            redicms, codunidade, qtdeunidade, bonificado, percacresc, valacresc, 
+            percfrete, valfrete, aliqiva, tipoipi, tptribicms, valorpauta, 
+            totaldesconto, totalacrescimo, totalfrete, totalipi, totalbaseicms, 
+            totalicms, totalbaseicmssubst, totalicmssubst, totalbruto, totalliquido, 
+            totalarecolher, seqitem, natoperacao, operacao, complemento, 
+            totalbaseii, totalii, valiof, despaduaneira, valseguro, numadicao, 
+            seqadicao, valdesctodi, percseguro, totalseguro, aliqii, valsiscomex, 
+            totalcif, aliqpis, aliqcofins, totalbasepis, totalbasecofins, 
+            totalpis, totalcofins, redpis, redcofins, iditpedido, numerolote, 
+            dtvalidade 
+	FROM itpedido_tmp WHERE numpedido=XX, codestabelec=YY, operacao=ZZ)

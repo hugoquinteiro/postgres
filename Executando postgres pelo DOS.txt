@@ -1,0 +1,2 @@
+psql -U postgres -d banco -c “SELECT * FROM clientes”
+

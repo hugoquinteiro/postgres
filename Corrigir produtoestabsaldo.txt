@@ -1,0 +1,62 @@
+DO $$
+DECLARE
+	i INTEGER;
+	p DECIMAL(10,2);
+	n INTEGER;
+	var_codestabelec INTEGER;
+	var_dtinicial date;
+	var_dtfinal DATE;
+	var_dtcorrente date;
+	var_saldo numeric(15,4);
+	var_quantidade numeric(15,4);
+	arr_codproduto INTEGER[];
+	row_estabelecimento estabelecimento%ROWTYPE;
+	row_produto produto%ROWTYPE;
+	row_movimento movimento%ROWTYPE;
+BEGIN
+	RAISE NOTICE 'Iniciando processo';
+	var_codestabelec := 1;
+	var_dtinicial := (SELECT MIN(dtmovto) FROM movimento WHERE codestabelec = var_codestabelec);
+	var_dtfinal := (SELECT MAX(dtmovto) FROM movimento WHERE codestabelec = var_codestabelec);
+	RAISE NOTICE 'Data inicial: %', var_dtinicial;
+	RAISE NOTICE 'Data final: %', var_dtfinal;
+
+	RAISE NOTICE 'Selecionando produtos com divergencias de estoque';
+	arr_codproduto := ARRAY(
+		SELECT codproduto FROM (
+			SELECT codproduto, codestabelec , sldatual AS saldo1,
+				COALESCE((SELECT saldo FROM produtoestabsaldo WHERE codproduto = produtoestab.codproduto AND codestabelec = produtoestab.codestabelec ORDER BY data DESC LIMIT 1), 0) AS saldo2
+			FROM produtoestab
+			WHERE codestabelec = var_codestabelec
+		) AS temporario WHERE saldo1 <> saldo2
+	);
+	
+	RAISE NOTICE 'Deletando registros antigos';
+	DELETE FROM produtoestabsaldo WHERE data >= var_dtinicial AND codestabelec = var_codestabelec AND codproduto = ANY(arr_codproduto);
+
+	RAISE NOTICE 'Calculando total a ser analisado';
+	i := 1;
+	n := (SELECT COUNT(*) FROM produtoestab WHERE codestabelec = var_codestabelec AND codproduto = ANY(arr_codproduto));
+	RAISE NOTICE 'Registros a serem analisados: %', n;
+	
+	FOR row_estabelecimento IN SELECT * FROM estabelecimento WHERE codestabelec = var_codestabelec ORDER BY codestabelec LOOP
+		FOR row_produto IN SELECT * FROM produto WHERE codproduto = ANY(arr_codproduto) ORDER BY codproduto LOOP
+			p := i::DECIMAL / n::DECIMAL * 100;
+			IF i = 1 OR i = n OR i % 50 = 0 THEN
+				RAISE NOTICE 'Progresso total: % de % ... % %%', i, n, p;
+			END IF;
+			var_dtcorrente := var_dtinicial;
+			var_saldo := saldo(row_estabelecimento.codestabelec,row_produto.codproduto,var_dtinicial);
+			WHILE var_dtcorrente <= var_dtfinal LOOP
+				var_quantidade := COALESCE((SELECT SUM(qtdeunidade * quantidade * (CASE WHEN tipo = 'E' THEN 1 ELSE -1 END)) FROM movimento WHERE codestabelec = row_estabelecimento.codestabelec AND codproduto = row_produto.codproduto AND dtmovto = var_dtcorrente),0);
+				IF var_quantidade != 0 THEN
+					var_saldo := var_saldo + var_quantidade;
+					INSERT INTO produtoestabsaldo (data,codestabelec,codproduto,saldo) VALUES (var_dtcorrente,row_estabelecimento.codestabelec,row_produto.codproduto,var_saldo);
+				END IF;
+				var_dtcorrente := var_dtcorrente + 1;
+			END LOOP;
+			i := i + 1;
+		END LOOP;
+	END LOOP;
+END;
+$$;

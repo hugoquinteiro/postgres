@@ -1,0 +1,2 @@
+UPDATE produto SET codfamilia=NULL FROM produtoestab 
+WHERE produto.codproduto = produtoestab.codproduto AND produtoestab.codestabelec=1 AND produtoestab.sldatual<=0 AND produto.codfamilia IS NOT NULL

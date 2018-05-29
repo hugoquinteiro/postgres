@@ -1,0 +1,4 @@
+UPDATE maparesumo  AS mp SET caixa=(SELECT cupom.caixa 
+					FROM cupom WHERE mp.dtmovto=cupom.dtmovto AND mp.codestabelec=cupom.codestabelec AND mp.numeroecf=cupom.numeroecf LIMIT 1)
+WHERE dtmovto>'2015-05-28' AND dtmovto<='2015-05-31' AND  codestabelec=1 
+--WHERE dtmovto='2015-05-28' AND  codestabelec=1 AND numeroecf<>22

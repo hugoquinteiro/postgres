@@ -1,0 +1,32 @@
+--Importando
+COPY planocontas (codconta,numconta,nome,codgrcta) FROM 'C:/sistemas/caps/receita.txt' WITH DELIMITER ';'
+
+
+--Exportando
+COPY marca TO 'c:/temp/marca.txt' WITH DELIMITER ';'
+
+--Exportando um SELECT
+COPY 
+(
+SELECT rpad(codean, 13, ' ')||SUBSTR(descricao,1,7)
+FROM produtoean INNER JOIN produto USING (codproduto) 
+WHERE foralinha='N'
+AND coddepto<>99)
+TO 'c:/temp/caps.txt' WITH DELIMITER ';'
+
+
+COPY 
+(
+SELECT cupom, totalliquido FROM cupom 
+       WHERE dtmovto='2014-02-07' AND caixa=6 AND status='A'
+)
+TO '/etc/publico/ESTAB002/mov07-02.txt' WITH DELIMITER ';'
+
+
+
+--Pegando dados de um banco para atualizacao em outro.
+COPY 
+(
+SELECT 'UPDATE parametro SET observacao='''||observacao||''' WHERE codparam='''||codparam||''' AND idparam='''||idparam||''';' FROM parametro
+)
+TO 'c:/temp/obsparam.txt' WITH DELIMITER ';'

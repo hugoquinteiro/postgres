@@ -1,0 +1,32 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+	var_codestabelec integer;
+	var_dtmovto date;
+	row_itnotafiscal record;
+BEGIN
+	var_codestabelec := 7;
+	var_dtmovto := '2014-12-04';
+
+	DELETE FROM consvendadia WHERE codestabelec = var_codestabelec AND dtmovto = var_dtmovto AND tipovenda = 'N';
+
+	FOR row_itnotafiscal IN SELECT itnotafiscal.codproduto, SUM(itnotafiscal.quantidade) AS quantidade, SUM(itnotafiscal.totaldesconto) AS desconto, 
+	SUM(itnotafiscal.totalacrescimo) AS acrescimo, SUM(itnotafiscal.custorep) AS custorep, SUM(itnotafiscal.totalliquido) AS valortotal, itnotafiscal.composicao 
+	FROM itnotafiscal 
+	INNER JOIN notafiscal USING(idnotafiscal) 
+	WHERE notafiscal.codestabelec = var_codestabelec AND notafiscal.operacao = 'VD' 
+	AND notafiscal.dtemissao = var_dtmovto AND notafiscal.status = 'A' GROUP BY itnotafiscal.codproduto, itnotafiscal.composicao LOOP
+		INSERT INTO consvendadia (
+			codestabelec, dtmovto, codproduto, quantidade,
+			venda, custo, desconto, acrescimo,
+			composicao, tipovenda
+		) VALUES (
+			var_codestabelec, var_dtmovto, row_itnotafiscal.codproduto, row_itnotafiscal.quantidade,
+			row_itnotafiscal.valortotal, row_itnotafiscal.custorep, row_itnotafiscal.desconto, row_itnotafiscal.acrescimo,
+			row_itnotafiscal.composicao, 'N'
+		);
+	END LOOP;
+	
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+DROP FUNCTION temp();

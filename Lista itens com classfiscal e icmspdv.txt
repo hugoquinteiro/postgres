@@ -1,0 +1,12 @@
+SELECT DISTINCT codcfpdv, icmspdv.infpdv,
+(SELECT codproduto FROM produto AS cod WHERE cod.codcfpdv=produto.codcfpdv AND cod.foralinha='N' LIMIT 1) AS cod,
+(SELECT SUBSTR(descricao,1,20) FROM produto AS des WHERE des.codcfpdv=produto.codcfpdv AND des.foralinha='N' LIMIT 1) AS descr
+FROM produto
+INNER JOIN classfiscal ON (produto.codcfpdv = classfiscal.codcf)
+LEFT JOIN icmspdv ON (classfiscal.tptribicms=icmspdv.tipoicms AND classfiscal.aliqicms = icmspdv.aliqicms AND classfiscal.aliqredicms = icmspdv.redicms)
+WHERE icmspdv.codestabelec=1 AND produto.foralinha='N'
+ORDER BY 1
+
+
+--select * FROM icmspdv
+--select * FROM classfiscal

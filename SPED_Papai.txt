@@ -1,0 +1,112 @@
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao IN ('1.910','2.910','1.921','1.933','1.55619','1.55629','1.556','1.55625','2.949','1.949', '5.915', '5.929' ) AND dtentrega>='2013-10-01';
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0, bonificado='S' WHERE natoperacao IN ('1.910','2.910','1.921','1.933', '1.556', '1.55619','1.55629','1.556','1.55625','2.949','1.949', '5.915','5.929') AND dtentrega>='2013-10-01' ;
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+UPDATE notafiscal SET codparceiro=65 where codparceiro=316
+
+--Verificar necessidade
+UPDATE natoperacao SET gerafiscal='N', gerapiscofins='N' WHERE natoperacao IN ('1.55619','1.55629','1.556','1.55625')
+-- Rodar utilitario das notas, para CFOP acima, atualizando pis/cof e natoperacao
+
+--Correção em cupom
+ UPDATE itcupom SET status='C' WHERE codproduto=2 AND idcupom=83727;
+ UPDATE itcupom SET valortotal=0 WHERE idcupom=83727;
+ 
+-- Zerando valores de pis/cof nas transferencias
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao IN ('1.152', '5.152', '1.409', '5.409' ) AND dtentrega>='2013-10-01';
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0 WHERE natoperacao IN ('1.152', '5.152', '1.409', '5.409') AND dtentrega>='2013-10-01' ;
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;
+
+
+-- Correção no calculo de pis e Cofins da nota de energia
+-- Verificar notas que foram lançadas de forma errada CFOP de entrada 155619 (Nota:260930), CFOP dos itens 1.102
+
+
+-- Teste na base
+select gerapiscofins, * FROM natoperacao WHERE  SUBSTR(natoperacao,3,1)='5'
+ALTER DATABASE infanger RENAME TO websac;
+
+SELECT * FROM piscofins 
+select * from itnotafiscal where aliqpis>0 AND totalpis=0
+
+select DISTINCT operacao, natoperacao, bonificado FROM itnotafiscal WHERE operacao='CP'
+
+SELECT codproduto, bonificado, natoperacao, dtentrega FROM itnotafiscal where natoperacao='5.929' AND bonificado='N'
+
+UPDATE itnotafiscal SET bonificado='S'  where natoperacao='5.929' AND bonificado='N'
+
+'1.55619','1.55629','1.556','1.55625','2.949','1.949'
+'1.910','2.910','1.921','1.933','1.55619','1.55629','1.556','1.55625','2.949','1.949', '5.915', '5.929'
+SELECT * FROM natoperacao
+UPDATE natoperacao SET gerafiscal='N', gerapiscofins='N' WHERE natoperacao IN ('1.55619','1.55629','1.556','1.55625')
+
+
+select * FROM notafiscal where codparceiro=316
+UPDATE notafiscal SET codparceiro=65 where codparceiro=316
+SELECT * FROM notafiscal WHERE totalicmssubst=7.46 --DF num: 2026
+SELECT * FROM notafiscal WHERE totalicmssubst=0.66 --DF num: 2049select * from notafiscal WHERE codparceiro=2613
+select * from notadiversa WHERE codfornec=2613
+
+SELECT  tptribicms, aliqicms, SUM(itcupom.valortotal)
+FROM itcupom INNER JOIN cupom USING (idcupom)
+  WHERE composicao <> 'F' 
+  AND codestabelec=2
+   AND cupom.status='A' --AND tptribicms='T'  and aliqicms=18
+  AND dtmovto='2013-10-26'
+   AND caixa=8
+GROUP BY 1,2
+
+SELECT cupom.dtmovto AS data, tptribicms, aliqicms,quantidade, preco, desconto,  itcupom.valortotal, itcupom.status, cupom.status, 
+codproduto, itcupom.idcupom
+FROM itcupom INNER JOIN cupom USING (idcupom)
+  WHERE composicao <> 'F' 
+  AND codestabelec=2
+   AND cupom.status='A' AND tptribicms='T'  and aliqicms=7
+  AND dtmovto='2013-10-26'
+   AND caixa=8
+  ORDER BY 7
+
+  UPDATE itcupom SET preco=1.49 WHERE codproduto=41913 AND idcupom=83733;
+  UPDATE itcupom SET valortotal=0 WHERE codproduto=41913 AND idcupom=83733;
+
+  select * FROM itcupom WHERE codproduto=2 AND idcupom=83727
+  UPDATE itcupom SET status='C' WHERE codproduto=2 AND idcupom=83727;
+  UPDATE itcupom SET valortotal=0 WHERE idcupom=83727;
+
+  SELECT * FROM cupom WHERE idcupom=83727
+
+  select * from piscofins
+  SELECT codproduto, descricaofiscal, codpiscofinsent FROM produto INNER JOIN piscofins ON (produto.codpiscofinsent = piscofins.codpiscofins)
+  WHERE codcst<'50'
+
+  SELECT codproduto, descricaofiscal, codpiscofinsent FROM produto INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+  WHERE codcst>'49'
+
+  select numnotafis, it.idnotafiscal , it.bonificado, it.totalbasepis, it.totalpis, 
+it.aliqpis, it.dtentrega,it.operacao, it.natoperacao, it.codproduto 
+from itnotafiscal AS it
+INNER JOIN notafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+where it.totalbasepis>0  and it.dtentrega>='2013-10-01' and it.dtentrega<='2013-10-31'
+AND notafiscal.codestabelec=2
+AND piscofins.codcst='70'
+
+select numnotafis, gerapiscofins from notafiscal where dtemissao >='2013-10-01' AND dtemissao<='2013-10-31' AND operacao IN ('TS', 'TE') AND gerapiscofins='S'
+UPDATE notafiscal SET gerapiscofins='S' where dtemissao >='2013-10-01' AND dtemissao<='2013-10-31' AND operacao IN ('TS', 'TE') AND gerapiscofins='N'
+
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+UPDATE notafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0 WHERE natoperacao IN ('1.152', '5.152', '1.409', '5.409' ) AND dtentrega>='2013-10-01';
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+
+ALTER TABLE itnotafiscal DISABLE TRIGGER ALL;
+UPDATE itnotafiscal SET totalpis=0, totalcofins=0, totalbasepis=0, totalbasecofins=0, aliqpis=0, aliqcofins=0 WHERE natoperacao IN ('1.152', '5.152', '1.409', '5.409') AND dtentrega>='2013-10-01' ;
+ALTER TABLE itnotafiscal ENABLE TRIGGER ALL;

@@ -1,0 +1,33 @@
+--DROP FUNCTION unificapiscofinssai()
+CREATE OR REPLACE FUNCTION unificapiscofinssai() RETURNS void AS $$
+	DECLARE 
+	 row_cst  RECORD;
+	 var_cst_troca INTEGER;
+	 row_cstpiscofins RECORD;
+BEGIN
+	var_cst_troca := 0;
+--Verifica todos CSTs de Pis/Cofins
+FOR row_cstpiscofins IN SELECT codcst FROM piscofins WHERE codcst<'49' GROUP BY codcst HAVING COUNT(codpiscofins)>1 LOOP
+
+	SELECT codpiscofinssai, count(codproduto) INTO row_cst
+			FROM produto INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins) WHERE piscofins.codcst=row_cstpiscofins.codcst
+			GROUP BY 1 ORDER BY 2 DESC LIMIT 1;
+	 
+		var_cst_troca := row_cst.codpiscofinssai;
+		RAISE NOTICE 'Atualiza CST com codigo  %', row_cst.codpiscofinssai;
+
+	FOR row_cst IN 	SELECT codpiscofins FROM piscofins WHERE codcst= (SELECT codcst FROM piscofins WHERE codpiscofins=var_cst_troca) AND codpiscofins<>var_cst_troca
+			
+	LOOP		
+		RAISE NOTICE 'Apaga CST  %', row_cst.codpiscofins;
+		UPDATE ncm     SET codpiscofinssai=var_cst_troca WHERE codpiscofinssai=row_cst.codpiscofins;
+		UPDATE produto SET codpiscofinssai=var_cst_troca WHERE codpiscofinssai=row_cst.codpiscofins;
+		DELETE FROM piscofins WHERE codpiscofins=row_cst.codpiscofins;
+
+
+	END LOOP;
+END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+--SELECT unificapiscofinssai()

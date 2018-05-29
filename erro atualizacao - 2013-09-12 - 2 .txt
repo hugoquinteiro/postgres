@@ -1,0 +1,2 @@
+delete from itpedido_conf where campoblock = '1';
+delete from itpedido_conf where campotab = '1';

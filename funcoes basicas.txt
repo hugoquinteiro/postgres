@@ -1,0 +1,56 @@
+--Gravar zeros a esquerda
+ SELECT lpad('Hugo',10, '0')
+
+--Pegando informação dentro de um texto
+SUBSTR(cupom,(POSITION('PRE-VENDA:' IN cupom)),20) AS orcamento
+
+--Tira espaço em branco da string
+SELECT REPLACE('(11 )2188-8080  ', ' ', '')
+
+--Tira espeção a direita
+SELECT RTRIM('xxTestandox   ', ' ')
+"xxTestandox   "
+"xxTestandox"
+
+LTRIM, retira espações a esquerda
+TRIM, retira espações de todos.
+
+--Inclui espaço a direita ou esquerda
+ LPAD() e RPAD()
+SELECT LPAD('oi', 5); -- resultado "   oi".
+SELECT LPAD('oi', 5, 'ae'); -- resultado "aeaoi".
+SELECT RPAD('oi', 5); -- resultado "oi   ".
+SELECT RPAD('oi', 5, 'ae'); -- resultado "oiaea".
+
+--Tirando o ultimo caracter de uma coluna
+SELECT *, length(modeloecf)-1, SUBSTR(modeloecf, 1,length(modeloecf)-1) FROM marcaecf
+
+--Formatando CPF
+select replace(to_char(00123456789, '000:000:000-00'), ':', '.');
+
+
+--Funcão regular para verificar uma lista de caracter
+SELECT '0123456789' ~ '[A-Z]'; FALSE
+SELECT '01A3456789' ~ '[A-Z]'; TRUE
+
+--Conversão de data
+SELECT to_char(current_DATE,'DD/MM/YYYY')
+
+--Gerar Series
+SELECT * FROM generate_series('2017-08-01 00:00'::timestamp,
+			      '2017-08-01 12:00', '30 minutes');
+
+
+--Funções primeira letra mauiscula
+SELECT  INITCAP(descricaofiscal), descricaofiscal FROM produto  
+
+--Deixar apenas numeros na String
+ SELECT regexp_replace('1ab2c3&4.5', '[^0-9]', '', 'gi') ;
+
+-- Pegando os numeros do final da descricao do cadastro de produto
+ SELECT descricaofiscal, 
+	SUBSTR(descricaofiscal, length(descricaofiscal)-4, 5) AS filtrar,
+	regexp_replace(SUBSTR(descricaofiscal, length(descricaofiscal)-4, 5), '[^0-9]', '', 'gi') AS valor_desejado
+FROM (
+SELECT codproduto, descricaofiscal FROM produto WHERE codproduto IN ( 5229,5216,5198)
+) as temo1

@@ -1,0 +1,62 @@
+--Dia 10
+UPDATE maparesumoimposto SET totalliquido=totalliquido+53.87 WHERE codmaparesumo=1868 AND tptribicms='T' AND aliqicms=12;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1868 AND tptribicms='T' AND aliqicms=12;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+52.06 WHERE codmaparesumo=1868 AND tptribicms='T' AND aliqicms=18;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1868 AND tptribicms='T' AND aliqicms=18;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1093.77 WHERE codmaparesumo=1868 AND tptribicms='F' AND aliqicms=0;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+573.76 WHERE codmaparesumo=1868 AND tptribicms='I' AND aliqicms=0;
+
+UPDATE maparesumo SET gtfinal=gtfinal+(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1868), 
+			totalbruto=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1868),
+			totalliquido=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1868)
+WHERE codmaparesumo=1868
+
+--DIA 21
+UPDATE maparesumoimposto SET totalliquido=totalliquido+12.34 WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=7;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=7;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+56.80 WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=12;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=12;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+123.91 WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=18;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1851 AND tptribicms='T' AND aliqicms=18;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1193.90 WHERE codmaparesumo=1851 AND tptribicms='I' AND aliqicms=0;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1935.58 WHERE codmaparesumo=1851 AND tptribicms='F' AND aliqicms=0;
+
+UPDATE maparesumo SET gtfinal=gtfinal+(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1851), 
+			totalbruto=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1851),
+			totalliquido=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1851)
+WHERE codmaparesumo=1851
+
+--DIA 22
+UPDATE maparesumoimposto SET totalliquido=totalliquido+23.89 WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=7;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=7;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+11.29 WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=12;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=12;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+84.06 WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=18;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1855 AND tptribicms='T' AND aliqicms=18;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1466.87 WHERE codmaparesumo=1855 AND tptribicms='I' AND aliqicms=0;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1997.78 WHERE codmaparesumo=1855 AND tptribicms='F' AND aliqicms=0;
+
+UPDATE maparesumo SET gtfinal=gtfinal+(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1855), 
+			totalbruto=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1855),
+			totalliquido=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1855)
+WHERE codmaparesumo=1855
+
+--DIA 23
+UPDATE maparesumoimposto SET totalliquido=totalliquido+10.75 WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=7;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=7;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+54.68 WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=12;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=12;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+124.74 WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=18;
+	UPDATE maparesumoimposto SET totalicms=ROUND(totalliquido*(aliqicms/100)) WHERE codmaparesumo=1872 AND tptribicms='T' AND aliqicms=18;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+3271.05 WHERE codmaparesumo=1872 AND tptribicms='F' AND aliqicms=0;
+UPDATE maparesumoimposto SET totalliquido=totalliquido+1885.45 WHERE codmaparesumo=1872 AND tptribicms='I' AND aliqicms=0;
+
+UPDATE maparesumo SET gtfinal=gtfinal+(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1872), 
+			totalbruto=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1872),
+			totalliquido=(SELECT SUM (totalliquido) FROM maparesumoimposto WHERE codmaparesumo=1872)
+WHERE codmaparesumo=1872
+
+
+
+
+

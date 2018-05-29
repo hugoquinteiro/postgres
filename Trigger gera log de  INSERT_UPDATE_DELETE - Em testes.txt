@@ -1,0 +1,38 @@
+--Criando tabela de logs
+CREATE TABLE log
+(
+	id serial NOT NULL, 
+	tabela character varying (250),
+	operacao character varying (10),
+	valores text,
+	usuario character varying (200) DEFAULT "current_user"(),
+	data timestamp without time zone DEFAULT now(),
+	CONSTRAINT log_pk PRIMARY KEY (id)
+)
+WITH (
+	OIDS=FALSE
+);
+
+--Criando a trigger
+--Criando a trigger
+CREATE OR REPLACE FUNCTION funcao_geral_log() RETURNS "trigger"
+AS 
+$BODY$
+BEGIN
+	IF TG_OP = 'INSERT' THEN 
+		INSERT INTO LOG (tabela, operacao, valores, usuario) VALUES (TG_RELNAME, TG_OP, 'OLD:'||CHR(13)||CHR(10)||'NEW:'||NEW::TEXT, NEW.usuario);
+		RETURN NEW;
+	ELSEIF TG_OP = 'UPDATE' THEN 
+		INSERT INTO LOG (tabela, operacao, valores, usuario) VALUES (TG_RELNAME, TG_OP, 'OLD:'||OLD::TEXT||CHR(13)||CHR(10)||'NEW:'||NEW::TEXT, NEW.usuario);
+		RETURN NEW;
+	ELSEIF TG_OP = 'DELETE' THEN 
+		INSERT INTO LOG (tabela, operacao, valores, usuario) VALUES (TG_RELNAME, TG_OP, 'OLD:'||OLD::TEXT||CHR(13)||CHR(10)||'NEW:', NEW.usuario);
+		RETURN NEW;
+	END IF;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+--CRIANDO TRIGGER para todas as tabelas
+SELECT 'CREATE TRIGGER tr_logs_gerais AFTER INSERT OR UPDATE OR DELETE ON '||tablename||' FOR EACH ROW EXECUTE PROCEDURE funcao_geral_log();'
+FROM pg_tables WHERE schemaname = 'public'

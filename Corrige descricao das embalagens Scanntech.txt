@@ -1,0 +1,8 @@
+-- Correção da descricao
+UPDATE embalagem SET descricao=descricao||' '||ROUND(quantidade,2) WHERE descricao IN ('KG', 'UN')
+
+
+-- Comando para verificar se ficou certo
+SELECT * FROM embalagem
+SELECT descricao||' '||ROUND(quantidade,2) FROM embalagem WHERE descricao IN ('KG', 'UN')
+

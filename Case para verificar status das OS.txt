@@ -1,0 +1,8 @@
+CASE WHEN o.status='C' THEN 'Concluida'
+     WHEN o.status='D' THEN 'Em Desenvolvimento'
+     WHEN o.status='B' THEN 'Para Publicacao'
+     WHEN o.status='N' THEN 'Cancelada' 
+     WHEN o.status='L' THEN 'Em Analise' 	
+     WHEN o.status='P' THEN 'Pendente' 
+     WHEN o.status='T' THEN 'Teste' 
+ELSE 'Outros' END AS status

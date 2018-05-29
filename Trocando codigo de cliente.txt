@@ -1,0 +1,17 @@
+--Rotina para trocar codigo de cliente um a um.
+
+ALTER TABLE lancamento DISABLE TRIGGER ALL;
+UPDATE cliente SET codcliente=4006 WHERE codcliente=15006;
+UPDATE lancamento SET codparceiro=4006 WHERE codparceiro=15006 AND tipoparceiro='C';
+ALTER TABLE lancamento ENABLE TRIGGER ALL;
+
+ALTER TABLE lancamento DISABLE TRIGGER ALL;
+ALTER TABLE notafiscal DISABLE TRIGGER ALL;
+ALTER TABLE pedido DISABLE TRIGGER ALL;
+UPDATE cliente SET codcliente=4007 WHERE codcliente=100000;
+UPDATE lancamento SET codparceiro=4007 WHERE codparceiro=100000 AND tipoparceiro='C';
+UPDATE notafiscal SET codparceiro=4007 WHERE codparceiro=100000 AND tipoparceiro='C';
+UPDATE pedido SET codparceiro=4007 WHERE codparceiro=100000 AND tipoparceiro='C';
+ALTER TABLE pedido ENABLE TRIGGER ALL;
+ALTER TABLE notafiscal ENABLE TRIGGER ALL;
+ALTER TABLE lancamento ENABLE TRIGGER ALL;

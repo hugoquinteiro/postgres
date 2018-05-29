@@ -1,0 +1,12 @@
+-- Restaurar backup da tabela produto no mesmo banco como produto_recupera e depois rodar o comando abaixo
+
+  -- Utilizado no SM Rodrigues, apos cliente ter rodado utilitario de alterar EAN do produto
+
+
+-- Comando
+
+INSERT INTO produtoean  (codproduto, codean, usuario) 
+SELECT produto.codproduto AS codproduto, LPAD(produto_recupera.codproduto,8,'0') AS codean, 'RECUPERA' AS usuario
+FROM produto INNER JOIN produto_recupera ON (produto.descricaofiscal = produto_recupera.descricaofiscal)
+WHERE produto.codproduto<>produto_recupera.codproduto 
+AND LPAD(produto_recupera.codproduto,8,'0') NOT IN (SELECT codean FROM produtoean)

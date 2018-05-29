@@ -1,0 +1,26 @@
+Erro ao tentar executar a instrução: 2011-12-20 - 1
+
+ERROR: could not create unique index
+DETAIL: Table contains duplicated values.
+
+
+--- Elimna cupons duplicados na tabela cupom ***
+
+ CREATE OR REPLACE FUNCTION temp() RETURNS boolean AS $$
+       DECLARE row_cupom RECORD;
+       DECLARE row_idcupom RECORD;
+ BEGIN
+       FOR row_cupom IN SELECT codestabelec, dtmovto, caixa, cupom, COUNT(idcupom) AS count FROM cupom GROUP BY 1, 2, 3, 4 ORDER BY 5 DESC LOOP
+             IF row_cupom.count > 1 THEN
+                    FOR row_idcupom IN SELECT idcupom FROM cupom WHERE codestabelec = row_cupom.codestabelec AND dtmovto = row_cupom.dtmovto AND caixa = row_cupom.caixa AND cupom = row_cupom.cupom LIMIT (row_cupom.count - 1) LOOP
+                           DELETE FROM cupom WHERE idcupom = row_idcupom.idcupom;
+                    END LOOP;
+             ELSE
+                    RETURN TRUE;
+             END IF;
+       END LOOP;
+       RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+DROP FUNCTION temp();

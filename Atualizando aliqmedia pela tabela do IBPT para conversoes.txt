@@ -1,0 +1,6 @@
+UPDATE ncm SET aliqmedia=COALESCE((SELECT aliqnacional FROM ibpt WHERE codigoncm=ncm.codigoncm),0)
+
+--Consulta de teste
+SELECT * FROM ncm WHERE aliqmedia=0
+SELECT * FROM ibpt LIMIT 5
+

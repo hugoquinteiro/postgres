@@ -1,0 +1,27 @@
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 2 AS codestabelec, produtoestab.codproduto, 'S' AS tipo , 
+
+     '2014-03-31' AS dtmovto,  
+      PRODUTOESTABSALDO.SALDO AS quantidade, 
+      produtoestab.precovrj,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 16 as codtpdocto,     (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=2)
+    WHERE  produto.coddepto=4 AND   produtoestab.codestabelec=2 --AND produto.codgrupo=110 AND
+--AND produtoestab.codproduto=23454
+AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data=(SELECT MAX(produtoestabsaldo.data) FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto AND produtoestabsaldo.codestabelec=2 
+								AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data<='2014-03-31')   
+ GROUP BY 1,2,3,5,6,7,8,9,11,12
+ORDER BY 2
+
+
+--Cria sequencia
+--SELECT MAX(codmovimento) FROM movimento limit 1
+--create sequence temp1 start 7422164;
+-- DROP sequence temp1
+--drop sequence temp1;
+--select * from tipodocumento
+
+
+-- (SELECT MAX(produtoestabsaldo.data) FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto AND produtoestabsaldo.codestabelec=2
+	--AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data<'2014-03-31')

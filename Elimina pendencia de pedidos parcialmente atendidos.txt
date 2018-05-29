@@ -1,0 +1,18 @@
+--Comando utilizado no camicado.
+SELECT DISTINCT pedido.operacao, pedido.numpedido, pedido.status, dtemissao
+FROM pedido INNER JOIN itpedido ON (pedido.numpedido = itpedido.numpedido AND pedido.codestabelec=itpedido.codestabelec AND pedido.operacao=itpedido.operacao)
+WHERE pedido.status='P' 
+AND pedido.operacao='CP' AND pedido.codestabelec=1 AND dtemissao<'2016-11-30'
+AND qtdeatendida>0
+
+
+UPDATE itpedido SET qtdeatendida=quantidade WHERE operacao='CP' AND codestabelec=1 AND qtdeatendida<quantidade  AND status='P' AND numpedido IN (
+SELECT numpedido FROM (
+SELECT DISTINCT pedido.operacao, pedido.numpedido, pedido.status, pedido.dtemissao
+FROM pedido INNER JOIN itpedido ON (pedido.numpedido = itpedido.numpedido AND pedido.codestabelec=itpedido.codestabelec AND pedido.operacao=itpedido.operacao)
+INNER JOIN notafiscal ON (pedido.numpedido = notafiscal.numpedido AND pedido.codestabelec=notafiscal.codestabelec AND pedido.operacao=notafiscal.operacao)
+WHERE pedido.status='P' 
+AND pedido.operacao='CP' AND pedido.codestabelec=1 AND pedido.dtemissao<'2016-11-30'
+AND qtdeatendida>0
+) AS tmp
+)

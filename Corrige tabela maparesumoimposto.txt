@@ -1,0 +1,26 @@
+SELECT codmaparesumo, caixa, dtmovto,  maparesumo.totalliquido, SUM(maparesumoimposto.totalliquido), (maparesumo.totalliquido- SUM(maparesumoimposto.totalliquido)) AS dif
+FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) WHERE dtmovto>='2014-08-01' AND codestabelec=1
+GROUP BY 1,2,3,4
+HAVING maparesumo.totalliquido - SUM(maparesumoimposto.totalliquido)<>0
+order by 3,2
+
+DELETE FROM maparesumoimposto WHERE codmaparesumo IN (
+	SELECT codmaparesumo FROM (
+		SELECT codmaparesumo, caixa, dtmovto,  maparesumo.totalliquido, SUM(maparesumoimposto.totalliquido), (maparesumo.totalliquido- SUM(maparesumoimposto.totalliquido)) AS dif
+		FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) WHERE dtmovto>='2014-08-01' AND codestabelec=1
+		GROUP BY 1,2,3,4
+		HAVING maparesumo.totalliquido - SUM(maparesumoimposto.totalliquido)<>0
+		order by 3,2
+	) AS temp
+)
+
+SELECT  * FROM maparesumoimposto LIMIT 5
+INSERT INTO maparesumoimposto  (
+	SELECT codmaparesumo, tptribicms, aliqicms, SUM(valortotal) as  totalliquido, SUM(valortotal)*(aliqicms/100) AS totalicms
+	FROM maparesumo INNER JOIN cupom ON (maparesumo.codestabelec =  cupom.codestabelec AND maparesumo.dtmovto =cupom.dtmovto AND maparesumo.caixa = cupom.caixa)
+	INNER JOIN itcupom ON (cupom.idcupom = itcupom.idcupom)
+	WHERE codmaparesumo NOT IN (SELECT codmaparesumo FROM maparesumoimposto) AND maparesumo.dtmovto>='2014-08-01'
+	GROUP BY 1,2,3
+)
+
+SELECT * FROM maparesumoimposto LIMIT 5

@@ -1,0 +1,48 @@
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+	DECLARE var_dtinicial date;
+	DECLARE var_loja integer;
+	DECLARE var_caixa numeric(3,0);		
+	DECLARE var_aliq numeric(4,2);
+	DECLARE var_valor numeric(15,4);
+	DECLARE cupomitem  RECORD;
+BEGIN
+	var_dtinicial := CAST('2013-04-16' AS date);
+	var_loja := 1;
+	var_caixa :=1;
+	var_aliq := 7;
+	var_valor := 2;
+
+ SELECT itcupom.idcupom AS idcupom, itcupom.codproduto AS codproduto
+  INTO cupomitem
+	FROM itcupom INNER JOIN cupom USING (idcupom) 
+	WHERE itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'  
+	AND caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial AND aliqicms=var_aliq AND tptribicms='T' AND valortotal >= 1+var_valor LIMIT 1;
+
+  -- Mostra teste	
+RAISE NOTICE 'Cupom %', cupomitem.idcupom;
+RAISE NOTICE 'Item %', cupomitem.codproduto;		
+
+ IF cupomitem.idcupom > 0 THEN
+  
+  -- Atualiza ITCUPOM
+  UPDATE itcupom SET valortotal=valortotal+var_valor
+	WHERE itcupom.codproduto=cupomitem.codproduto AND itcupom.idcupom=cupomitem.idcupom;
+   
+  -- Atualiza CUPOM
+  UPDATE cupom SET totalliquido=(SELECT SUM(valortotal) FROM itcupom WHERE itcupom.idcupom=cupomitem.idcupom),
+		   totalbruto=(SELECT SUM(valortotal) FROM itcupom WHERE itcupom.idcupom=cupomitem.idcupom) 
+    WHERE idcupom=cupomitem.idcupom;
+
+   RAISE NOTICE 'COMIT TESTE';
+   END IF;
+  
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+--SELECT temp();
+
+
+--, codproduto, cupom.dtmovto, cupom.caixa,  itcupom.valortotal, quantidade, preco, itcupom.aliqicms, itcupom.tptribicms, desconto
+
+
+
+--SELECT SUM(valortotal) FROM itcupom WHERE itcupom.idcupom=1548603

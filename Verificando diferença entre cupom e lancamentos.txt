@@ -1,0 +1,17 @@
+--Verificando diferença entre cupom e lancamentos
+SELECT * FROM (
+SELECT SUM(cupomlancto.totalliquido) AS financ, SUM(cupom.totalliquido) AS valcupom, cupom.cupom 
+FROM cupom LEFT JOIN cupomlancto USING (idcupom) 
+WHERE dtmovto='2018-04-05' AND codestabelec=12 
+AND status='A'
+GROUP BY 3
+) AS tmp1 WHERE financ<>valcupom
+
+
+SELECT SUM(totalliquido) FROM cupom WHERE dtmovto='2018-04-05' AND codestabelec=12 AND status='A'
+--19261.46
+
+SELECT SUM(cupomlancto.totalliquido) FROM cupom INNER JOIN cupomlancto USING (idcupom) 
+WHERE dtmovto='2018-04-05' AND codestabelec=12 AND status='A'
+20423.06
+

@@ -1,0 +1,5 @@
+UPDATE cliente SET codstatus= 999 --codigo de status de bloqueio criado
+WHERE codcliente IN (SELECT DISTINCT codparceiro FROM lancamento
+WHERE pagrec='R' AND prevreal='R' AND tipoparceiro='C'
+GROUP BY 1
+HAVING  CURRENT_DATE - MAX(dtemissao)>60)  -- 60 quantidade de dias que o cliente nao compra

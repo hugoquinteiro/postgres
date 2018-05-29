@@ -1,0 +1,6 @@
+--Comandos utilizandos para conferir saldo de estoque do produto
+
+SELECT SUM(quantidade*qtdeunidade) AS quantidade, tipo FROM movimento WHERE codproduto=200 AND codestabelec=1
+GROUP BY 2
+
+SELECT codproduto, sldentrada, sldsaida, sldatual FROM produtoestab WHERE codproduto=200 AND codestabelec=1

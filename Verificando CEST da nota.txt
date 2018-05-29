@@ -1,0 +1,14 @@
+SELECT itnotafiscal.codproduto, descricaofiscal, csticms, aliqicms, ncm.codigoncm, 
+(SELECT cest FROM cest WHERE SUBSTR(REPLACE(ncm.codigoncm,'.',''),1,4)=SUBSTR(ncm,1,4) LIMIT 1) AS cest, 
+ncm.idcest
+FROM notafiscal INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN ncm ON (produto.idncm = ncm.idncm)
+LEFT JOIN cest ON (ncm.idcest = cest.idcest)
+WHERE numnotafis=20158
+AND csticms IN ('010', '060', '070')
+
+
+SELECT * FROM cest WHERE ncm LIKE '%190531%'
+SELECT * FROM ncm WHERE codigoncm LIKE '%1905.31%'
+UPDATE ncm SET idcest=529 WHERE idncm=168

@@ -1,0 +1,22 @@
+--Criando conexao
+SELECT dblink_connect('papai','host=192.168.1.100 port=5432 user=postgres password=postgres dbname=papai');
+
+SELECT * FROM parametro
+
+SELECT p.valor, w.valor  FROM parametro as p 
+INNER JOIN (
+SELECT * FROM dblink('papai', 'SELECT codparam, idparam, valor FROM parametro') AS resul 
+(codparam character varying(20), idparam character varying(20), valor text)) w ON (p.codparam = w.codparam)
+
+
+UPDATE parametro AS p SET valor=w.valor  FROM  (SELECT * FROM dblink('papai', 'SELECT codparam, idparam, valor FROM parametro AS w') AS resul 
+(codparam character varying(20), idparam character varying(20), valor text)) w
+WHERE p.codparam = w.codparam
+
+
+SELECT dblink_exec(‘conexao’,'INSERT INTO tabela02 VALUES (generate_series(11,20))’);
+
+SELECT * FROM dblink('dbname=papai', 'SELECT coddepto FROM departamento') AS resultado(codigo integer)
+SELECT * FROM dblink('dbname=papai', 'SELECT valor FROM parametro') AS resultado (valor text)
+
+SELECT dblink_disconnect('papai')

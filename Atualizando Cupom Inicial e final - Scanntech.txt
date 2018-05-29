@@ -1,0 +1,22 @@
+--Verificando 
+SELECT * FROM maparesumo WHERE dtmovto BETWEEN '2015-05-01'AND '2015-05-31' AND operacaoini IS NULL
+
+--Atualizando cupom 
+UPDATE maparesumo AS a SET
+                operacaoini = (SELECT CAST(MIN(cupom) AS integer) FROM cupom WHERE codestabelec = a.codestabelec AND caixa = a.caixa AND dtmovto = a.dtmovto ),
+		operacaofim = (SELECT CAST(MAX(cupom) AS INTEGER) FROM cupom WHERE codestabelec = a.codestabelec AND caixa = a.caixa AND dtmovto = a.dtmovto )
+WHERE codestabelec = 1 AND dtmovto = '2015-05-06' AND operacaoini IS NULL 
+
+
+
+
+--Verificando contador de reinicio
+SELECT dtmovto, totalliquido, numeroreducoes, reiniciofim FROM maparesumo 
+WHERE codestabelec = 1 
+AND dtmovto >= '2015-06-01' AND dtmovto <= '2015-06-30' 
+AND (numeroreducoes IS NULL OR numeroreducoes =0 AND reiniciofim IS NULL OR reiniciofim=0)
+ORDEr BY 1
+
+UPDATE  maparesumo SET reiniciofim = 1 WHERE codestabelec = 1 
+AND dtmovto >= '2015-06-01' AND dtmovto <= '2015-06-30' 
+AND (reiniciofim IS NULL OR reiniciofim=0)

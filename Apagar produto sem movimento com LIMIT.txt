@@ -1,0 +1,14 @@
+DELETE FROM produto WHERE codproduto IN 
+(SELECT codproduto FROM produto WHERE codproduto NOT IN (SELECT DISTINCT codproduto FROM movimento
+                                                                              UNION 
+                                                                              SELECT DISTINCT codproduto FROM consvendadia
+                                                                              UNION 
+                                                                              SELECT DISTINCT codproduto FROM composicao
+                                                                              UNION 
+                                                                              SELECT DISTINCT codproduto FROM itcomposicao
+                                                                              UNION 
+                                                                              SELECT DISTINCT codproduto FROM itcupom
+                                                                              UNION 
+                                                                              SELECT DISTINCT codproduto FROM itpedido
+)LIMIT 1000)
+

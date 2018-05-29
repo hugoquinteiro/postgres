@@ -1,0 +1,32 @@
+Paramentro a definir:
+--Tipo de Documento 99-Saida / 98-Entrada
+--Estabelecimento 1
+--Data
+--Cria sequencia
+	--SELECT MAX(codmovimento) FROM movimento limit 1
+	--create sequence temp1 start 5533;
+	-- DROP sequence temp1
+
+
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 1 AS codestabelec, produtoestab.codproduto, (CASE WHEN produtoestabsaldo.saldo>0 THEN 'S' ELSE 'E' END)  AS tipo , 
+     '2016-11-09' AS dtmovto,  
+      ABS(PRODUTOESTABSALDO.SALDO) AS quantidade, 
+      produtoestab.precovrj,  'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+      (CASE WHEN produtoestabsaldo.saldo>0 THEN 15 WHEN produtoestabsaldo.saldo<0 THEN 14 END) AS codtpdocto, 
+      (nextval('temp1')) AS codmovimento, produtoestab.custorep
+FROM produtoestab INNER JOIN produto USING (codproduto) 
+INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=2)
+WHERE  produtoestab.codestabelec=1 
+AND produtoestabsaldo.saldo<>0 
+AND produtoestabsaldo.data=(SELECT MAX(produtoestabsaldo.data) FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto 
+								AND produtoestabsaldo.codestabelec=1    AND produtoestabsaldo.saldo<>0 
+								AND produtoestabsaldo.data<='2016-11-09')   
+
+
+
+
+--select * from tipodocumento
+--SELECT * FROM  produtoestabsaldo LIMIT 5
+

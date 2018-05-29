@@ -1,0 +1,1 @@
+UPDATE lancamento SET codconta=(SELECT codconta FROM fornecedor WHERE codfornec=codparceiro AND codparceiro IS NOT NULL) WHERE prevreal='R' AND pagrec='P' AND tipoparceiro='F' AND dtemissao>'2014-01-01'

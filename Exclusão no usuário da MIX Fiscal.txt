@@ -1,0 +1,111 @@
+--Exclusão no usuário da MIX Fiscal
+DROP VIEW mxf_vw_icms; 
+DROP VIEW mxf_vw_pis_cofins;
+
+DROP TABLE mxf_tmp_icms_saida;
+DROP TABLE mxf_tmp_pis_cofins;
+
+DROP USER mixfiscal;
+
+
+-- Produtos com tributacao de PIS/Cofins
+-- MXF_VW_PIS_COFINS
+CREATE VIEW mxf_vw_pis_cofins AS
+SELECT produto.codproduto AS codigo_produto, produtoean.codean AS ean, produto.descricaofiscal AS descritivo_produto, REPLACE(ncm.codigoncm,'.','') AS ncm,
+	COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'P' AND codigo = produto.codproduto),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'S' AND codigo = produto.codsubgrupo),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'G' AND codigo = produto.codgrupo),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'D' AND codigo = produto.coddepto),'999')))) AS cod_natureza_receita,
+	piscofinsent.codcst AS pis_cst_e, piscofinssai.codcst AS pis_cst_s, piscofinsent.aliqpis AS pis_alq_e, piscofinssai.aliqpis AS pis_alq_s,
+	piscofinsent.codcst AS cofins_cst_e, piscofinssai.codcst AS cofins_cst_s, piscofinsent.aliqcofins AS cofins_alq_e, piscofinssai.aliqcofins AS cofins_alq_s,
+	departamento.nome AS departamento, departamento.nome AS secao, grupoprod.descricao AS grupo, subgrupo.descricao AS subgrupo, (CASE WHEN produto.foralinha = 'S' THEN 'INATIVO' ELSE 'ATIVO' END) AS status
+FROM produto
+LEFT JOIN produtoean ON (produto.codproduto = produtoean.codproduto)
+LEFT JOIN ncm ON (produto.idncm = ncm.idncm)
+INNER JOIN piscofins AS piscofinsent ON (produto.codpiscofinsent = piscofinsent.codpiscofins)
+INNER JOIN piscofins AS piscofinssai ON (produto.codpiscofinssai = piscofinssai.codpiscofins)
+INNER JOIN departamento ON (produto.coddepto = departamento.coddepto)
+INNER JOIN grupoprod ON (produto.codgrupo = grupoprod.codgrupo)
+INNER JOIN subgrupo ON (produto.codsubgrupo = subgrupo.codsubgrupo)
+ORDER BY produto.codproduto;
+
+-- Produtos com tributacao de ICMS
+-- MXF_VW_ICMS
+CREATE VIEW mxf_vw_icms AS
+SELECT produto.codproduto AS codigo_produto, produtoean.codean AS ean, (CASE WHEN classfiscalnfs.aliqiva > 0 THEN 4 WHEN classfiscalnfs.valorpauta > 0 THEN 5 ELSE 0 END) AS tipo_mva,
+	(CASE WHEN classfiscalnfs.aliqiva > 0 THEN classfiscalnfs.aliqiva ELSE classfiscalnfs.valorpauta END) AS mva,
+	-- Saida do atacado para contribuinte
+	SUBSTR(classfiscalnfs.codcst,2,2) AS sac_cst,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS sac_alq,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS sac_alq_st,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS sac_rbc,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS sac_rbc_st,
+	-- Saida do atacado para contribuinte no simple nacional
+	SUBSTR(classfiscalnfs.codcst,2,2) AS sas_cst,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS sas_alq,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS sas_alq_st,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS sas_rbc,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS sas_rbc_st,
+	-- Saida do varejo para contribuinte
+	SUBSTR(classfiscalnfs.codcst,2,2) AS svc_cst,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS svc_alq,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqicms ELSE 0 END) AS svc_alq_st,
+	(CASE WHEN classfiscalnfs.tptribicms != 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS svc_rbc,
+	(CASE WHEN classfiscalnfs.tptribicms  = 'F' THEN classfiscalnfs.aliqredicms ELSE 0 END) AS svc_rbc_st,
+	-- Saida do atacado ou varejo para nao contribuinte
+	SUBSTR(classfiscalpdv.codcst,2,2) AS snc_cst,
+	(CASE WHEN classfiscalpdv.tptribicms != 'F' THEN classfiscalpdv.aliqicms ELSE 0 END) AS snc_alq,
+	(CASE WHEN classfiscalpdv.tptribicms  = 'F' THEN classfiscalpdv.aliqicms ELSE 0 END) AS snc_alq_st,
+	(CASE WHEN classfiscalpdv.tptribicms != 'F' THEN classfiscalpdv.aliqredicms ELSE 0 END) AS snc_rbc,
+	(CASE WHEN classfiscalpdv.tptribicms  = 'F' THEN classfiscalpdv.aliqredicms ELSE 0 END) AS snc_rbc_st
+FROM produto
+INNER JOIN produtoean ON (produto.codproduto = produtoean.codproduto)
+INNER JOIN classfiscal AS classfiscalnfs ON (produto.codcfnfs = classfiscalnfs.codcf)
+INNER JOIN classfiscal AS classfiscalpdv ON (produto.codcfpdv = classfiscalpdv.codcf)
+ORDER BY produto.codproduto;
+
+-- Tabela temporaria de PIS/Cofins
+-- MXF_TMP_PIS_COFINS
+CREATE TABLE mxf_tmp_pis_cofins(
+	codigo_produto bigint,
+	ean bigint,
+	ncm character varying(10),
+	cod_natureza_receita integer,
+	credito_presumido integer,
+	pis_cst_e character varying(3),
+	pis_cst_s character varying(3),
+	pis_aliq_e numeric(7,3),
+	pis_aliq_s numeric(7,3),
+	cofins_cst_e character varying(3),
+	cofins_cst_s character varying(3),
+	cofins_aliq_e numeric(7,3),
+	cofins_aliq_s numeric(7,3),
+	fundamento_legal character varying(500),
+	CONSTRAINT pk_mx_tmp_pis_cofins PRIMARY KEY (ean)
+);
+
+-- Tabela temporaria de ICMS de saida
+-- MXF_TMP_ICMS_SAIDA
+CREATE TABLE mxf_tmp_icms_saida(
+	codigo_produto bigint,
+	ean bigint,
+	sac_cst character varying(3),
+	sac_alq numeric(7,3),
+	sac_alqst numeric(7,3),
+	sac_rbc numeric(7,3),
+	sac_rbcst numeric(7,3),
+	sas_cst character varying(3),
+	sas_alq numeric(7,3),
+	sas_alqst numeric(7,3),
+	sas_rbc numeric(7,3),
+	sas_rbcst numeric(7,3),
+	svc_cst character varying(3),
+	svc_alq numeric(7,3),
+	svc_alqst numeric(7,3),
+	svc_rbc numeric(7,3),
+	svc_rbcst numeric(7,3),
+	snc_cst character varying(3),
+	snc_alq numeric(7,3),
+	snc_alqst numeric(7,3),
+	snc_rbc numeric(7,3),
+	snc_rbcst numeric(7,3),
+	fundamento_legal character varying(500),
+	CONSTRAINT pk_mx_tmp_icms_saida PRIMARY KEY (ean)
+);

@@ -1,0 +1,27 @@
+--Importando dados
+CREATE TABLE temp_chavecfe (
+	data DATE,
+	caixa INTEGER,
+	cupom INTEGER,
+	chave CHARACTER VARYING (44)
+)
+
+COPY temp_chavecfe (data, caixa, cupom, chave) FROM 'C:\sistemas\mihara\mov.csv'	 DELIMITER ',';
+
+
+
+
+--Rodando INSERT do backup da tabela
+
+--Relacionado tabela temporaria com tabela Cupom
+SELECT dtmovto, caixa, cupom, seqecf, chavecfe FROM cupom WHERE caixa=5 AND dtmovto='2016-06-10' AND codestabelec=2 ORDER BY cupom
+
+UPDATE cupom SET chavecfe=chave FROM temp_chavecfe 
+WHERE temp_chavecfe.caixa=cupom.caixa AND dtmovto=data AND temp_chavecfe.caixa=cupom.caixa AND codestabelec=2 AND CAST(cupom.cupom AS INTEGER)=temp_chavecfe.cupom
+
+SELECT chave, cupom.caixa, cupom.dtmovto FROM cupom, temp_chavecfe
+WHERE temp_chavecfe.caixa=cupom.caixa AND dtmovto=data AND temp_chavecfe.caixa=cupom.caixa AND codestabelec=2 AND CAST(cupom.cupom AS INTEGER)=temp_chavecfe.cupom
+
+
+--Atualizando campo SEQECF
+UPDATE cupom SET seqecf=SUBSTR(chavecfe,32,6) WHERE codestabelec=2 AND dtmovto>='2016-06-10' AND chavecfe IS NOT NULL AND caixa=5

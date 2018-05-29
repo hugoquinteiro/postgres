@@ -1,0 +1,41 @@
+--Acerta previsa de Entrada
+ALTER TABLE itpedido DISABLE TRIGGER USER;
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE itpedido SET qtdeatendida = quantidade WHERE qtdeatendida > quantidade;
+UPDATE produtoestab SET preventrada = COALESCE((SELECT SUM(qtdeunidade * (quantidade - qtdeatendida)) FROM itpedido WHERE codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto AND status IN ('A','P') AND operacao IN 
+(SELECT operacao FROM operacaonota WHERE tipo = 'E')),0) WHERE codestabelec=1 ;
+ALTER TABLE produtoestab ENABLE TRIGGER USER;
+ALTER TABLE itpedido ENABLE TRIGGER USER;
+
+
+
+
+--Acerta previsa de saida
+ALTER TABLE itpedido DISABLE TRIGGER USER;
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE itpedido SET qtdeatendida = quantidade WHERE qtdeatendida > quantidade;
+UPDATE produtoestab SET prevsaida = COALESCE((SELECT SUM(qtdeunidade * (quantidade - qtdeatendida)) FROM itpedido WHERE codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto AND status IN ('A','P') AND operacao IN (SELECT operacao FROM operacaonota WHERE tipo = 'S')),0) WHERE codestabelec=1; 
+ALTER TABLE produtoestab ENABLE TRIGGER USER;
+ALTER TABLE itpedido ENABLE TRIGGER USER;
+
+ALTER TABLE itpedido DISABLE TRIGGER USER;
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE itpedido SET qtdeatendida = quantidade WHERE qtdeatendida > quantidade;
+UPDATE produtoestab SET preventrada = COALESCE((SELECT SUM(qtdeunidade * (quantidade - qtdeatendida)) FROM itpedido WHERE codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto AND status IN ('A','P') AND operacao IN (SELECT operacao FROM operacaonota WHERE tipo = 'E')),0) WHERE codestabelec=4 AND preventrada<0;ALTER TABLE produtoestab ENABLE TRIGGER USER;
+ALTER TABLE itpedido ENABLE TRIGGER USER;
+
+
+
+
+--Acerta previsa de saida
+ALTER TABLE itpedido DISABLE TRIGGER USER;
+ALTER TABLE produtoestab DISABLE TRIGGER USER;
+UPDATE itpedido SET qtdeatendida = quantidade WHERE qtdeatendida > quantidade;
+UPDATE produtoestab SET prevsaida = COALESCE((SELECT SUM(qtdeunidade * (quantidade - qtdeatendida)) FROM itpedido WHERE codestabelec = produtoestab.codestabelec AND codproduto = produtoestab.codproduto AND status IN ('A','P') AND operacao IN (SELECT operacao FROM operacaonota WHERE tipo = 'S')),0) WHERE codestabelec=2; 
+ALTER TABLE produtoestab ENABLE TRIGGER USER;
+ALTER TABLE itpedido ENABLE TRIGGER USER;
+
+
+--Parte Hugo
+UPDATE pedido SET status='A' WHERE codestabelec=2 AND status='P' AND operacao='VD' 
+AND numpedido IN (SELECT numpedido FROM notafiscal WHERE codestabelec=2 AND operacao='VD')

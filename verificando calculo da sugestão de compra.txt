@@ -1,0 +1,6 @@
+SELECT sugestaocompra(1,10035)
+SELECT codproduto, vendamedia, sldatual, preventrada, prevsaida, estminimo FROM produtoestab WHERE codproduto=10035
+SELECT param('ESTOQUE','FORNSUGCOMPRA')
+SELECT * FROM fornecestab WHERE codfornec=53
+SELECT codproduto, vendamedia, sldatual, preventrada, prevsaida, estminimo, CEIL(0.0682*9) AS sugestao, CEIL(0.0682*9) - (sldatual-estminimo) AS sug1, (CEIL(0.0682*9) - (sldatual-estminimo)) + prevsaida-preventrada AS sug2
+ FROM produtoestab WHERE codproduto=10035

@@ -1,0 +1,92 @@
+(SELECT * FROM crosstab(
+  'SELECT codestabelec,codproduto,data, CASE WHEN tipo = ''CT'' THEN 1 WHEN tipo = ''CR'' THEN 2 WHEN tipo = ''PV'' THEN 3 WHEN tipo = ''PA'' THEN 4 END , 
+                precoatual FROM logpreco WHERE precoatual > 0 AND tipo IN(''CT'',''CR'',''PV'',''PA'') order by 1,2',
+  'SELECT tipo from generate_series(1,4) tipo'
+) as (      
+  codestabelec integer,
+  codproduto integer,
+  data date,
+  "CT" numeric(12,2),
+  "CR" numeric(12,2),
+  "PV" numeric(12,2),
+  "PA" numeric(12,2)
+))  
+
+
+exemplo 2
+--SELECT DISTINCT *  FROM estadotributo WHERE codproduto IN (1567,1000,5001)  ORDER BY 1
+
+SELECT crosstab.* FROM crosstab(
+
+'SELECT DISTINCT estadotributo.codproduto, uf, estadotributo.aliqiva  FROM estadotributo WHERE codproduto IN (1000) ',
+'SELECT uf FROM estado uf') AS(
+  codproduto integer,
+  --descricaofiscal character varying(50),
+  "AC" 	decimal(12,2),
+  "AL" 	decimal(12,2),
+  "AM" 	decimal(12,2),
+  "AP" 	decimal(12,2),
+  "BA" 	decimal(12,2),
+  "CE" 	decimal(12,2),
+  "DF" 	decimal(12,2),
+  "ES" 	decimal(12,2),
+  "EX" 	decimal(12,2),
+  "GO" 	decimal(12,2),
+  "MA" 	decimal(12,2),
+  "MG" 	decimal(12,2),
+  "MS" 	decimal(12,2),
+  "MT" 	decimal(12,2),
+  "PA" 	decimal(12,2),
+  "PB" 	decimal(12,2),
+  "PE" 	decimal(12,2),
+  "PI" 	decimal(12,2),
+  "PR" 	decimal(12,2),
+  "RJ" 	decimal(12,2),
+  "RN" 	decimal(12,2),
+  "RO" 	decimal(12,2),
+  "RR" 	decimal(12,2),
+  "RS" 	decimal(12,2),
+  "SC" 	decimal(12,2),
+  "SE" 	decimal(12,2),
+  "SP" 	decimal(12,2),
+  "TO" 	decimal(12,2)
+)
+--WHERE codproduto=
+--INNER JOIN produto ON (crosstab.codproduto = produto.codproduto)
+ORDER BY crosstab.codproduto
+--SELECT * FROM produto
+--SELECT * FROM unnest(ARRAY[''AC'',''AL'', ''AM'',''AP'', ''BA'', ''CE'', ''DF'', ''ES'', ''EX'', ''GO'', ''MA'', ''MG'', ''MS'', ''MT'', ''PA'', ''PB'', ''PE'', ''PI'', ''PR'', ''RJ'', ''RN'', ''RO'', ''RR'', ''RS'',''SC'', ''SE'', ''SP'', ''TO''])  AS estado
+
+
+--Outro teste não funcionou no gerador.
+(SELECT * FROM crosstab(
+	'SELECT codproduto, idnotafiscal, SUM(quantidade) FROM itnotafiscal WHERE codproduto IN (104282, 101337) GROUP BY 1,2 ORDER BY codproduto',
+	'SELECT idnotafiscal AS integer FROM itnotafiscal WHERE codproduto IN (104282, 101337) GROUP BY 1 '	
+) as (   	
+
+
+	codproduto integer,
+	"30" numeric(12,4),
+	"46" numeric(12,4),
+	"99" numeric(12,4),
+	"138" numeric(12,4),
+	"207" numeric(12,4),
+	"221" numeric(12,4),
+	"255" numeric(12,4),
+	"307" numeric(12,4)
+
+
+))
+
+
+
+SELECT campo FROM unnest(ARRAY['codproduto integer',
+	'"30" numeric(12,4),',
+	'"46" numeric(12,4),',
+	'"99" numeric(12,4),',
+	'"138" numeric(12,4),',
+	'"207" numeric(12,4),',
+	'"221" numeric(12,4),',
+	'"255" numeric(12,4),',
+	'"307" numeric(12,4)'
+]) AS campo 

@@ -1,0 +1,15 @@
+INSERT INTO ncm(
+            idncm, codigoncm, descricao, codcfnfe, codcfnfs, codcfpdv, codipi, 
+            codpiscofinsent, codpiscofinssai, aliqiva, aliqmedia)
+	SELECT (nextval('temp1')) AS idncm, 
+	(SUBSTR(ncm,1,4)||'.'||SUBSTR(ncm,5,2)||'.'||SUBSTR(ncm,7,2)) AS codigoncm, 
+	'MIX Fiscal' AS descricao, 37 AS codcfnfe,37 AS codcfnfs, 37 AS codcfpdv,1 AS codipi,17 AS codpiscofinsent, 18 AS codpiscofinssai ,NULL AS aliqiva,0 AS aliqmedia
+	FROM mxf_tmp_pis_cofins WHERE ncm NOT IN (SELECT SUBSTR(codigoncm,1,4)||SUBSTR(codigoncm,6,2)||SUBSTR(codigoncm,9,2) FROM ncm)
+	GROUP BY 2
+
+
+SELECT MAX(idncm) FROM ncm
+alter sequence temp1 restart 396;
+drop sequence temp1;
+
+SELECT * FROM ncm WHERE descricao LIKE '%MIX%'

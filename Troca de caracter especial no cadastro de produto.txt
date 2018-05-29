@@ -1,0 +1,10 @@
+--Altera codificação para Win1252
+set client_encoding to 'WIN1252';
+
+update PRODUTO SET descricaofiscal=REPLACE(DESCRICAOFISCAL, '?',' ') WHERE descricaofiscal LIKE '%?%'
+update PRODUTO SET descricao=REPLACE(DESCRICAO, '?',' ') WHERE descricaofiscal LIKE '%?%'
+
+?
+
+--Altera codificação para Win1252
+set client_encoding to 'WIN1252';

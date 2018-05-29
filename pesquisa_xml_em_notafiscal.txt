@@ -1,0 +1,5 @@
+select xmlnfe, numeroitens, dtemissao FROM notafiscal INNER JOIN itnotafiscal USING (idnotafiscal) 
+WHERE notafiscal.operacao='CP'
+ --AND notafiscal.natoperacao='1.556' 
+ AND notafiscal.xmlnfe IS NOT NULL
+AND itnotafiscal.natoperacao='1.556' 

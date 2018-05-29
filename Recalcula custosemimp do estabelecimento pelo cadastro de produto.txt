@@ -1,0 +1,8 @@
+UPDATE produtoestab SET  custosemimp =
+ (produtoestab.custorep * (1-(CASE WHEN cfent.tptribicms IN ('T','R') THEN cfent.aliqicms * (1 - cfent.aliqredicms / 100) ELSE 0 END) / 100 - pcent.aliqpis / 100 - pcent.aliqcofins / 100))
+	FROM produto
+	INNER JOIN classfiscal ON (produto.codcfnfs = classfiscal.codcf)
+	INNER JOIN classfiscal AS cfent ON (produto.codcfnfe = cfent.codcf)
+	INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+	INNER JOIN piscofins AS pcent ON (produto.codpiscofinsent = pcent.codpiscofins)
+	WHERE produto.codproduto = produtoestab.codproduto AND produtoestab.codestabelec = 1;

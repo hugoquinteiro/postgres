@@ -1,0 +1,1 @@
+SELECT tablename AS TABELAS FROM pg_tables WHERE schemaname = 'public' order by 1

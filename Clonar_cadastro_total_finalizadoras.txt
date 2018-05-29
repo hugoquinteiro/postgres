@@ -1,0 +1,9 @@
+
+******* Clonar todo cadastro de finalizadora para uma nova lola
+INSERT INTO finalizadora 
+            Select '?2' AS codestabelec, codfinaliz, descricao, codespecie, codcondpagto, 
+            tipoparceiro, codparceiro, gerafinanceiro, tipogeracao, usuario, 
+            datalog, geraliquidado, codccusto, codmoeda, codcatlancto, codsubcatlancto from finalizadora WHERE codestabelec=?1
+
+
+--Onde ?2 é o código da nova loja e ?1 é o código da loja que sera copiada

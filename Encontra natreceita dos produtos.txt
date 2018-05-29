@@ -1,0 +1,12 @@
+SELECT *
+FROM (
+                SELECT DISTINCT produto.codproduto, produto.descricaofiscal,
+                               COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'P' AND codigo = produto.codproduto),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'S' AND codigo = produto.codsubgrupo),COALESCE((SELECT natreceita FROM natreceita WHERE tabela = 'G' AND codigo = produto.codgrupo),(SELECT natreceita FROM natreceita WHERE tabela = 'D' AND codigo = produto.coddepto)))) AS natreceita,
+                               piscofins.codcst,
+                               consvendadia.dtmovto
+                FROM consvendadia
+                INNER JOIN produto ON (consvendadia.codproduto = produto.codproduto)
+                INNER JOIN piscofins ON (produto.codpiscofinssai = piscofins.codpiscofins)
+                ORDER BY dtmovto, codproduto
+) AS temp
+WHERE dtmovto>='@data1' and dtmovto<='@data2'

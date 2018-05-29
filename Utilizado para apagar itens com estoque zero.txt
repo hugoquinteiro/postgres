@@ -1,0 +1,5 @@
+--Comando utilizando para apagar itens sem movimento e com estoque zero no Mylena
+DELETE FROM produto WHERE codproduto IN (
+SELECT codproduto FROM produtoestab WHERE sldatual=0 AND codproduto NOT IN 
+	(SELECT DISTINCT codproduto FROM movimento UNION SELECT DISTINCT codproduto FROM itpedido UNION SELECT DISTINCT codproduto FROM itcupom) LIMIT 1000
+)

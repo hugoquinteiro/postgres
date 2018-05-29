@@ -1,0 +1,15 @@
+SELECT * FROM departamento
+SELECT * FROM grupoprod ORDER BY 1 LIMIT 1
+SELECT * FROM subgrupo ORDER BY 1 LIMIT 1
+ALTER TABLE produto DISABLE TRIGGER USER;
+UPDATE produto SET coddepto=1, codgrupo=1, codsubgrupo=1;
+ALTER TABLE produto ENABLE TRIGGER USER;
+
+
+DELETE FROM subgrupo WHERE codsubgrupo<>1
+DELETE FROM grupoprod WHERE codgrupo<>1
+DELETE FROM departamento WHERE coddepto<>1
+
+UPDATE departamento SET nome='GERAL'
+UPDATE grupoprod SET descricao='GERAL'
+UPDATE subgrupo SET descricao='GERAL'

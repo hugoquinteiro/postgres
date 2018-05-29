@@ -1,0 +1,3 @@
+SELECT * FROM cupom WHERE dtmovto>='2015-06-01' AND LENGTH(cpfcnpj)=18 
+
+UPDATE cupom SET cpfcnpj=NULL WHERE dtmovto>='2015-06-01' AND LENGTH(cpfcnpj)=18 

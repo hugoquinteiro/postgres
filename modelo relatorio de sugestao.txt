@@ -1,0 +1,29 @@
+--Modelo relatorio de sugestao
+SELECT DISTINCT COALESCE(fornecedor.nome, 'Fornecedor Nao Informado') AS fornecedor, 
+	produto.codproduto, 
+	produto.descricaofiscal, 
+	produtoestab.sldatual, 
+	produtoestab.vendamedia, 
+	TRUNC(CASE WHEN produtoestab.vendamedia != 0 THEN (produtoestab.sldatual / produtoestab.vendamedia) ELSE 0 END) AS diasestoque , 
+	sugestaocompra(produtoestab.codestabelec,produto.codproduto) AS sugestaocompra, 
+	(SELECT notafiscal.dtentrega FROM itnotafiscal INNER JOIN notafiscal ON (itnotafiscal.idnotafiscal = notafiscal.idnotafiscal) 
+		WHERE notafiscal.operacao = 'CP' AND notafiscal.codestabelec = produtoestab.codestabelec AND notafiscal.codparceiro = fornecedor.codfornec 
+		AND itnotafiscal.codproduto = produto.codproduto ORDER BY notafiscal.dtentrega DESC LIMIT 1) AS dtultcpa, 
+	(SELECT itnotafiscal.quantidade * itnotafiscal.qtdeunidade FROM itnotafiscal INNER JOIN notafiscal ON (itnotafiscal.idnotafiscal = notafiscal.idnotafiscal) 
+	WHERE notafiscal.operacao = 'CP' AND notafiscal.codestabelec = produtoestab.codestabelec 
+	AND notafiscal.codparceiro = fornecedor.codfornec AND itnotafiscal.codproduto = produto.codproduto 
+	ORDER BY notafiscal.dtentrega DESC LIMIT 1) AS qtdultcpa, 
+	(SELECT itnotafiscal.preco FROM itnotafiscal INNER JOIN notafiscal ON (itnotafiscal.idnotafiscal = notafiscal.idnotafiscal) 
+		WHERE notafiscal.operacao = 'CP' AND notafiscal.codestabelec = produtoestab.codestabelec AND notafiscal.codparceiro = fornecedor.codfornec 
+		AND itnotafiscal.codproduto = produto.codproduto ORDER BY notafiscal.dtentrega DESC LIMIT 1) AS custotab, 
+	produtoestab.precovrj, 
+	(SELECT reffornec FROM prodfornec WHERE codfornec = fornecedor.codfornec AND codproduto = produto.codproduto LIMIT 1) AS reffornec, 
+	(CASE WHEN foralinha = 'S' THEN 'Sim' ELSE 'Nao' END) as foralinha 
+FROM produtoestab 
+INNER JOIN produto ON (produtoestab.codproduto = produto.codproduto) 
+LEFT JOIN prodfornec ON (produto.codproduto = prodfornec.codproduto) 
+LEFT JOIN fornecedor ON (prodfornec.codfornec = fornecedor.codfornec) 
+WHERE produtoestab.disponivel = 'S' 
+AND produtoestab.codestabelec = x 
+AND produto.coddepto = 3 
+ORDER BY fornecedor, descricaofiscal

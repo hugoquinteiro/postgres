@@ -1,0 +1,7 @@
+
+Conexao via psql
+psql -U postgres -d testes
+
+
+\i /caminho/pasta/script.sql   Importar um script.sql
+\q sair

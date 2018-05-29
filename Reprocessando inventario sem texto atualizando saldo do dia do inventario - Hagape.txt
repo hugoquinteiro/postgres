@@ -1,0 +1,24 @@
+--Deleta movimento de estoque
+DELETE FROM movimento WHERE codmovimento IN (SELECT codmovimento FROM itinventario WHERE codinventario =48);
+
+--Libera inventario
+UPDATE inventario SET atualizado='N' WHERE codinventario =48;
+
+--Recarrega tabela temporaria
+INSERT INTO itinventariotemp  
+SELECT codinventario, codproduto, 'S' AS checkbox, 1 AS embalagem, 0 AS quantidade, sldinventario AS acumulado, 1 AS contagem
+FROM itinventario 
+WHERE codinventario =48;
+
+
+
+--Atualiza saldo do dia
+UPDATE itinventario SET sldatual=saldo(1,codproduto,'2017-11-02') WHERE codinventario=48
+
+
+--Delete itens de composição
+UPDATE itinventario SET inventariado='N' WHERE codinventario=48 AND codproduto IN (SELECT codproduto FROM composicao)
+DELETE FROM itinventariotemp WHERE codinventario=48 AND codproduto IN (SELECT codproduto FROM composicao)
+
+--Atualiza data da nova movimentação (não foi necessário)
+update movimento set dtmovto='2017-08-28' where codmovimento in (select codmovimento from itinventario where codinventario=19)

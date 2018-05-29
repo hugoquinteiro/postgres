@@ -1,0 +1,101 @@
+-– Tamanho por Banco
+SELECT datname, pg_size_pretty(pg_database_size(datname))
+FROM pg_database;
+
+-– Tamanho por Banco ORDENADOS pelo maior
+SELECT datname, pg_size_pretty(pg_database_size(datname)), pg_database_size(datname)
+FROM pg_database ORDER BY 3 DESC;
+
+
+VACUUM FULL VERBOSE;
+
+REINDEX DATABASE websac;
+
+
+-–  Quantidade de usuários logados no banco
+select datname,count(*) as num from pg_stat_activity group by
+datname
+
+-- Mostra commandos que estão sendo executados no banco de dados postgres.
+SELECT pg_stat_get_backend_pid(s.backendid) AS procpid,
+pg_stat_get_backend_activity(s.backendid) AS current_query
+FROM (SELECT pg_stat_get_backend_idset() AS backendid) AS s;
+
+--Mostra comandos com o nome do Banco
+SELECT datname, client_addr, query_start, state, query FROM pg_stat_activity;
+
+-- Como parar um processo no banco de dados
+-- Comando anterior mostrar o "procpid"
+select pg_terminate_backend(procpid);
+
+KILL em tudo que estiver rodando --ATENCAO:Instrução perigosa
+SELECT pg_terminate_backend (pg_stat_get_backend_pid(backendid))
+FROM (SELECT pg_stat_get_backend_idset() AS backendid) as tmp;
+
+--Verifica configurações Basicas diferente do default
+SELECT name, current_setting(name), source, sourcefile, sourceline 
+FROM pg_settings WHERE (source <> 'default' OR name = 'server_version') 
+AND name NOT IN ('config_file', 'data_directory', 'hba_file', 'ident_file');
+
+
+--- Quando é necessario rodar o Vaccum	
+Para prevenir com segurança o recomeço do ID das Transações devemos utilizar o comando VACUUM em todas as tabelas do banco de dados pelo menos uma vez a cada meio bilhão de transações. Caso o VACUUM não seja executado pelo menos uma vez a cada 2 bilhões de transações ocorrerá a perda de todos os dados do banco. De fato eles não se perdem, voltando dentro de mais 2 bilhões de transações, mas isso não ajuda.
+
+Como saber quantas transações ainda falta para a perda dos dados:
+
+SELECT datname AS banco, AGE(datfrozenxid) AS idade FROM pg_database;
+Sempre que se executa o comando VACUUM em um banco, a coluna com age começa de 1 bilhão. Ao executar as transações vai incrementando. Ao se aproximar de 2 bilhões devemos executar novamente o comando VACUUM.
+
+
+-- Como parar um processo no banco de dados
+select pg_terminate_backend(procpid);
+
+--Verifica quantidade de transações no banco
+SELECT datname AS banco, AGE(datfrozenxid) AS idade FROM pg_database;
+
+--Altera codificação para Win1252
+set client_encoding to 'WIN1252';
+
+--Site de tunning automatico do banco.
+http://pgtune.leopard.in.ua
+
+--Ver tabelas do banco de dados
+Select * from pg_tables where tablename like '%cliente'
+
+--Ver views
+Select * from pg_views where schemaname='public'
+
+--Verificar se AS triggerS estão ativa.
+SELECT tgname, tgenabled FROM pg_trigger WHERE tgenabled IS NOT false
+--ou
+SELECT tgname, tgenabled FROM pg_trigger WHERE tgenabled='1'
+--ou
+SELECT tgname, tgenabled FROM pg_trigger WHERE tgenabled='D'
+
+
+--Consulta tamanho das tabelas no banco
+SELECT esquema, tabela,
+       pg_size_pretty(pg_relation_size(esq_tab)) AS tamanho,
+       pg_size_pretty(pg_total_relation_size(esq_tab)) AS tamanho_total
+  FROM (SELECT tablename AS tabela,
+               schemaname AS esquema,
+               schemaname||'.'||tablename AS esq_tab
+          FROM pg_catalog.pg_tables
+         WHERE schemaname NOT
+            IN ('pg_catalog', 'information_schema', 'pg_toast') ) AS x
+ ORDER BY pg_total_relation_size(esq_tab) DESC;
+
+--Consulta local do diretorio DATA
+SHOW data_directory;
+
+--Consulta e encerra session aberta no postgres
+select datname, 
+	pid,
+       usename, 
+       application_name, 
+       client_addr, 
+       client_hostname, 
+       backend_start 
+  from pg_stat_activity
+
+select pg_terminate_backend(22522)

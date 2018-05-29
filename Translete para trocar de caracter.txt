@@ -1,0 +1,12 @@
+ CREATE OR REPLACE FUNCTION retira_acentuacao(p_texto text)  
+  RETURNS text AS  
+ $BODY$  
+ Select translate($1,  
+ 'áàâãäåaaaÁÂÃÄÅAAAÀéèêëeeeeeEEEÉEEÈìíîïìiiiÌÍÎÏÌIIIóôõöoooòÒÓÔÕÖOOOùúûüuuuuÙÚÛÜUUUUçÇñÑıİ',  
+ 'aaaaaaaaaAAAAAAAAAeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIooooooooOOOOOOOOuuuuuuuuUUUUUUUUcCnNyY'   
+  );  
+ $BODY$  
+ LANGUAGE sql VOLATILE  
+ COST 100;
+
+SELECT retira_acentuacao();

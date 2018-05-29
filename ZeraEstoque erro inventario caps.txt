@@ -1,0 +1,39 @@
+--Cria tipo de documento para ajustes
+INSERT INTO tipodocumento VALUES (27, 'Corrige Inv (Menos)', 'S');
+INSERT INTO tipodocumento VALUES (28, 'Corrige Inv (Mais)', 'S');
+
+--Cria sequencia para atualizacao , quando rodar este comando no cliente NINGUEM PODER ESTAR USANDO o SISTEMA< NEM RODANDO LEITURA ONLINE
+DROP sequence temp1;  --NORMAL  se der erro 
+SELECT MAX(codmovimento) FROM movimento limit 1  --(Pegar numero retorno da query para usar na criacao da sequence + 1): 9115107
+create sequence temp1 start 9115108;
+
+--Comando limpa positivos
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 1 AS codestabelec, produtoestab.codproduto, 'S' AS tipo , 
+     '2015-01-13' AS dtmovto,  
+      PRODUTOESTABSALDO.SALDO AS quantidade, 
+      produtoestab.precovrj,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 27 as codtpdocto,     (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=1)
+    WHERE  produtoestab.codproduto IN (SELECT codproduto FROM itinventario WHERE sldinventario=0 AND codinventario=45 )
+AND produtoestabsaldo.saldo>0 AND produtoestab.codestabelec=1
+AND produtoestabsaldo.data='2015-01-13'
+ GROUP BY 1,2,3,5,6,7,8,9,11,12
+ORDER BY 2
+
+
+--Limpa negativos 
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 1 AS codestabelec, produtoestab.codproduto, 'E' AS tipo , 
+     '2015-01-13' AS dtmovto,  
+      PRODUTOESTABSALDO.SALDO AS quantidade, 
+      produtoestab.precovrj,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 28 as codtpdocto,     (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=1)
+    WHERE  produtoestab.codproduto IN (SELECT codproduto FROM itinventario WHERE sldinventario=0 AND codinventario=45 )
+AND produtoestabsaldo.saldo<0 AND produtoestab.codestabelec=1
+AND produtoestabsaldo.data='2015-01-13'
+ GROUP BY 1,2,3,5,6,7,8,9,11,12
+ORDER BY 2

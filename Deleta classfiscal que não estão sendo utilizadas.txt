@@ -1,0 +1,7 @@
+--Deleta classfiscal que não estão nem no produto nem no ncm
+DELETE FROM classfiscal WHERE codcf IN (
+
+SELECT codcf FROM classfiscal WHERE codcf NOT IN (SELECT DISTINCT codcfnfe FROM produto) AND codcf NOT IN (SELECT DISTINCT codcfnfs FROM produto) AND codcf NOT IN (SELECT DISTINCT codcfpdv FROM produto)
+INTERSECT
+SELECT codcf FROM classfiscal WHERE codcf NOT IN (SELECT DISTINCT codcfnfe FROM ncm) AND  codcf NOT IN (SELECT DISTINCT codcfnfs FROM ncm) AND codcf NOT IN (SELECT DISTINCT codcfpdv FROM ncm)
+)

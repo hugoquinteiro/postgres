@@ -1,0 +1,130 @@
+CREATE OR REPLACE VIEW mxf_vw_icms AS 
+ SELECT produto.codproduto AS codigo_produto,
+    produtoean.codean AS ean,
+        CASE
+            WHEN classfiscalnfs.aliqiva > 0::numeric THEN 4
+            WHEN classfiscalnfs.valorpauta > 0::numeric THEN 5
+            ELSE 0
+        END AS tipo_mva,
+        CASE
+            WHEN classfiscalnfs.aliqiva > 0::numeric THEN classfiscalnfs.aliqiva
+            ELSE classfiscalnfs.valorpauta
+        END AS mva,
+    substr(classfiscalnfs.codcst::text, 2, 2) AS sac_cst,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS sac_alq,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS sac_alq_st,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS sac_rbc,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS sac_rbc_st,
+    substr(classfiscalnfs.codcst::text, 2, 2) AS sas_cst,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS sas_alq,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS sas_alq_st,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS sas_rbc,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS sas_rbc_st,
+    substr(classfiscalnfs.codcst::text, 2, 2) AS svc_cst,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS svc_alq,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqicms
+            ELSE 0::numeric
+        END AS svc_alq_st,
+        CASE
+            WHEN classfiscalnfs.tptribicms <> 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS svc_rbc,
+        CASE
+            WHEN classfiscalnfs.tptribicms = 'F'::bpchar THEN classfiscalnfs.aliqredicms
+            ELSE 0::numeric
+        END AS svc_rbc_st,
+    substr(classfiscalpdv.codcst::text, 2, 2) AS snc_cst,
+        CASE
+            WHEN classfiscalpdv.tptribicms <> 'F'::bpchar THEN classfiscalpdv.aliqicms
+            ELSE 0::numeric
+        END AS snc_alq,
+        CASE
+            WHEN classfiscalpdv.tptribicms = 'F'::bpchar THEN classfiscalpdv.aliqicms
+            ELSE 0::numeric
+        END AS snc_alq_st,
+        CASE
+            WHEN classfiscalpdv.tptribicms <> 'F'::bpchar THEN classfiscalpdv.aliqredicms
+            ELSE 0::numeric
+        END AS snc_rbc,
+        CASE
+            WHEN classfiscalpdv.tptribicms = 'F'::bpchar THEN classfiscalpdv.aliqredicms
+            ELSE 0::numeric
+        END AS snc_rbc_st
+   FROM produto
+   JOIN produtoean ON produto.codproduto = produtoean.codproduto
+   JOIN classfiscal classfiscalnfs ON produto.codcfnfs = classfiscalnfs.codcf
+   JOIN classfiscal classfiscalpdv ON produto.codcfpdv = classfiscalpdv.codcf
+  ORDER BY produto.codproduto;
+
+ALTER TABLE mxf_vw_icms
+  OWNER TO postgres;
+CREATE OR REPLACE VIEW mxf_vw_pis_cofins AS 
+ SELECT produto.codproduto AS codigo_produto,
+    produtoean.codean AS ean,
+    produto.descricaofiscal AS descritivo_produto,
+    replace(ncm.codigoncm::text, '.'::text, ''::text) AS ncm,
+    COALESCE(( SELECT natreceita.natreceita
+           FROM natreceita
+          WHERE natreceita.tabela = 'P'::bpchar AND natreceita.codigo = produto.codproduto), COALESCE(( SELECT natreceita.natreceita
+           FROM natreceita
+          WHERE natreceita.tabela = 'S'::bpchar AND natreceita.codigo = produto.codsubgrupo), COALESCE(( SELECT natreceita.natreceita
+           FROM natreceita
+          WHERE natreceita.tabela = 'G'::bpchar AND natreceita.codigo = produto.codgrupo), COALESCE(( SELECT natreceita.natreceita
+           FROM natreceita
+          WHERE natreceita.tabela = 'D'::bpchar AND natreceita.codigo = produto.coddepto), '999'::bpchar)))) AS cod_natureza_receita,
+    piscofinsent.codcst AS pis_cst_e,
+    piscofinssai.codcst AS pis_cst_s,
+    piscofinsent.aliqpis AS pis_alq_e,
+    piscofinssai.aliqpis AS pis_alq_s,
+    piscofinsent.codcst AS cofins_cst_e,
+    piscofinssai.codcst AS cofins_cst_s,
+    piscofinsent.aliqcofins AS cofins_alq_e,
+    piscofinssai.aliqcofins AS cofins_alq_s,
+    departamento.nome AS departamento,
+    departamento.nome AS secao,
+    grupoprod.descricao AS grupo,
+    subgrupo.descricao AS subgrupo,
+        CASE
+            WHEN produto.foralinha = 'S'::bpchar THEN 'INATIVO'::text
+            ELSE 'ATIVO'::text
+        END AS status
+   FROM produto
+   LEFT JOIN produtoean ON produto.codproduto = produtoean.codproduto
+   LEFT JOIN ncm ON produto.idncm = ncm.idncm
+   JOIN piscofins piscofinsent ON produto.codpiscofinsent = piscofinsent.codpiscofins
+   JOIN piscofins piscofinssai ON produto.codpiscofinssai = piscofinssai.codpiscofins
+   JOIN departamento ON produto.coddepto = departamento.coddepto
+   JOIN grupoprod ON produto.codgrupo = grupoprod.codgrupo
+   JOIN subgrupo ON produto.codsubgrupo = subgrupo.codsubgrupo
+  ORDER BY produto.codproduto;
+
+ALTER TABLE mxf_vw_pis_cofins
+  OWNER TO postgres;

@@ -1,0 +1,68 @@
+--Conversao de Departamentos
+
+CREATE OR REPLACE FUNCTION Inseredepto()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_conversao record;
+	i integer;
+BEGIN
+	CREATE SEQUENCE s_depto START 2;
+	
+	--Inclusão do Departamento
+	FOR row_conversao IN 
+		SELECT TRIM(depto) AS depto FROM conversao2  WHERE TRIM(depto) IS NOT NULL AND TRIM(depto)<>'' GROUP BY 1 ORDER BY 1
+
+	LOOP
+		 SELECT NEXTVAL('s_depto') INTO i;
+		RAISE NOTICE 'Incluindo departamento %', row_conversao.depto;
+		INSERT INTO departamento (coddepto, nome) VALUES (i,row_conversao.depto);
+		INSERT INTO grupoprod (coddepto, codgrupo, descricao) VALUES (i, i, row_conversao.depto);
+		INSERT INTO subgrupo (codgrupo, codsubgrupo, descricao) VALUES (i, i, row_conversao.depto);
+		
+	END LOOP;
+
+
+
+	DROP SEQUENCE s_depto;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION Inseredepto()
+  OWNER TO postgres;
+
+
+
+
+
+CREATE OR REPLACE FUNCTION atualizaproduto()
+  RETURNS void AS
+$BODY$
+DECLARE
+	row_deptos record;
+	i integer;
+BEGIN
+	
+	
+	--Atualização do Departamento nos itens
+	FOR row_deptos IN 
+		SELECT DISTINCT codigo, departamento.coddepto, grupoprod.codgrupo, subgrupo.codsubgrupo
+			FROM conversao INNER JOIN departamento ON (UPPER(departamento.nome) = UPPER(conversao.departamento))
+			INNER JOIN grupoprod ON (UPPER(grupoprod.descricao) = UPPER(conversao.grupo) AND departamento.coddepto = grupoprod.coddepto)
+			INNER JOIN subgrupo ON (UPPER(subgrupo.descricao) = UPPER(conversao.subgrupo) AND grupoprod.codgrupo = subgrupo.codgrupo) ORDER BY codigo
+
+	LOOP
+		RAISE NOTICE 'Atualizando departamentos para o item %', row_deptos.codigo;
+		UPDATE produto SET coddepto=row_deptos.coddepto, codgrupo=row_deptos.codgrupo, codsubgrupo=row_deptos.codsubgrupo WHERE codproduto=row_deptos.codigo;
+	END LOOP;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION atualizaproduto()
+  OWNER TO postgres;
+
+SELECT atualizaproduto()
+

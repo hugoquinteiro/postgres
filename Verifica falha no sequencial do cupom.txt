@@ -1,0 +1,7 @@
+--Verificar falha no sequencial do cupom
+--Ajustar dia e caixa e loja
+SELECT cupom, cupomant, (CAST(cupom AS integer)-CAST(cupomant AS integer)) AS dif FROM (
+	SELECT cupom, 
+		(SELECT cupom  FROM cupom as cp WHERE cp.idcupom=(cupom.idcupom-1)) AS cupomant
+	FROM cupom WHERE  dtmovto BETWEEN '2016-03-01' AND '2016-03-01' AND caixa=1
+) AS tmp WHERE (CAST(cupom AS integer)-CAST(cupomant AS integer))>1

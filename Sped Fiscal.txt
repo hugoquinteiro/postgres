@@ -1,0 +1,282 @@
+SELECT SUM(totalicmssubst), natoperacao FROM  itnotafiscal 
+WHERE dtentrega>='2012-08-01' AND dtentrega<='2012-08-30' AND SUBSTRING(natoperacao,1,1) IN ('1','2') 
+GROUP BY 2
+HAVING  SUM(totalicmssubst)<>0
+
+
+SELECT SUM(totalicmssubst), natoperacao, idnotafiscal  FROM  itnotafiscal 
+WHERE dtentrega>='2012-08-01' AND dtentrega<='2012-08-30' AND SUBSTRING(natoperacao,1,1) IN ('2') 
+GROUP BY 2,3
+HAVING  SUM(totalicmssubst)<>0
+
+
+SELECT numnotafis FROM notafiscal WHERE idnotafiscal=4104
+
+SELECT * FROM ESTADO
+
+UPDATE ESTADO SET ALIQICMS=18
+
+
+--Corrigi unidade
+--SELECT * FROM unidade WHERE descricao=sigla
+UPDATE unidade SET descricao='KILO' WHERE sigla='KG';
+UPDATE unidade SET descricao='UNIDADE' WHERE sigla='UN';
+UPDATE unidade SET descricao='FARDO' WHERE sigla='FD';
+UPDATE unidade SET descricao='SACO' WHERE sigla='SC';
+UPDATE unidade SET descricao='CAIXA V' WHERE sigla='CV';
+UPDATE unidade SET descricao='UNIDADE' WHERE sigla='UN';
+UPDATE unidade SET descricao='OUTROS' WHERE sigla='3N';
+UPDATE unidade SET descricao='DUZIA' WHERE sigla='DZ';
+UPDATE unidade SET descricao='OUTROS' WHERE sigla='CN';
+UPDATE unidade SET descricao='CAIXA' WHERE sigla='CX';
+UPDATE unidade SET descricao='PACOTE' WHERE sigla='PC';
+UPDATE unidade SET descricao='PACOTE PT' WHERE sigla='PT';
+UPDATE unidade SET descricao='24 Vinte e quatro' WHERE sigla='24';
+UPDATE unidade SET descricao='Unidade '||sigla WHERE descricao=sigla
+
+
+1-- Compara Mapa com itens Tabela cupom
+SELECT data, sum(mapa) AS mapa, sum(venda_itens) AS VendaItens, (sum(mapa)-sum(venda_itens)) AS  diferenca FROM ( 
+  (SELECT sum(itcupom.valortotal) AS venda_itens, 0 AS mapa, cupom.dtmovto AS data, codestabelec from itcupom INNER JOIN cupom USING (idcupom)
+   WHERE composicao <> 'F' AND itcupom.status='A' AND cupom.status='A'
+   GROUP BY 3,4)
+  UNION ALL
+  (SELECT 0 AS venda_itens, sum(totalliquido) AS mapa, dtmovto AS data, codestabelec  FROM  maparesumo
+   GROUP BY 3,4)
+) AS tmp
+WHERE tmp.data>='@data1'
+AND   tmp.data<='@data2'
+AND   tmp.codestabelec=1
+GROUP BY 1
+ORDER BY 1
+
+
+2-- Compara Mapa X ITCupom por DIA e CAIXA, Tributacao
+SELECT dtmovto, caixa, tptribicms, aliqicms, SUM(totalmapa) AS mapa, SUM(totalitem) AS item, (SUM(totalmapa) - SUM(totalitem)) AS diferenca
+FROM (
+	SELECT maparesumo.dtmovto, maparesumo.caixa, maparesumoimposto.totalliquido AS totalmapa, 0 AS totalitem, maparesumoimposto.aliqicms, maparesumoimposto.tptribicms, codestabelec
+	FROM maparesumoimposto INNER JOIN maparesumo USING(codmaparesumo) 
+UNION ALL
+	SELECT cupom.dtmovto, cupom.caixa, 0 AS totalmapa, itcupom.valortotal AS totalitem, itcupom.aliqicms, itcupom.tptribicms, codestabelec 
+	FROM itcupom INNER JOIN cupom USING (idcupom) 
+	WHERE itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'
+) tmp 
+WHERE tmp.dtmovto>='@data1'
+AND tmp.dtmovto<='@data2'
+AND tmp.caixa=@caixa
+AND tmp.codestabelec=2
+AND tmp.tptribicms='T'
+GROUP BY 1,2,3,4 
+HAVING (SUM(totalmapa) - SUM(totalitem))<>0
+ORDER BY 1,2,3,4
+
+3--Compara mapa X itcupom Dia, Caixa, Aliquota
+SELECT dtmovto, caixa, tptribicms, aliqicms, SUM(totalmapa) AS mapa, SUM(totalitem) AS item, (SUM(totalmapa) - SUM(totalitem)) AS diferenca
+FROM (
+	SELECT maparesumo.dtmovto, maparesumo.caixa, maparesumoimposto.totalliquido AS totalmapa, 0 AS totalitem, maparesumoimposto.aliqicms, maparesumoimposto.tptribicms, codestabelec
+	FROM maparesumoimposto INNER JOIN maparesumo USING(codmaparesumo) 
+UNION ALL
+	SELECT cupom.dtmovto, cupom.caixa, 0 AS totalmapa, itcupom.valortotal AS totalitem, itcupom.aliqicms, itcupom.tptribicms, codestabelec 
+	FROM itcupom INNER JOIN cupom USING (idcupom) 
+	WHERE itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'
+) tmp 
+WHERE tmp.dtmovto='@data'
+AND tmp.caixa=@caixa
+AND tmp.codestabelec=1
+GROUP BY 1,2,3,4 
+ORDER BY 1,2,3,4
+
+
+
+
+5--Compara mapa X itcupom Dia, Caixa, Aliquota
+SELECT dtmovto, caixa, tptribicms, aliqicms, SUM(totalmapa) AS mapa, SUM(totalitem) AS item
+FROM (
+SELECT maparesumo.dtmovto, maparesumo.caixa, maparesumoimposto.totalliquido AS totalmapa, 0 AS totalitem, maparesumoimposto.aliqicms, maparesumoimposto.tptribicms
+FROM maparesumoimposto  INNER JOIN maparesumo USING(codmaparesumo) WHERE dtmovto='2012-11-01' AND codecf=1 
+UNION ALL
+SELECT cupom.dtmovto, cupom.caixa, 0 AS totalmapa, itcupom.valortotal AS totalitem, itcupom.aliqicms, itcupom.tptribicms FROM itcupom INNER JOIN cupom USING (idcupom) 
+WHERE dtmovto='2012-11-01' AND itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'  AND caixa=4 
+) tmp 
+GROUP BY 1,2,3,4 ORDER BY 1,2,3,4
+
+
+SELECT sum(venda_itens) AS VendaItens, sum(mapa) AS mapa, (sum(venda_itens)-sum(mapa)) AS  diferenca, data FROM ( 
+  (SELECT sum(itcupom.valortotal) AS venda_itens, 0 AS mapa, cupom.dtmovto AS data from itcupom INNER JOIN cupom USING (idcupom)
+   WHERE composicao <> 'F' AND itcupom.status='A' AND cupom.status='A'
+   GROUP BY 3)
+  UNION ALL
+  (SELECT 0 AS venda_itens, sum(totalliquido) AS mapa, dtmovto AS data  FROM  maparesumo
+   GROUP BY 3)
+) AS tmp
+WHERE tmp.data>='2013-02-01'
+AND   tmp.data<='2013-02-28'
+GROUP BY 4
+ORDER BY 4
+
+6-- Verifica e Atualiza tributacao com problema do itcupom
+SELECT cupom.dtmovto, cupom.caixa, codproduto, itcupom.valortotal, quantidade, preco, itcupom.aliqicms, itcupom.tptribicms, desconto, idcupom
+FROM itcupom INNER JOIN cupom USING (idcupom) 
+WHERE dtmovto='2013-03-18' AND itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'  AND caixa=1 
+AND aliqicms=7 AND tptribicms='T' AND valortotal> (4.98) -- seleciona tributacao
+AND itcupom.codproduto=3609 AND itcupom.idcupom=702656 -- Seleciona item e cupom
+
+UPDATE itcupom SET desconto=desconto+2.49, valortotal=valortotal-2.49 
+WHERE  itcupom.status='A' AND itcupom.composicao<>'F'  AND aliqicms=7 AND tptribicms='T' AND itcupom.codproduto=3609 AND itcupom.idcupom=702656
+
+UPDATE cupom SET totalliquido=(SELECT SUM(valortotal) FROM itcupom WHERE idcupom=702656 AND itcupom.status='A' AND itcupom.composicao<>'F'),
+		 totaldesconto=(SELECT SUM(desconto) FROM itcupom WHERE idcupom=702656 AND itcupom.status='A' AND itcupom.composicao<>'F')
+WHERE idcupom=702656
+
+SELECT SUM(valortotal) FROM itcupom WHERE idcupom=702656 AND itcupom.status='A' AND itcupom.composicao<>'F'
+
+SELECT * FROM cupom WHERE idcupom=702656
+
+
+
+7--- Compara tributação dos itens com mapa resumo por aliquota e tributações
+SELECT data, tptribicms, aliqicms, SUM(venda) AS vendas, SUM(imposto1) AS imposto1, SUM(imposto2) AS imposto2, SUM(imposto1-imposto2) AS dif FROM (
+
+SELECT dtmovto AS data, tptribicms, aliqicms, SUM(maparesumoimposto.totalliquido) AS venda, 
+	SUM(maparesumoimposto.totalicms) AS imposto1, 0 AS imposto2
+FROM maparesumo
+INNER JOIN maparesumoimposto USING (codmaparesumo)
+WHERE dtmovto>='2013-02-01' AND dtmovto<='2013-02-10' AND caixa=1 AND tptribicms='T'
+GROUP BY 1,2,3
+
+UNION ALL
+
+SELECT cupom.dtmovto AS data, tptribicms, aliqicms, sum(itcupom.valortotal) AS venda, 
+	0 as imposto1,  TRUNC(SUM(itcupom.valortotal*(aliqicms/100)),2) AS imposto2
+FROM itcupom INNER JOIN cupom USING (idcupom)
+  WHERE composicao <> 'F' AND itcupom.status='A' AND cupom.status='A' AND tptribicms='T' AND dtmovto>='2013-02-01' AND dtmovto<='2013-02-10'
+   AND caixa=1
+   GROUP BY 1,2,3
+--cupom.dtmovto AS data,
+) AS tmp
+GROUP BY 1,2,3 ORDER BY 1,3
+
+8--- Compara sem data
+SELECT tptribicms, aliqicms, SUM(venda) AS vendas, SUM(imposto1) AS imposto1, SUM(imposto2) AS imposto2, SUM(imposto1-imposto2) AS dif FROM (
+
+SELECT  dtmovto, tptribicms, aliqicms, 0 AS venda, 
+	SUM(maparesumoimposto.totalicms) AS imposto1, 0 AS imposto2
+FROM maparesumo
+INNER JOIN maparesumoimposto USING (codmaparesumo)
+WHERE dtmovto>='2013-02-01' AND dtmovto<='2013-02-10' AND caixa=1 AND tptribicms='T'
+GROUP BY 1,2,3
+
+UNION ALL
+
+SELECT  cupom.dtmovto AS data, tptribicms, aliqicms, sum(itcupom.valortotal) AS venda, 
+	0 as imposto1,  TRUNC(SUM(itcupom.valortotal*(aliqicms/100)),2) AS imposto2
+FROM itcupom INNER JOIN cupom USING (idcupom)
+WHERE composicao <> 'F' AND itcupom.status='A' AND cupom.status='A' AND tptribicms='T' AND dtmovto>='2013-02-01' AND dtmovto<='2013-02-10'
+AND caixa=1
+GROUP BY 1,2,3
+) AS tmp
+GROUP BY 1,2 
+
+
+select max(seqitem), count(iditnotafiscal), idnotafiscal from itnotafiscal where dtentrega>='2012-09-01' and dtentrega<='2012-09-30'
+AND operacao='CP'
+group by 3
+Having max(seqitem)<> count(iditnotafiscal)
+
+-- Alteracoes de CFOP   
+SELECT DISTINCT natoperacao, operacao, bonificado FROM itnotafiscal WHERE operacao='CP' AND dtentrega>='2013-03-01'
+UPDATE itnotafiscal SET natoperacao='1.102' WHERE natoperacao='1.101' AND dtentrega>='2013-03-01'
+UPDATE itnotafiscal SET natoperacao='1.403' WHERE natoperacao='1.401' AND dtentrega>='2013-03-01'
+
+
+-- Limpa cupons zerado
+select * from cupom where dtmovto>='2013-03-01' AND dtmovto<='2013-03-31' AND totalliquido<0.02
+
+select MIN(idcupom) from cupom where dtmovto>='2013-03-01' AND dtmovto<='2013-03-31' AND totalliquido<0.02
+
+delete from itcupom where idcupom>502222 AND valortotal<0.01
+delete from cupom where dtmovto>='2013-03-01' AND dtmovto<='2013-03-31' AND totalliquido<0.02
+
+
+SELECT cupom.idcupom, COUNT(itcupom.idcupom) FROM cupom LEFT JOIN itcupom USING (idcupom)
+WHERE dtmovto>='2013-03-01' AND dtmovto<='2013-03-31'
+GROUP BY 1
+HAVING COUNT(itcupom.idcupom)=0
+
+
+delete from cupom where idcupom= 559849
+
+-- Verificacao de cupom
+
+select dtmovto, caixa, numeroecf  from maparesumo where dtmovto>='2013-04-01' AND  dtmovto<='2013-04-30' AND (numeroecf IS null OR numeroecf=0)
+
+
+select DISTINCT dtmovto, caixa, numeroecf  from cupom where dtmovto>'2013-04-01' AND  dtmovto<='2013-04-30' AND (numeroecf IS null OR numeroecf=0)
+
+select dtmovto, caixa, numeroecf, totalliquido, numseriefabecf  from maparesumo where dtmovto='2013-04-08' AND codestabelec=1
+
+select dtmovto, caixa, numeroecf, SUM(totalliquido)  from cupom where dtmovto='2013-04-08' AND codestabelec=1 AND caixa=5
+GROUP BY 1,2,3
+
+UPDATE cupom SET numeroecf=12 where dtmovto='2013-04-15' AND codestabelec=1 AND caixa=4 AND (numeroecf=0 OR numeroecf IS null)
+UPDATE maparesumo SET numeroecf=12 where dtmovto='2013-04-15' AND codestabelec=1 AND caixa=4 AND (numeroecf=0 OR numeroecf IS null)
+
+--Atualiza caixa sem numero de ecf
+update cupom set numeroecf = (select numeroecf from maparesumo where codestabelec = cupom.codestabelec and dtmovto=cupom.dtmovto and caixa = cupom.caixa limit 1) where (numeroecf is null OR numeroecf=0) and dtmovto between '2013-04-01' AND '2013-04-30'
+
+
+
+
+SELECT pg_stat_get_backend_pid(s.backendid) AS procpid,
+pg_stat_get_backend_activity(s.backendid) AS current_query
+FROM (SELECT pg_stat_get_backend_idset() AS backendid) AS s;
+
+SELECT cupom.codestabelec, cupom.totalliquido, itcupom.* FROM cupom INNER JOIN itcupom USING (idcupom) where cupom=337426 AND codestabelec=1
+AND dtmovto='2013-04-23'
+
+
+--- Verifica caixa, numeroecf C420 / C490
+
+
+Select caixa, numeroecf FROM maparesumo Where dtmovto='2013-05-08' AND caixa=2
+
+
+Select DISTINCT caixa, numeroecf FROM cupom Where dtmovto='2013-05-08' AND caixa=2
+
+--Confere valores da tributa caixa, dia, aliq
+SELECT cupom.dtmovto AS data, tptribicms, aliqicms,quantidade, preco,  itcupom.valortotal, itcupom.status, cupom.status, 
+codproduto, itcupom.idcupom
+FROM itcupom INNER JOIN cupom USING (idcupom)
+  WHERE composicao <> 'F' 
+   AND cupom.status='A' AND tptribicms='T'  and aliqicms=18
+  AND dtmovto='2013-10-05'
+   AND caixa=12
+  ORDER BY 6
+
+
+SELECT  codproduto, tptribicms, aliqicms, SUM(itcupom.valortotal)
+FROM itcupom INNER JOIN cupom USING (idcupom)
+ WHERE composicao <> 'F' 
+  AND cupom.status='A' --AND tptribicms='T'  and aliqicms=18
+  AND dtmovto='2014-01-01'
+   AND caixa=1
+GROUP BY 1,2,3
+
+--Correcoes em valortotal sem desconto
+select * FROM itcupom where desconto>0 AND ABS(((quantidade*preco)-desconto)-valortotal)>0.20
+update itcupom SET valortotal=0 where desconto>0 AND ABS(((quantidade*preco)-desconto)-valortotal)>0.20
+
+--Atualizacao de valores na tabela cupom quando totalliquido=0.00
+ALTER TABLE cupom DISABLE TRIGGER USER;
+ALTER TABLE itcupom DISABLE TRIGGER USER;
+UPDATE cupom SET totalliquido=(SELECT SUM(valortotal) FROM itcupom WHERE cupom.idcupom=itcupom.idcupom AND composicao<>'F' AND status='A'), 
+		 totalbruto=(SELECT SUM(valortotal) FROM itcupom WHERE cupom.idcupom=itcupom.idcupom AND composicao<>'F' AND status='A')
+	WHERE codestabelec=4 AND dtmovto>='2014-02-01' AND dtmovto<='2014-02-28';
+ALTER TABLE cupom ENABLE TRIGGER USER;
+ALTER TABLE itcupom ENABLE TRIGGER USER;
+
+
+--Encontra notas com substituicao destacada
+SELECT numnotafis FROM notafiscal WHERE idnotafiscal IN (
+SELECT DISTINCT idnotafiscal  FROM itnotafiscal WHERE totalbaseicmssubst>0 AND operacao NOT IN ('CP','DF') and dtentrega>='2014-07-01'
+)

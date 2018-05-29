@@ -1,0 +1,7 @@
+SELECT replace(codigoncm,'.',''), SUBSTR('0'||replace(codigoncm,'.',''),1,4)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),5,2)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),7,2), LENGTH(replace(codigoncm,'.','')) FROM ncm WHERE LENGTH(replace(codigoncm,'.',''))<8 
+
+SELECT codigoncm  FROM ncm  WHERE idncm = 795 ORDER BY codigoncm
+
+UPDATE ncm SET codigoncm=SUBSTR('0'||replace(codigoncm,'.',''),1,4)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),5,2)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),7,2),
+	descricao=SUBSTR('0'||replace(codigoncm,'.',''),1,4)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),5,2)||'.'||SUBSTR('0'||replace(codigoncm,'.',''),7,2)
+WHERE LENGTH(replace(codigoncm,'.',''))<8 	

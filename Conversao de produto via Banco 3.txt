@@ -1,0 +1,212 @@
+--Conversao
+DROP TABLE conversao
+CREATE TABLE conversao (
+descricao CHARACTER VARYING (100),
+referencia CHARACTER VARYING (100),
+estoque NUMERIC (14,2), 
+valor NUMERIC (14,2),
+categoria CHARACTER VARYING (50),
+fornecedor CHARACTER VARYING (50),
+estoqueminimo NUMERIC (14,2),
+estoquemaximo NUMERIC (14,2),
+ncm CHARACTER VARYING (200)
+)
+
+--Sequence para gerar codigo dos produtos
+CREATE SEQUENCE temp1 START 5000;	
+ALTER TABLE conversao ADD COLUMN codigo INTEGER;
+
+codigoean, tributa, valor, descricao1, descricao2, ncm 
+
+--Importando
+COPY conversao (descricao, referencia, estoque, valor, categoria, fornecedor, estoqueminimo,estoquemaximo, ncm) FROM 'C:/sistemas/esdras/lara/produtos.csv' WITH DELIMITER ';'
+
+
+
+--Gerar codigos para tabela
+DROP sequence temp1;
+CREATE SEQUENCE temp1 START 5001;
+
+
+--Verifica descricao duplicada
+SELECT descricao,  COUNT(*) FROM conversao GROUP BY 1 HAVING COUNT(*)>1 ORDER BY 2 DESC
+SELECT descricao, referencia, COUNT(*) FROM conversao GROUP BY 1,2 HAVING COUNT(*)>1 ORDER BY 3 DESC
+
+--Elimina descricao duplicada pela referencia
+UPDATE conversao SET descricao=descricao||' ['||referencia||']' WHERE descricao IN (SELECT descricao FROM conversao GROUP BY 1 HAVING COUNT(*)>1 )
+
+
+-- Colocando codigo para os produtos
+UPDATE conversao SET codigo=NULL
+UPDATE conversao SET codigo=NEXTVAL('temp1') 
+
+SELECT * FROM conversao
+CREATE INDEX idx_descricao1 ON conversao (descricao1);
+CREATE INDEX name ON table USING hash (column);
+SELECT * FROM conversao WHERE descricao1='SAND IPANEMA ANATOMICA UN'
+SELECT DISTINCT descricao1, descricao2 FROM conversao 
+    
+
+
+--Função gerar codigo para os produtos (nao utilizei)
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+	row_conversao record;
+	i integer;
+BEGIN
+	i:=5000;
+	FOR row_conversao IN 
+		SELECT DISTINCT descricao1, descricao2 FROM conversao 
+
+	LOOP
+		RAISE NOTICE 'Gerando codigo do item %', i;
+		UPDATE conversao SET codigo=i WHERE descricao1=row_conversao.descricao1;
+		i:=i+1;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+SELECT temp();
+DROP FUNCTION temp();
+
+--Separando codigo de balancao (nao utilizei)
+UPDATE conversao SET codigo=((CASE WHEN SUBSTR(codigoean,1,1)='2' AND SUBSTR(codigoean,6,8)='00000000' THEN CAST(SUBSTR(codigoean,2,4) AS INTEGER) 
+				WHEN LENGTH(codigoean)<8 AND  CAST(codigoean AS integer)<5000 THEN CAST(codigoean AS integer) ELSE codigo END)) 
+
+
+--Temp2
+--Função para eliminar descrição duplicada (nao utilizei)
+CREATE OR REPLACE FUNCTION temp2() RETURNS void AS $$
+DECLARE
+	row_conversao record;
+	i integer;
+BEGIN
+	
+	FOR row_conversao IN 
+		SELECT DISTINCT descricao1 FROM conversao
+
+	LOOP
+		RAISE NOTICE 'Colocando codigo na descricao para os itens %', row_conversao.descricao1;
+		UPDATE conversao SET descricao1=descricao1 ||' ('||CAST(codigo AS CHARACTER(6))||')' WHERE descricao1=row_conversao.descricao1;
+		
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+SELECT temp2();
+DROP FUNCTION temp();
+
+
+
+
+
+
+SELECT * FROM conversao WHERE codigoean=''
+
+SELECT * FROM classfiscal --7
+SELECT * FROM piscofins --2,6
+SELECT * FROM ipi --1
+SELECT * FROM departamento -- INSERT INTO departamento VALUES (1,'A Definir',NULL,NULL) RETURNING *
+SELECT * FROM grupoprod --INSERT INTO grupoprod VALUES (1,1,'A Definir',0,0) RETURNING *
+SELECT * FROM subgrupo -- INSERT INTO subgrupo VALUES (1,1,'A Definir',NULL) RETURNING *
+SELECT * FROM embalagem -- INSERT INTO embalagem VALUES ('UNIDADE',1,1,1) RETURNING *
+SELECT * FROM unidade
+SELECT * FROM produto 
+SELECT * FROM conversao 
+
+SELECT 'UPDATE'||' TESTE' 
+
+
+
+  
+INSERT INTO produto (codproduto, descricaofiscal, descricao, coddepto, codgrupo, codsubgrupo, pesado, foralinha, pesounid, codembalcpa, codembalvda, codcfnfe, codcfnfs, codcfpdv, 
+	custorep, codpiscofinsent, codpiscofinssai, codipi, usuario, precovrj)
+
+SELECT  DISTINCT codigo, descricao, descricao, 1,1,1,'N','N','U',1,1,7,7,7,0,2,6,1, 'conversao', valor
+FROM conversao
+
+
+SELECT * FROM produto
+
+--Inclusao do NCM dos produto
+SELECT ncm FROM conversao WHERE SUBSTR(ncm,1,8) ~ '[0123456789]' 
+SELECT ncm FROM conversao WHERE ncm ~ '[0123456789]' 
+SELECT ncm FROM conversao WHERE ncm IS NOT NULL OR ncm<>'' LIMIT 50 WHERE SUBSTR(ncm,1,8) ~ '[0123456789]' 
+SELECT '01A3456789' ~ '[A-Z]'; TRUE
+SELECT '0123456789' ~ '[A-Z]'; FALSE
+SELECT '01P3456789' ~ '[A-Z]'; TRUE
+
+--Gerar codigos para tabela
+DROP sequence temp1;
+CREATE SEQUENCE temp1 START 1;
+
+SELECT * FROM ncm
+DELETE FROM ncm
+CREATE SEQUENCE temp1 START 1;
+DROP SEQUENCE temp1 
+SELECT DISTINCT SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2), ncm FROM conversao 
+
+ALTER TABLE conversao ADD COLUMN idncm INTEGER;
+UPDATE conversao SET idncm=NULL
+SELECT ncm, idncm FROM conversao ORDER BY 2
+
+
+--Função gerar codigo para os ncm (nao utilizei)
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+	row_conversao record;
+	i integer;
+BEGIN
+	i:=1;
+	FOR row_conversao IN 
+		SELECT DISTINCT SUBSTR(ncm,1,8) AS tempncm FROM conversao WHERE SUBSTR(ncm,1,8) ~ '[0123456789]' 
+
+	LOOP
+		RAISE NOTICE 'Gerando codigo do ncm %', i;
+		UPDATE conversao SET idncm=i WHERE SUBSTR(ncm,1,8)=row_conversao.tempncm;
+		i:=i+1;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+SELECT temp();
+DROP FUNCTION temp();
+
+
+SELECT * FROM ncm
+
+INSERT INTO ncm 
+SELECT DISTINCT idncm, 
+	(SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2)) as codigoncm
+	,SUBSTR(ncm,12,40)
+	,7,7,7,1,2,6,0,0,1
+FROM conversao
+WHERE SUBSTR(ncm,1,8) ~ '[0123456789]' 
+
+SELECT * FROM ncm
+
+-- Relacionando ncm com produto 
+UPDATE produto SET idncm=(SELECT idncm FROM conversao WHERE codigo=produto.codproduto)
+
+	 -- Relacionando ncm com produto (nao utilizado)
+	 UPDATE produto SET idncm=(SELECT idncm FROM ncm WHERE codigoncm=
+					(SELECT  (SUBSTR(REPLACE(ncm,'.',''),1,4)||'.'||SUBSTR(REPLACE(ncm,'.',''),5,2)||'.'||SUBSTR(REPLACE(ncm,'.',''),7,2)) as codigoncm FROM conversao  WHERE codigo=codproduto LIMIT 1))
+
+--Inclusao do EANs			(nao utilizado)		
+ SELECT *  FROM produtoean
+ INSERT INTO produtoean (codproduto, codean, quantidade)
+ SELECT codigo, codigoean, 1 FROM conversao WHERE codigo>5000
+
+ --Inclusao das Referencias 
+SELECT referencia, COUNT(codigo) FROM conversao GROUP BY 1 HAVING COUNT(codigo)>1
+
+ SELECT * FROM prodfornec WHERE codproduto=1368
+
+CREATE SEQUENCE temp1 START 1;
+DROP SEQUENCE temp1 
+
+
+ INSERT INTO prodfornec
+ SELECT codigo,1,referencia, NEXTVAL('temp1') FROM conversao WHERE referencia<>'' AND referencia NOT IN (SELECT referencia FROM conversao GROUP BY referencia HAVING COUNT(*)>1)
+
+ SELECT * FROM conversao

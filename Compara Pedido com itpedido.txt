@@ -1,0 +1,7 @@
+*** Compara Valor total do PEDIDO com ITPEDIDO***
+
+SELECT it.numpedido,SUM(it.totalliquido) AS ittotal, COUNT(it.codproduto), p.totalliquido, p.codestabelec, p.operacao,  (p.totalliquido-SUM(it.totalliquido)) AS Dif
+FROM itpedido AS it
+INNER JOIN pedido AS p ON (it.numpedido=p.numpedido AND it.operacao=p.operacao AND it.codestabelec=p.codestabelec)
+GROUP BY 1,4,5,6
+HAVING p.totalliquido<>SUM(it.totalliquido)

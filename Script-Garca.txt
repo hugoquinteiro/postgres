@@ -1,0 +1,48 @@
+SELECT  codigo, 
+	descricao,
+	qtd,
+	total,
+	base,
+	Pis,
+	Cofins,
+	numero_ncm,
+	cst_pc
+FROM(
+SELECT itnotafiscal.codproduto AS codigo, 
+	produto.descricao AS descricao,
+	SUM(itnotafiscal.qtdeunidade*itnotafiscal.quantidade) AS qtd,
+	SUM(itnotafiscal.totalliquido) AS total,
+	SUM(itnotafiscal.totalbasepis) AS base,
+	SUM(itnotafiscal.totalpis) AS Pis,
+	SUM(itnotafiscal.totalcofins) AS Cofins,
+	ncm.codigoncm AS numero_ncm,
+	(CASE WHEN operacaonota.tipo='S' THEN pissai.codcst ELSE pisent.codcst   END) AS cst_pc
+FROM itnotafiscal
+INNER JOIN produto ON (itnotafiscal.codproduto=produto.codproduto)
+LEFT JOIN ncm ON (produto.idncm=ncm.idncm)
+INNER JOIN piscofins AS pissai ON (produto.codpiscofinssai=pissai.codpiscofins)
+INNER JOIN piscofins AS pisent ON (produto.codpiscofinsent=pisent.codpiscofins)
+INNER JOIN operacaonota ON (itnotafiscal.operacao=operacaonota.operacao)
+WHERE operacaonota.tipo='E'
+AND dtentrega BETWEEN '2011-01-01' AND '2012-03-31'
+GROUP BY 1,2,8,9
+UNION
+SELECT itcupom.codproduto AS codigo, 
+	produto.descricao AS descricao,
+	SUM(itcupom.quantidade) AS qtd,
+	SUM(itcupom.valortotal) AS venda,
+	SUM(itcupom.totalbasepis) AS base,
+	SUM(itcupom.totalpis) AS Pis,
+	SUM(itcupom.totalcofins) AS Cofins,
+	ncm.codigoncm AS numero_ncm,
+	pissai.codcst AS cst_pc
+FROM itcupom
+INNER JOIN produto ON (itcupom.codproduto=produto.codproduto)
+LEFT JOIN ncm ON (produto.idncm=ncm.idncm)
+INNER JOIN piscofins AS pissai ON (produto.codpiscofinssai=pissai.codpiscofins)
+--INNER JOIN piscofins AS pisent ON (produto.codpiscofinsent=pisent.codpiscofins)
+--INNER JOIN operacaonota ON (itnotafiscal.operacao=operacaonota.operacao)
+INNER JOIN cupom ON (itcupom.idcupom=cupom.idcupom)
+WHERE cupom.dtmovto BETWEEN '2011-01-01' AND '2012-03-31'
+GROUP BY 1,2,8,9
+) AS tmp

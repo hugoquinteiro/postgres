@@ -1,0 +1,14 @@
+--Diferenças de informações entre o Cupom e Cupomlancto
+SELECT * FROM CUPOM WHERE IDCUPOM=208489  -- Valor 4.79
+SELECT * FROM cupomlancto WHERE idcupom=208489 --Valor 0.79
+
+--Consultando diferenças entre a tabela Cupom e Cupomlancto
+SELECT cupom.idcupom, SUM(cupomlancto.totalliquido) AS cupomlancto, cupom.totalliquido as cupom, (SUM(cupomlancto.totalliquido)-cupom.totalliquido)  AS diferentes
+FROM cupom 
+INNER JOIN cupomlancto ON (cupom.idcupom = cupomlancto.idcupom)
+WHERE cupom.codestabelec=1
+--AND cupom.status='A'
+AND cupom.dtmovto='2015-10-15'
+AND caixa=3
+GROUP BY 1,3
+ORDER BY 4

@@ -1,0 +1,2 @@
+--Troca de senha do usuario
+ALTER USER postgres WITH PASSWORD 'Controlware@1987';

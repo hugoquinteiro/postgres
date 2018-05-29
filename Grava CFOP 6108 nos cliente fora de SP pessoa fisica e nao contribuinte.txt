@@ -1,0 +1,2 @@
+UPDATE cliente SET natoperacao='6.108' 
+WHERE uffat='SP' AND (tppessoa='F' OR contribuinteicms='N')

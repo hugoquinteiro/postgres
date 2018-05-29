@@ -1,0 +1,11 @@
+Download do FTP
+wget ftp://controlware:automacao@websac.net/Cayke/bkp1709tarde.backup
+
+
+Restaurar backup
+pg_restore -U postgres -d banco backup.tar
+
+Restaurar backup 9.3
+/usr/pgsql-9.3/bin/pg_restore -U postgres -d carioca carioca.backup
+
+

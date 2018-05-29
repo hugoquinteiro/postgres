@@ -1,0 +1,7 @@
+SELECT chavenfe, SUBSTR(SUBSTR(xmlnfe,(POSITION('Id="NFe' IN xmlnfe)),51),8,51) FROM notafiscal 
+WHERE codestabelec=4 AND operacao='CP' AND dtentrega>='2016-10-01' AND dtentrega<='2016-10-31' --numnotafis=457760 AND 
+AND chavenfe<>SUBSTR(SUBSTR(xmlnfe,(POSITION('Id="NFe' IN xmlnfe)),51),8,51) 
+
+UPDATE notafiscal SET chavenfe=SUBSTR(SUBSTR(xmlnfe,(POSITION('Id="NFe' IN xmlnfe)),51),8,51) 
+WHERE codestabelec=4 AND operacao='CP' AND dtentrega>='2016-10-01' AND dtentrega<='2016-10-31' --numnotafis=457760 AND 
+AND chavenfe<>SUBSTR(SUBSTR(xmlnfe,(POSITION('Id="NFe' IN xmlnfe)),51),8,51) 

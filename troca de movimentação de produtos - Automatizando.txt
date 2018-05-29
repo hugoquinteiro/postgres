@@ -1,0 +1,11 @@
+SELECT * FROM (
+SELECT codproduto,'prodfornec' FROM prodfornec
+UNION ALL
+SELECT codproduto, 'itpedido' FROM itpedido
+UNION ALL
+SELECT codproduto, 'itnotafiscal' FROM itnotafiscal
+UNION ALL
+SELECT codproduto , 'movimento' FROM movimento
+UNION ALL
+SELECT codproduto , 'itorcamento' FROM itorcamento
+) AS temo1 WHERE codproduto = 4302

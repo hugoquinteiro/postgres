@@ -1,0 +1,28 @@
+SELECT * FROM inventario WHERE codinventario=4
+SELECT COUNT(*) FROM itinventario WHERE codinventario=4 AND inventariado='S'
+--Digitou 4474
+SELECT COUNT(*) FROM produtoestab WHERE codestabelec=1 AND sldatual>0
+--Tem cadastrado 35907
+
+--Criar tipo de documento para correção de entrada e de saida
+
+--Cria sequencia
+SELECT MAX(codmovimento) FROM movimento limit 1
+create sequence temp1 start 1991387;
+--drop sequence temp1; Se precisar apagar
+--SELECT * FROM tipodocumento
+
+--Limpa negativos ** Definir loja, data, codigo do inventario e tipo
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+    SELECT 1 AS codestabelec, codproduto, 'E' AS tipo , '2016-05-13' AS dtmovto, sldatual*(-1) AS quantidade, preco, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+3 as codtpdocto, 
+       (nextval('temp1')) AS codmovimento, custo
+FROM itinventario WHERE sldatual<0 AND codinventario=4 AND inventariado='N';
+
+
+--Limpa positivos
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+    SELECT 1 AS codestabelec, codproduto, 'S' AS tipo , '2016-05-13' AS dtmovto, sldatual AS quantidade, preco, 'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+4 as codtpdocto, 
+       (nextval('temp1')) AS codmovimento, custo
+FROM itinventario WHERE sldatual>0 AND codinventario=4 AND inventariado='N';

@@ -1,0 +1,15 @@
+--Atualiza custo sem imposto (baseado apenas no ICMS)
+SELECT COUNT(codproduto) FROM produtoestab WHERE custosemimp=0
+SELECT COUNT(*) FROM produtoestab WHERE custosemimp>0
+SELECT * FROM produto WHERE codcfnfe=27
+SELECT * FROM classfiscal WHERE tptribicms IN ('R','T')
+SELECT aliqicms, (100-(CASE WHEN aliqredicms=33.33 THEN 12 WHEN aliqredicms=61.11 THEN 7 WHEN aliqredicms=41.67 THEN 7 ELSE aliqicms END))/100  FROM produto INNER JOIN classfiscal ON (codcfnfe=codcf)
+
+UPDATE produtoestab SET custosemimp=produtoestab.custorep*(100-(CASE WHEN aliqredicms=33.33 THEN 12 WHEN aliqredicms=61.11 THEN 7 WHEN aliqredicms=41.67 THEN 7 ELSE aliqicms END))/100
+FROM produto INNER JOIN classfiscal ON (codcfnfe=codcf)
+WHERE tptribicms IN ('R','T') AND produtoestab.codproduto=produto.codproduto
+
+UPDATE produtoestab SET custosemimp=produtoestab.custorep
+FROM produto INNER JOIN classfiscal ON (codcfnfe=codcf) WHERE tptribicms NOT IN ('R','T') AND produtoestab.codproduto=produto.codproduto
+
+SELECT codproduto FROM produtoestab WHERE custosemimp<>custorep

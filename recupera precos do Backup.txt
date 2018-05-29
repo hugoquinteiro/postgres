@@ -1,0 +1,5 @@
+SELECT 'UPDATE produtoestab SET custorep='||produtoestab.custorep||', margemvrj='||produtoestab.margemvrj||', precovrjof='||produtoestab.precovrjof||', custotab='||produtoestab.custotab|| ' 	WHERE codproduto='||produtoestab.codproduto||';' 
+FROM produtoestab
+INNER JOIN produto USING (codproduto)
+WHERE codsimilar=1
+AND codestabelec=1

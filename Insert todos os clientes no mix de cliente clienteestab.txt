@@ -1,0 +1,4 @@
+INSERT INTO clienteestab (codestabelec, codcliente) 
+		(SELECT 1 AS codestabelec, codcliente 
+		FROM cliente 
+		WHERE codcliente NOT IN (SELECT codcliente FROM clienteestab WHERE codestabelec=1))

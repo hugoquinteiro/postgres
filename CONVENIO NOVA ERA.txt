@@ -1,0 +1,43 @@
+DELETE FROM lancamento WHERE observacao = 'CORRECAO CONVENIO';
+
+CREATE OR REPLACE FUNCTION temporario() RETURNS void AS $$
+DECLARE
+	var_codlancto INTEGER;
+	row_cupomlancto cupomlancto%ROWTYPE;
+	row_cupom cupom%ROWTYPE;
+BEGIN
+	var_codlancto := (select new_primarykey('lancamento', 'codlancto', 0, 0)) + 1;
+	FOR row_cupomlancto IN SELECT * FROM cupomlancto WHERE codfinaliz = '20' LOOP
+		SELECT * INTO row_cupom FROM cupom WHERE idcupom = row_cupomlancto.idcupom;
+		IF row_cupom.dtmovto >= '2015-12-06' THEN
+
+			insert into lancamento (
+				codlancto, codestabelec, pagrec, prevreal, parcela,
+				totalparcelas, tipoparceiro, codparceiro, numnotafis, serie,
+				codcondpagto, codespecie, valorparcela, dtemissao, dtentrada,
+				dtvencto, codcatlancto, codsubcatlancto, observacao, codfinaliz,
+				codmoeda
+			) VALUES (
+				var_codlancto, row_cupom.codestabelec, 'R', 'R', 1,
+				1, 'C', row_cupom.codcliente, row_cupom.cupom::INTEGER, 'PDV',
+				2, 7, row_cupom.totalliquido, row_cupom.dtmovto, row_cupom.dtmovto,
+				row_cupom.dtmovto, 1, 1, 'CORRECAO CONVENIO', '20',
+				1
+			);
+			
+			INSERT INTO cupomlancto (
+				idcupom, codlancto, totalliquido, codfinaliz
+			) VALUES (
+				row_cupom.idcupom, var_codlancto, row_cupom.totalliquido, '20'
+			);
+			
+			var_codlancto := var_codlancto + 1;
+		END IF;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temporario();
+
+DELETE FROM lancamento WHERE codfinaliz = '20' AND dtemissao >= '2015-12-06' AND observacao = 'LANCAMENTO AUTOMATICO';
+
+SELECT * FROM lancamento WHERE observacao = 'CORRECAO CONVENIO';

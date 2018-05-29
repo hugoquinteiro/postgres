@@ -1,0 +1,1 @@
+UPDATE itnotafiscal SET totalbaseicms=565.42, totalicms=67.85, totalbaseicmssubst=813.51, totalicmssubst=29.77, totalliquido=680 WHERE idnotafiscal=230

@@ -1,0 +1,113 @@
+--Verifica Informações
+SELECT codproduto, saldo(codestabelec,codproduto,CURRENT_DATE), sldatual,
+ ABS(saldo(codestabelec,codproduto,CURRENT_DATE)-sldatual) AS ajuste
+ FROM produtoestab WHERE codestabelec=1 AND saldo(codestabelec,codproduto,CURRENT_DATE)<>sldatual
+ AND codproduto NOT IN (SELECT codproduto FROM composicao WHERE tipo IN ('V','C','A'))
+
+ SELECT * FROM produtoestabsaldo WHERE codproduto=5107 AND codestabelec=1 ORDER BY data DESC
+ SELECT codproduto, sldentrada, sldsaida, sldatual FROM produtoestab WHERE codproduto=5107 AND codestabelec=1 
+ SELECT 'E' AS tipo, SUM(quantidade) AS qdt FROM movimento WHERE codproduto=5107 AND codestabelec=1 AND tipo='E'
+ UNION ALL
+ SELECT 'S' AS tipo, SUM(quantidade) AS qdt FROM movimento WHERE codproduto=5107 AND codestabelec=1 AND tipo='S'
+ SELECT quantidade, tipo FROM movimento WHERE codproduto=5107 AND codestabelec=1 AND tipo='S'
+ SELECT SALDO(1,5107, CURRENT_DATE)
+ SELECT * FROM movimento
+
+
+--Cria sequencia
+SELECT MAX(codmovimento) FROM movimento limit 1
+create sequence temp1 start 5738;
+drop sequence temp1;
+
+--Cria tipo documento
+SELECT * FROM tipodocumento ORDER BY 1
+INSERT INTO tipodocumento VALUES (98, 'Ajuste Tecnico (E)', 'E');
+INSERT INTO tipodocumento VALUES (99, 'Ajuste Tecnico (S)', 'S');
+
+
+--Comando Insere
+ALTER TABLE movimento DISABLE TRIGGER USER;
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+SELECT  codestabelec, codproduto, 
+	CASE WHEN (saldo(codestabelec,codproduto,CURRENT_DATE)-sldatual)<0 THEN 'E' ELSE 'S' END, 
+	CURRENT_DATE AS dtmovto,  
+	ABS(saldo(codestabelec,codproduto,CURRENT_DATE)-sldatual) AS quantidade,
+	precovrj,
+	'A' AS status,     
+	1 AS qtdeunidade, 
+	1 AS codunidade, 
+	CASE WHEN (saldo(codestabelec,codproduto,CURRENT_DATE)-sldatual)<0 THEN 98 ELSE 99 END AS codtpdocto,     
+	(nextval('temp1')) AS codmovimento, 
+	produtoestab.custorep 
+ FROM produtoestab 
+ WHERE codestabelec=1 AND saldo(codestabelec,codproduto,CURRENT_DATE)<>sldatual 
+ AND codproduto NOT IN (SELECT codproduto FROM composicao WHERE tipo IN ('V','C','A'))
+ALTER TABLE movimento ENABLE TRIGGER USER;
+
+
+DO $$
+DECLARE
+	i INTEGER;
+	p DECIMAL(10,2);
+	n INTEGER;
+	var_codestabelec INTEGER;
+	var_dtinicial date;
+	var_dtfinal DATE;
+	var_dtcorrente date;
+	var_saldo numeric(15,4);
+	var_quantidade numeric(15,4);
+	arr_codproduto INTEGER[];
+	row_estabelecimento estabelecimento%ROWTYPE;
+	row_produto produto%ROWTYPE;
+	row_movimento movimento%ROWTYPE;
+BEGIN
+	RAISE NOTICE 'Iniciando processo';
+	var_codestabelec := 1;
+	var_dtinicial := (SELECT MIN(dtmovto) FROM movimento WHERE codestabelec = var_codestabelec);
+	var_dtfinal := (SELECT MAX(dtmovto) FROM movimento WHERE codestabelec = var_codestabelec);
+	RAISE NOTICE 'Data inicial: %', var_dtinicial;
+	RAISE NOTICE 'Data final: %', var_dtfinal;
+
+	RAISE NOTICE 'Selecionando produtos com divergencias de estoque';
+	arr_codproduto := ARRAY(
+		SELECT codproduto FROM (
+			SELECT codproduto, codestabelec , sldatual AS saldo1,
+				COALESCE((SELECT saldo FROM produtoestabsaldo WHERE codproduto = produtoestab.codproduto AND codestabelec = produtoestab.codestabelec ORDER BY data DESC LIMIT 1), 0) AS saldo2
+			FROM produtoestab
+			WHERE codestabelec = var_codestabelec
+		) AS temporario WHERE saldo1 <> saldo2
+	);
+	
+	RAISE NOTICE 'Deletando registros antigos';
+	DELETE FROM produtoestabsaldo WHERE data >= var_dtinicial AND codestabelec = var_codestabelec AND codproduto = ANY(arr_codproduto);
+
+	RAISE NOTICE 'Calculando total a ser analisado';
+	i := 1;
+	n := (SELECT COUNT(*) FROM produtoestab WHERE codestabelec = var_codestabelec AND codproduto = ANY(arr_codproduto));
+	RAISE NOTICE 'Registros a serem analisados: %', n;
+	
+	FOR row_estabelecimento IN SELECT * FROM estabelecimento WHERE codestabelec = var_codestabelec ORDER BY codestabelec LOOP
+		FOR row_produto IN SELECT * FROM produto WHERE codproduto = ANY(arr_codproduto) ORDER BY codproduto LOOP
+			p := i::DECIMAL / n::DECIMAL * 100;
+			IF i = 1 OR i = n OR i % 50 = 0 THEN
+				RAISE NOTICE 'Progresso total: % de % ... % %%', i, n, p;
+			END IF;
+			var_dtcorrente := var_dtinicial;
+			var_saldo := saldo(row_estabelecimento.codestabelec,row_produto.codproduto,var_dtinicial);
+			WHILE var_dtcorrente <= var_dtfinal LOOP
+				var_quantidade := COALESCE((SELECT SUM(qtdeunidade * quantidade * (CASE WHEN tipo = 'E' THEN 1 ELSE -1 END)) FROM movimento WHERE codestabelec = row_estabelecimento.codestabelec AND codproduto = row_produto.codproduto AND dtmovto = var_dtcorrente),0);
+				IF var_quantidade != 0 THEN
+					var_saldo := var_saldo + var_quantidade;
+					INSERT INTO produtoestabsaldo (data,codestabelec,codproduto,saldo) VALUES (var_dtcorrente,row_estabelecimento.codestabelec,row_produto.codproduto,var_saldo);
+				END IF;
+				var_dtcorrente := var_dtcorrente + 1;
+			END LOOP;
+			i := i + 1;
+		END LOOP;
+	END LOOP;
+END;
+$$;
+
+ALTER TABLE movimento DISABLE TRIGGER USER;
+UPDATE movimento SET dtmovto='2017-12-31' WHERE codtpdocto IN (98,98);
+ALTER TABLE movimento ENABLE TRIGGER USER;

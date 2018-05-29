@@ -1,0 +1,5 @@
+UPDATE movimento SET custorep=produtoestab.custorep FROM produtoestab 
+					WHERE movimento.codproduto = produtoestab.codproduto AND movimento.codestabelec = produtoestab.codestabelec AND 
+					movimento.custorep=0 AND movimento.dtmovto>='2014-01-01' AND produtoestab.custorep>0
+
+--Não esquece de fazer um backup antes

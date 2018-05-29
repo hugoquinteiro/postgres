@@ -1,0 +1,7 @@
+ALTER TABLE cliente DISABLE TRIGGER ALL;
+update cliente set codcliente = (codcliente*-1);
+create sequence seq_tmp start 2;
+update cliente set codcliente = nextval('seq_tmp') where codcliente in (select codcliente from cliente order by dtinclusao);
+ALTER TABLE cliente ENABLE TRIGGER ALL;
+DROP sequence seq_tmp;
+SELECT codcliente,nome FROM cliente ORDER BY codcliente;

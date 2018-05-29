@@ -1,0 +1,32 @@
+select MAX(idcupom),MIN(idcupom) from cupom where dtmovto >= '2013-02-05' and dtmovto <= '2013-02-28'
+
+260385;259390
+
+
+
+select * from itcupom limit 1
+ALTER TABLE itcupom DISABLE TRIGGER ALL;
+update itcupom set aliqicms = 0 where tptribicms = 'F' and idcupom >= 103738 and idcupom <= 261198;
+ALTER TABLE itcupom ENABLE TRIGGER ALL;
+
+reindex database dellavitta
+
+select * from  itcupom where tptribicms = 'F' and idcupom >= 259390 and idcupom <= 260385;
+
+select * from maparesumo where dtmovto = '2013-02-04'
+
+select * from maparesumoimposto where codmaparesumo = 547
+
+update maparesumoimposto set totalliquido = ((select totalliquido from maparesumo where dtmovto = '2013-02-04'and caixa = 1 )
+-(select sum(totalliquido) from maparesumoimposto where codmaparesumo = 547)) 
+where codmaparesumo = 547 and tptribicms = 'I'
+
+
+update maparesumoimposto AS mi set totalliquido = ((select totalliquido from maparesumo where codmaparesumo = mi.codmaparesumo )
+-(select sum(totalliquido) from maparesumoimposto where codmaparesumo = mi.codmaparesumo)) 
+where codmaparesumo IN (SELECT codmaparesumo FROM maparesumo WHERE dtmovto = '2013-02-08') and tptribicms = 'I' and totalliquido = 0
+
+select * from ecf
+
+update ecf set modelo = 'SWEDA S120'
+

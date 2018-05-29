@@ -1,0 +1,4 @@
+UPDATE fornecedor AS forn SET numero=(
+			SELECT  SUBSTRING(endereco, '[-0-9]+$') AS texto_mod FROM fornecedor WHERE SUBSTRING(endereco, '[-0-9]+$') IS NOT NULL AND forn.codfornec=fornecedor.codfornec
+			)
+			WHERE forn.numero IS NULL

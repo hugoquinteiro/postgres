@@ -1,0 +1,14 @@
+CREATE OR REPLACE FUNCTION is_numeric(text) RETURNS BOOLEAN AS $$ DECLARE x NUMERIC;
+BEGIN
+    x = $1::NUMERIC;
+    RETURN TRUE;
+EXCEPTION WHEN others THEN
+    RETURN FALSE;
+END;
+$$ STRICT LANGUAGE plpgsql IMMUTABLE;
+
+DELETE
+FROM produtoean
+WHERE CASE WHEN is_numeric(codean)
+	THEN SUBSTR(codean, 1, LENGTH(codean) - 1)::BIGINT = codproduto
+	ELSE FALSE END;

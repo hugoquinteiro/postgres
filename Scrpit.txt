@@ -1,0 +1,8 @@
+UPDATE ncm SET codpiscofinsent=6, codpiscofinssai=9 WHERE idncm IN (select idncm from ncm AS n 
+INNER JOIN piscofins ON (n.codpiscofinssai=piscofins.codpiscofins)
+WHERE piscofins.aliqpis=0)
+
+
+UPDATE ncm SET codpiscofinsent=4, codpiscofinssai=3 WHERE idncm IN (select idncm from ncm AS n 
+INNER JOIN piscofins ON (n.codpiscofinssai=piscofins.codpiscofins)
+WHERE piscofins.aliqpis>0)

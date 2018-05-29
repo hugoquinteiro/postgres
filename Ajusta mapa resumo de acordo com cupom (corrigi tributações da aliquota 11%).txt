@@ -1,0 +1,25 @@
+-- Atualiza o mapa resumo de acordo com os cupons
+CREATE OR REPLACE FUNCTION temp() RETURNS void AS $$
+DECLARE
+	var_codestabelec INTEGER;
+	var_dtinicial DATE;
+	var_dtfinal DATE;
+	row_maparesumo maparesumo%ROWTYPE;
+	row_imposto RECORD;
+BEGIN
+	var_codestabelec := 1;
+	var_dtinicial := '2016-01-01';
+	var_dtfinal := '2016-01-01';
+	FOR row_maparesumo IN SELECT * FROM maparesumo WHERE codestabelec = var_codestabelec AND dtmovto BETWEEN var_dtinicial AND var_dtfinal LOOP
+		DELETE FROM maparesumoimposto WHERE codmaparesumo = row_maparesumo.codmaparesumo;
+
+		FOR row_imposto IN SELECT tptribicms, ROUND(aliqicms,2) AS aliqicms, SUM(valortotal) AS totalliquido, SUM(CASE WHEN tptribicms = 'T' THEN valortotal * aliqicms / 100 ELSE 0 END) AS totalicms FROM itcupom INNER JOIN cupom USING (idcupom) WHERE codestabelec = row_maparesumo.codestabelec AND dtmovto = row_maparesumo.dtmovto AND caixa = row_maparesumo.caixa AND cupom.status = 'A' AND itcupom.status = 'A' AND itcupom.composicao != 'F' GROUP BY 1, 2 LOOP
+			INSERT INTO maparesumoimposto VALUES (row_maparesumo.codmaparesumo, row_imposto.tptribicms, row_imposto.aliqicms, row_imposto.totalliquido, row_imposto.totalicms);
+		END LOOP;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+SELECT temp();
+
+-- Totaliza o maparesumo de acordo com o imposto calculado
+UPDATE maparesumo SET totalliquido = COALESCE((SELECT SUM(totalliquido) FROM maparesumoimposto WHERE codmaparesumo = maparesumo.codmaparesumo),0);

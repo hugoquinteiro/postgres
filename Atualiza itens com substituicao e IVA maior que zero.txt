@@ -1,0 +1,10 @@
+---Conta numero de itens com substituicao e IVA maior que zero
+SELECT count(*) FROM produto INNER JOIN classfiscal ON (produto.codcfpdv=classfiscal.codcf)
+WHERE classfiscal.aliqiva>0 AND classfiscal.tptribicms='F'
+
+--- Atualiza itens com substituicao e IVA maior que zero
+UPDATE produto AS p SET codcfpdv=??? WHERE codproduto=(SELECT codproduto FROM produto INNER JOIN classfiscal ON (produto.codcfpdv=classfiscal.codcf)
+WHERE classfiscal.aliqiva>0 AND classfiscal.tptribicms='F' AND p.codproduto=codproduto)
+
+
+??? = codigo da classfiscal que sera definido para o PDV nos itens com substituicao e IVA maior que zero

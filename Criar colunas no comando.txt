@@ -1,0 +1,4 @@
+SELECT a,b,c
+FROM(
+                VALUES (1,2,'A'),(2,3,'B'),(3,4,'C')            
+) TMP(a,b,c)

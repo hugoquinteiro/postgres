@@ -1,0 +1,175 @@
+CREATE OR REPLACE FUNCTION temp_troca_trib(var_dtinicial date, var_caixa numeric(3,0)) RETURNS void AS $$
+	DECLARE var_loja integer;
+	DECLARE cupomitem  RECORD;
+	DECLARE mapa  RECORD;
+BEGIN
+	var_loja := 2;
+
+--- Passagem 1
+ SELECT maparesumoimposto.totalliquido AS valor, maparesumo
+  INTO mapa
+	FROM maparesumo INNER JOIN maparesumoimposto USING (codmaparesumo) 
+	WHERE maparesumo.dtmovto= var_dtinicial
+	AND caixa = var_caixa AND codestabelec=var_loja 
+	AND aliqicms=7 AND tptribicms='T';
+
+ SELECT COALESCE(SUM(itcupom.valortotal),0) AS valor
+  INTO cupomitem
+	FROM itcupom INNER JOIN cupom USING (idcupom) 
+	WHERE itcupom.status='A' AND cupom.status='A' AND itcupom.composicao<>'F'  
+	AND caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial AND aliqicms=7 AND tptribicms='T';
+
+  -- Mostra teste	
+RAISE NOTICE 'Item %', cupomitem.valor;
+RAISE NOTICE 'Mapa %', mapa.valor;		
+
+IF cupomitem.valor <> mapa.valor THEN
+  
+  -- Atualiza ITCUPOM R 12% para 7%
+  UPDATE itcupom SET aliqicms=7, tptribicms='T', status='M' WHERE aliqicms=12 AND tptribicms='R' AND status='A' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+	
+   --  RAISE NOTICE 'Atualiza ITCUPOM 18% para 7%';
+ 
+
+ --- Passagem 2
+   -- Atualiza ITCUPOM R 18% para 12%
+  UPDATE itcupom SET aliqicms=12, tptribicms='T', status='M' WHERE aliqicms=18 AND tptribicms='R' AND status='A' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+
+
+END IF;
+  
+UPDATE itcupom SET status='A' WHERE status='M' AND idcupom IN 
+				(SELECT idcupom FROM cupom WHERE caixa = var_caixa AND codestabelec=var_loja AND dtmovto= var_dtinicial);
+
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+
+-- Executando FUNCTION por dia
+SELECT temp_troca_trib('2013-10-01', 5);
+SELECT temp_troca_trib('2013-10-01', 6);
+SELECT temp_troca_trib('2013-10-01', 7);
+
+SELECT temp_troca_trib('2013-10-02', 5);
+SELECT temp_troca_trib('2013-10-02', 6);
+SELECT temp_troca_trib('2013-10-02', 7);
+
+SELECT temp_troca_trib('2013-10-03', 5);
+SELECT temp_troca_trib('2013-10-03', 6);
+SELECT temp_troca_trib('2013-10-03', 7);
+
+SELECT temp_troca_trib('2013-10-04', 5);
+SELECT temp_troca_trib('2013-10-04', 6);
+SELECT temp_troca_trib('2013-10-04', 7);
+
+SELECT temp_troca_trib('2013-10-05', 5);
+SELECT temp_troca_trib('2013-10-05', 6);
+SELECT temp_troca_trib('2013-10-05', 7);
+
+SELECT temp_troca_trib('2013-10-06', 5);
+SELECT temp_troca_trib('2013-10-06', 6);
+SELECT temp_troca_trib('2013-10-06', 7);
+
+SELECT temp_troca_trib('2013-10-07', 5);
+SELECT temp_troca_trib('2013-10-07', 6);
+SELECT temp_troca_trib('2013-10-07', 7);
+
+SELECT temp_troca_trib('2013-10-08', 5);
+SELECT temp_troca_trib('2013-10-08', 6);
+SELECT temp_troca_trib('2013-10-08', 7);
+
+SELECT temp_troca_trib('2013-10-09', 5);
+SELECT temp_troca_trib('2013-10-09', 6);
+SELECT temp_troca_trib('2013-10-09', 7);
+
+SELECT temp_troca_trib('2013-10-10', 5);
+SELECT temp_troca_trib('2013-10-10', 6);
+SELECT temp_troca_trib('2013-10-10', 7);
+
+SELECT temp_troca_trib('2013-10-11', 5);
+SELECT temp_troca_trib('2013-10-11', 6);
+SELECT temp_troca_trib('2013-10-11', 7);
+
+SELECT temp_troca_trib('2013-10-12', 5);
+SELECT temp_troca_trib('2013-10-12', 6);
+SELECT temp_troca_trib('2013-10-12', 7);
+
+SELECT temp_troca_trib('2013-10-13', 5);
+SELECT temp_troca_trib('2013-10-13', 6);
+SELECT temp_troca_trib('2013-10-13', 7);
+
+SELECT temp_troca_trib('2013-10-14', 5);
+SELECT temp_troca_trib('2013-10-14', 6);
+SELECT temp_troca_trib('2013-10-14', 7);
+
+SELECT temp_troca_trib('2013-10-15', 5);
+SELECT temp_troca_trib('2013-10-15', 6);
+SELECT temp_troca_trib('2013-10-15', 7);
+
+SELECT temp_troca_trib('2013-10-16', 5);
+SELECT temp_troca_trib('2013-10-16', 6);
+SELECT temp_troca_trib('2013-10-16', 7);
+
+SELECT temp_troca_trib('2013-10-17', 5);
+SELECT temp_troca_trib('2013-10-17', 6);
+SELECT temp_troca_trib('2013-10-17', 7);
+
+SELECT temp_troca_trib('2013-10-18', 5);
+SELECT temp_troca_trib('2013-10-18', 6);
+SELECT temp_troca_trib('2013-10-18', 7);
+
+SELECT temp_troca_trib('2013-10-19', 5);
+SELECT temp_troca_trib('2013-10-19', 6);
+SELECT temp_troca_trib('2013-10-19', 7);
+
+SELECT temp_troca_trib('2013-10-20', 5);
+SELECT temp_troca_trib('2013-10-20', 6);
+SELECT temp_troca_trib('2013-10-20', 7);
+
+SELECT temp_troca_trib('2013-10-21', 5);
+SELECT temp_troca_trib('2013-10-21', 6);
+SELECT temp_troca_trib('2013-10-21', 7);
+
+SELECT temp_troca_trib('2013-10-22', 5);
+SELECT temp_troca_trib('2013-10-22', 6);
+SELECT temp_troca_trib('2013-10-22', 7);
+
+SELECT temp_troca_trib('2013-10-23', 5);
+SELECT temp_troca_trib('2013-10-23', 6);
+SELECT temp_troca_trib('2013-10-23', 7);
+
+SELECT temp_troca_trib('2013-10-24', 5);
+SELECT temp_troca_trib('2013-10-24', 6);
+SELECT temp_troca_trib('2013-10-24', 7);
+
+SELECT temp_troca_trib('2013-10-25', 5);
+SELECT temp_troca_trib('2013-10-25', 6);
+SELECT temp_troca_trib('2013-10-25', 7);
+
+SELECT temp_troca_trib('2013-10-26', 5);
+SELECT temp_troca_trib('2013-10-26', 6);
+SELECT temp_troca_trib('2013-10-26', 7);
+
+SELECT temp_troca_trib('2013-10-27', 5);
+SELECT temp_troca_trib('2013-10-27', 6);
+SELECT temp_troca_trib('2013-10-27', 7);
+
+SELECT temp_troca_trib('2013-10-28', 5);
+SELECT temp_troca_trib('2013-10-28', 6);
+SELECT temp_troca_trib('2013-10-28', 7);
+
+SELECT temp_troca_trib('2013-10-29', 5);
+SELECT temp_troca_trib('2013-10-29', 6);
+SELECT temp_troca_trib('2013-10-29', 7);
+
+SELECT temp_troca_trib('2013-10-30', 5);
+SELECT temp_troca_trib('2013-10-30', 6);
+SELECT temp_troca_trib('2013-10-30', 7);
+
+SELECT temp_troca_trib('2013-10-31', 5);
+SELECT temp_troca_trib('2013-10-31', 6);
+SELECT temp_troca_trib('2013-10-31', 7);
+

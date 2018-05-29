@@ -1,0 +1,21 @@
+-- Esta rotina nao limpa os cadastros.
+
+TRUNCATE cupom CASCADE;
+TRUNCATE PEDIDO CASCADE;
+TRUNCATE lancamento CASCADE;
+TRUNCATE lancamentogru CASCADE;
+TRUNCATE movimento CASCADE;
+TRUNCATE orcamento CASCADE;
+TRUNCATE logpreco CASCADE;
+TRUNCATE logpagina CASCADE;
+TRUNCATE loglogin CASCADE;
+TRUNCATE logetiqueta;
+TRUNCATE historico;
+TRUNCATE consvendadia;
+TRUNCATE consvendames;
+TRUNCATE consvendadiadep;
+TRUNCATE produtoestabsaldo;
+TRUNCATE cotacao CASCADE;
+TRUNCATE oferta CASCADE;
+TRUNCATE maparesumo CASCADE;
+TRUNCATE leitura_data;

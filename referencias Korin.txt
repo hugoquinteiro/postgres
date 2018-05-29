@@ -1,0 +1,15 @@
+INSERT INTO prodfornec(
+SELECT codproduto, 1 AS codfornec, codproduto AS reffornec, NEXTVAL ('temp1') AS codprodfornec FROM produto 
+WHERE codproduto IN ( SELECT codproduto FROM itnotafiscal INNER JOIN notafiscal USING (idnotafiscal) WHERE numnotafis=604 AND serie=9 AND notafiscal.codestabelec=1) 
+);
+
+SELECT max(codprodfornec) FROM prodfornec
+
+
+CREATE SEQUENCE temp1 START 291;
+SELECT codproduto, 59 AS codfornec, codproduto AS reffornec, NEXTVAL ('temp1') AS codprodfornec FROM produto 
+WHERE codproduto IN ( SELECT codproduto FROM itnotafiscal INNER JOIN notafiscal USING (idnotafiscal) WHERE numnotafis=604 AND serie=9 AND notafiscal.codestabelec=1) 
+DROP  SEQUENCE temp1 
+
+
+select numnotafis, serie, numeroitens, codestabelec from notafiscal where numeroitens >3 and operacao='CP'

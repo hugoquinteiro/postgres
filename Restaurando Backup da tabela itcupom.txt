@@ -1,0 +1,45 @@
+--Criando tabela de backup
+-- Executing query:
+CREATE TABLE itcupom_backup
+(
+  codproduto integer NOT NULL, -- Codigo do produto
+  quantidade numeric(15,4) NOT NULL DEFAULT 0, -- Qauntidade do produto
+  preco numeric(15,4) NOT NULL DEFAULT 0, -- Preco do produto
+  desconto numeric(12,4) NOT NULL DEFAULT 0, -- Desconto do produto
+  custorep numeric(12,2) NOT NULL DEFAULT 0.000,
+  valortotal numeric(15,4) NOT NULL DEFAULT 0,
+  acrescimo numeric(12,4) NOT NULL DEFAULT 0,
+  aliqicms numeric NOT NULL DEFAULT 0,
+  codmovimento integer,
+  idcupom integer NOT NULL,
+  tptribicms character(1),
+  aliqpis numeric(12,4) NOT NULL DEFAULT 0,
+  aliqcofins numeric(12,4) NOT NULL DEFAULT 0,
+  codprodutopai integer NOT NULL,
+  composicao character(1) NOT NULL DEFAULT 'N'::bpchar,
+  totalbasepis numeric(12,4) NOT NULL DEFAULT 0,
+  totalbasecofins numeric(12,4) NOT NULL DEFAULT 0,
+  totalpis numeric(12,4) NOT NULL DEFAULT 0,
+  totalcofins numeric(12,4) NOT NULL DEFAULT 0,
+  status character(1) NOT NULL DEFAULT 'A'::bpchar,
+  custosemimp numeric(12,4) DEFAULT 0.000,
+  custotab numeric(12,4) DEFAULT 0.000
+  
+);
+
+-- Restaurar backup da tabela itcupom
+
+
+--Atualizando tabela de itcupom
+ALTER TABLE itcupom DISABLE TRIGGER ALL;
+UPDATE itcupom AS it SET aliqicms=bkp.aliqicms, tptribicms=bkp.tptribicms FROM itcupom_backup AS bkp 
+WHERE (bkp.idcupom=it.idcupom AND bkp.codproduto=it.codproduto AND bkp.codprodutopai = it.codprodutopai);
+ALTER TABLE itcupom ENABLE TRIGGER ALL;
+
+
+--Clonando tabela itcupom com filtros necessarios, Nao executar este comando;
+INSERT INTO itcupom_backup 
+(codproduto,quantidade,preco,desconto,custorep,valortotal,acrescimo,aliqicms,codmovimento,idcupom,tptribicms,aliqpis,aliqcofins,codprodutopai,composicao,totalbasepis,totalbasecofins,totalpis,totalcofins,status,custosemimp,custotab)
+	(SELECT codproduto,quantidade,preco,desconto,custorep,valortotal,acrescimo,aliqicms,codmovimento,idcupom,tptribicms,aliqpis,aliqcofins,codprodutopai,composicao,
+		itcupom.totalbasepis,itcupom.totalbasecofins,itcupom.totalpis,itcupom.totalcofins,itcupom.status,custosemimp,custotab 
+	FROM itcupom INNER JOIN cupom USING (idcupom)  WHERE codestabelec=1 AND dtmovto BETWEEN '2013-11-01' AND '2013-11-30')

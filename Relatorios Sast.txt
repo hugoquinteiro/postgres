@@ -1,0 +1,17 @@
+SELECT * FROM cliente WHERE idcliente=2598
+SELECT * FROM clienteaplicativoservidor WHERE idcliente=2598
+SELECT * FROM clienteempresaparceiro WHERE idcliente=2598
+SELECT * FROM clienteunidade
+SELECT * FROM clienteunidadeservico
+SELECT * FROM empresa
+SELECT * FROM atendimento LIMIT 5
+
+
+SELECT cliente.idcliente, cliente.nome, MAX(dtatendimento) AS ultimoatendimento
+FROM cliente INNER JOIN clienteempresaparceiro  USING (idcliente)
+INNER JOIN empresa ON (clienteempresaparceiro.idempresa = empresa.idempresa)
+INNER JOIN clienteunidade ON (cliente.idcliente = clienteunidade.idcliente)
+LEFT JOIN atendimento ON (clienteunidade.idclienteunidade = atendimento.idclienteunidade)
+WHERE cliente.status='A' AND empresa.idempresa=12
+GROUP BY 1,2
+ORDER BY 2

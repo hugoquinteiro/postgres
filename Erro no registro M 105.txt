@@ -1,0 +1,30 @@
+--Este erro normalmente acontece quando ha itens com CST 50 sem credito de PIS/C com CFOP 
+que não deve ser gerados como credito
+-- Comnandos para verificar
+
+SELECT itnotafiscal.natoperacao, bonificado, piscofins.codcst,  SUM(itnotafiscal.totalbasepis) AS basepis, SUM(itnotafiscal.totalpis) AS pis
+ FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+INNER JOIN natoperacao ON ( notafiscal.natoperacao = natoperacao.natoperacao)
+WHERE itnotafiscal.dtentrega>='2015-06-01'
+AND itnotafiscal.dtentrega<='2015-06-30'
+AND natoperacao.geraspedpiscofins='S'
+GROUP BY 1,2,3
+ORDER BY 1
+
+SELECT codproduto, numnotafis
+ FROM notafiscal
+INNER JOIN itnotafiscal USING (idnotafiscal)
+INNER JOIN produto USING (codproduto)
+INNER JOIN piscofins ON (produto.codpiscofinsent=piscofins.codpiscofins)
+INNER JOIN natoperacao ON ( notafiscal.natoperacao = natoperacao.natoperacao)
+WHERE itnotafiscal.dtentrega>='2015-06-01'
+AND itnotafiscal.dtentrega<='2015-06-30'
+AND natoperacao.geraspedpiscofins='S'
+AND codcst='50'
+AND itnotafiscal.natoperacao='1.653'
+
+SELECT DISTINCT codproduto FROM itnotafiscal WHERE itnotafiscal.dtentrega>='2015-06-01'
+AND itnotafiscal.dtentrega<='2015-06-30' AND natoperacao='1.653'

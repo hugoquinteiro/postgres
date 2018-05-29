@@ -1,0 +1,46 @@
+INSERT INTO movimento(codestabelec, codproduto, tipo, dtmovto, quantidade, preco, status,  qtdeunidade, codunidade, codtpdocto, codmovimento, custorep)
+
+SELECT 1 AS codestabelec, produtoestab.codproduto, 'S' AS tipo , 
+
+      (SELECT MAX(produtoestabsaldo.data) FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto 
+	AND produtoestabsaldo.codestabelec=1
+	AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data<='2015-06-30') AS dtmovto,  
+      PRODUTOESTABSALDO.SALDO AS quantidade, 
+      produtoestab.precovrj,  'A' AS status,     1 AS qtdeunidade, 1 AS codunidade, 12 as codtpdocto,     (nextval('temp1')) AS codmovimento, produtoestab.custorep 
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  INNER JOIN produtoestabsaldo ON (produtoestab.codproduto = produtoestabsaldo.codproduto AND produtoestabsaldo.codestabelec=1)
+    WHERE  produto.coddepto=30  and produtoestab.codestabelec=1
+   AND produtoestabsaldo.saldo>0 
+   AND produtoestabsaldo.data=(SELECT MAX(produtoestabsaldo.data) 
+  FROM produtoestabsaldo WHERE produtoestabsaldo.codproduto=produtoestab.codproduto AND produtoestabsaldo.codestabelec=1
+								AND produtoestabsaldo.saldo>0 AND produtoestabsaldo.data<='2015-06-30')   
+ GROUP BY 1,2,3,5,6,7,8,9,11,12
+ORDER BY 2
+
+
+
+--Cria sequencia
+--SELECT MAX(codmovimento) FROM movimento limit 1
+--create sequence temp1 start 11456775;
+--drop sequence temp1;
+
+
+
+
+
+
+--Zerando departamento de periodo atual
+SELECT 1 AS codestabelec, produtoestab.codproduto, 'S' AS tipo, CURRENT_DATE AS dtmovto, produtoestab.sldatual AS quantidade, produtoestab.precovrj,  'A' AS status, 1 AS qtdeunidade, 1 AS codunidade, 
+	16 as codtpdocto,  --Colocar codigo do ajuste
+	(nextval('temp1')) AS codmovimento,  --Criar sequence para valor
+	produtoestab.custorep  
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  WHERE  produto.coddepto=7 AND produtoestab.codestabelec=1
+--AND produtoestab.codproduto=5000
+AND produtoestab.sldatual<0 
+
+
+SELECT count(codproduto) AS quantidade
+  FROM produtoestab INNER JOIN produto USING (codproduto) 
+  WHERE  produto.coddepto=7 AND produtoestab.codestabelec=1
+AND produtoestab.sldatual>0 

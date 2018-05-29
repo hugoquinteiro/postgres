@@ -1,0 +1,6 @@
+UPDATE LANCAMENTO SET FAVORECIDO=(SELECT  nome FROM cliente WHERE codcliente=999) WHERE tipoparceiro='C' AND codparceiro=999 AND codlancto=XXXX
+
+
+--Atualiza cliente ou Fornecedor
+UPDATE LANCAMENTO SET FAVORECIDO=(SELECT  nome/razaosocial FROM fornecedor WHERE codfornec=lancamento.codparceiro) WHERE tipoparceiro='F' AND dtemissao>='2017-01-01'
+UPDATE LANCAMENTO SET FAVORECIDO=(SELECT  nome/razaosocial FROM cliente WHERE codcliente=lancamento.codparceiro) WHERE tipoparceiro='C' AND dtemissao>='2017-01-01'

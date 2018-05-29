@@ -1,0 +1,32 @@
+Uso de Vários Discos
+
+Em sistemas com mais de um disco podemos melhorar a performance do mesmo distribuindo algumas tarefas entre discos diferentes.
+
+Supondo que temos dois HDs, hda e hdb:
+
+
+Movendo os logs de transação para outro disco:
+
+- Parar o PostgreSQL
+
+- Montar hdb em /mnt/hdb
+
+- Mover a pasta /usr/local/pgsql/data/pg_xlog para o /mnt/hdb
+mv /var/lib/pgsql/9.3/data/pg_xlog/ /home/pendrive/
+
+- Criar um link simbólico para o diretório original:
+ln -s  /home/pendrive/pg_xlog/ /var/lib/pgsql/9.3/data/pg_xlog/
+
+ln -d  /home/pendrive/pg_xlog/ 
+ln -d /var/lib/pgsql/9.3/data/pg_xlog/
+
+
+
+--Iniciar banco de dados e testar.
+
+- Banco - /usr/local/pgsql/data (no hda)
+
+- Logs - /usr/local/pgsql/data/pg_xlog (link simbólico para /mnt/hdb/pg_xlog).
+
+
+Os logs de transação são os únicos registros que não podem ter o seu salvamento em disco adiado sem comprometer a segurança do sistema.

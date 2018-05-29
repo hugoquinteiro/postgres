@@ -1,0 +1,11 @@
+--Verifica Itens
+SELECT codproduto FROM produtoestabsaldo WHERE codproduto IN (
+	SELECT codproduto FROM produtoestabsaldo WHERE codestabelec=1 GROUP BY 1 HAVING COUNT(codproduto)=1 ORDER BY 1
+) AND codestabelec=1 AND custosemimp=0
+
+
+--Atualiza
+UPDATE produtoestabsaldo SET custosemimp=(SELECT custosemimp FROM produtoestab WHERE codproduto=produtoestabsaldo.codproduto AND codestabelec=1)
+WHERE produtoestabsaldo.codproduto IN (
+	SELECT codproduto FROM produtoestabsaldo WHERE codestabelec=1 GROUP BY 1 HAVING COUNT(codproduto)=1 ORDER BY 1
+) AND codestabelec=1 AND custosemimp=0
